@@ -12,37 +12,38 @@
 <style>
 :root{
   color-scheme:dark;
-  --txt:#f0fbff; --dim:rgba(224,246,255,.62);
-  --glass:rgba(255,255,255,.10); --glass2:rgba(255,255,255,.16); --glass3:rgba(255,255,255,.07);
-  --stroke:rgba(255,255,255,.22); --stroke2:rgba(255,255,255,.38);
-  --cyan:#3ee6ff; --teal:#2dd4bf; --blue:#4facfe;
-  --red:#ff5d7a; --ok:#41e696; --yellow:#ffd166;
-  --ink:#f0fbff; --line:rgba(255,255,255,.22); --tile:#ffffff; --tile2:rgba(255,255,255,.14);
-  --muted:rgba(224,246,255,.62); --danger:#ff5d7a; --felt:#04263f; --felt2:#075166;
-  --grad:linear-gradient(135deg,#3ee6ff 0%,#26a9ff 55%,#1f7cf0 100%);
-  --grad-teal:linear-gradient(135deg,#2dd4bf,#0ea5e9);
-  --shadow:0 10px 30px rgba(2,20,35,.45);
-  --blur:blur(22px) saturate(1.7);
+  --txt:#e9f3f6; --dim:rgba(220,238,244,.58);
+  --glass:rgba(255,255,255,.07); --glass2:rgba(255,255,255,.11); --glass3:rgba(255,255,255,.05);
+  --stroke:rgba(255,255,255,.16); --stroke2:rgba(255,255,255,.28);
+  --cyan:#7fd0dd; --teal:#6cc7b5; --blue:#6da8d8;
+  --red:#e88a9b; --ok:#82c9a4; --yellow:#e3c88a;
+  --ink:#e9f3f6; --line:rgba(255,255,255,.16); --tile:#f4f1ea; --tile2:rgba(255,255,255,.10);
+  --muted:rgba(220,238,244,.58); --danger:#e88a9b; --felt:#0c2530; --felt2:#14404c;
+  --grad:linear-gradient(135deg,#79c7d4 0%,#5aa3c9 60%,#4f86bd 100%);
+  --grad-teal:linear-gradient(135deg,#6cc7b5,#4f9ec4);
+  --shadow:0 8px 24px rgba(4,18,26,.35);
+  --blur:blur(20px) saturate(1.35);
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
 html,body{margin:0;padding:0;}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Arial,sans-serif;
-  background:linear-gradient(165deg,#03223a 0%,#075166 48%,#043050 100%) fixed;
+  background:linear-gradient(168deg,#0b2029 0%,#123844 52%,#0d2a36 100%) fixed;
   min-height:100vh; color:var(--txt);
   padding-bottom:calc(40px + env(safe-area-inset-bottom));
+  line-height:1.45;
 }
 body::before,body::after{
   content:""; position:fixed; z-index:-1; border-radius:50%; pointer-events:none;
 }
 body::before{
   width:64vmax; height:64vmax; left:-18vmax; top:-24vmax;
-  background:radial-gradient(circle,rgba(62,230,255,.25),transparent 62%);
+  background:radial-gradient(circle,rgba(110,190,205,.10),transparent 62%);
   filter:blur(30px);
 }
 body::after{
   width:56vmax; height:56vmax; right:-16vmax; bottom:-20vmax;
-  background:radial-gradient(circle,rgba(45,212,191,.22),transparent 62%);
+  background:radial-gradient(circle,rgba(108,199,181,.09),transparent 62%);
   filter:blur(30px);
 }
 header{ text-align:center; padding:calc(16px + env(safe-area-inset-top)) 10px 6px; }
@@ -50,7 +51,6 @@ header h1{
   margin:0; font-size:24px; letter-spacing:2.5px; font-weight:800;
   background:var(--grad); -webkit-background-clip:text; background-clip:text;
   -webkit-text-fill-color:transparent; color:transparent;
-  filter:drop-shadow(0 2px 10px rgba(62,230,255,.35));
 }
 header .sub{font-size:11px; color:var(--dim); letter-spacing:4px; text-transform:uppercase;}
 main{max-width:520px; margin:0 auto; padding:8px 14px;}
@@ -75,11 +75,11 @@ main{max-width:520px; margin:0 auto; padding:8px 14px;}
 }
 .btn:active{transform:scale(.97);}
 .btn-primary{
-  background:var(--grad); color:#032533; border:none;
-  box-shadow:0 10px 26px rgba(38,169,255,.45), inset 0 1px 0 rgba(255,255,255,.5);
+  background:var(--grad); color:#0a2530; border:none;
+  box-shadow:0 6px 18px rgba(80,150,190,.28), inset 0 1px 0 rgba(255,255,255,.35);
 }
 .btn-tile{background:var(--glass2); border-color:var(--stroke);}
-.btn-green{background:var(--grad-teal); color:#022b26; border:none; box-shadow:0 10px 24px rgba(45,212,191,.4), inset 0 1px 0 rgba(255,255,255,.45);}
+.btn-green{background:var(--grad-teal); color:#0a2822; border:none; box-shadow:0 6px 16px rgba(90,170,160,.25), inset 0 1px 0 rgba(255,255,255,.3);}
 .btn-outline{background:rgba(255,255,255,.06); border:1px solid var(--stroke); box-shadow:none;}
 .btn-danger{background:rgba(255,93,122,.2); color:#ffb9c7; border:1px solid rgba(255,93,122,.5); box-shadow:none;}
 .btn-sm{padding:10px 14px; font-size:14px; width:auto; display:inline-block; margin:4px 4px 4px 0;}
@@ -95,8 +95,8 @@ main{max-width:520px; margin:0 auto; padding:8px 14px;}
   transition:all .12s ease;
 }
 .chip.sel{
-  border-color:var(--cyan); background:rgba(62,230,255,.18); color:#fff;
-  box-shadow:0 0 0 1px var(--cyan), 0 0 18px rgba(62,230,255,.4);
+  border-color:var(--cyan); background:rgba(127,208,221,.16); color:#fff;
+  box-shadow:0 0 0 1px var(--cyan);
 }
 .chip.small{padding:7px 13px; font-size:13px;}
 
@@ -108,7 +108,7 @@ input[type=text],input[type=number],select{
   backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur);
 }
 input::placeholder{color:rgba(224,246,255,.4);}
-input:focus,select:focus,textarea:focus{outline:none; border-color:var(--cyan); box-shadow:0 0 0 1px var(--cyan), 0 0 14px rgba(62,230,255,.25);}
+input:focus,select:focus,textarea:focus{outline:none; border-color:var(--cyan); box-shadow:0 0 0 1px var(--cyan);}
 select option{background:#0a3a55; color:#fff;}
 input[type=number]{max-width:120px;}
 .checkline{display:flex; align-items:center; gap:9px; margin:9px 0; font-size:14px; color:var(--txt); font-weight:600;}
@@ -138,7 +138,7 @@ input[type=number]{max-width:120px;}
 .total-card .tscore{font-size:32px; font-weight:900; margin-top:2px; font-variant-numeric:tabular-nums; letter-spacing:-.5px;}
 .total-card.leader{
   border-color:var(--cyan);
-  box-shadow:0 0 0 1.5px var(--cyan), 0 0 26px rgba(62,230,255,.45), inset 0 1px 0 rgba(255,255,255,.3);
+  box-shadow:0 0 0 1.5px var(--cyan), 0 0 14px rgba(127,208,221,.22), inset 0 1px 0 rgba(255,255,255,.2);
 }
 .total-card.leader .tscore{
   background:var(--grad); -webkit-background-clip:text; background-clip:text;
@@ -152,10 +152,10 @@ input[type=number]{max-width:120px;}
 table.yazboz{width:100%; border-collapse:collapse; background:transparent; color:var(--txt); font-size:13px; min-width:300px;}
 table.yazboz th, table.yazboz td{padding:8px 6px; text-align:center; border-bottom:1px solid rgba(255,255,255,.12);}
 table.yazboz th{background:rgba(255,255,255,.12); font-size:12px; letter-spacing:.3px;}
-table.yazboz td .d{font-weight:800; color:#ff9fb2; font-variant-numeric:tabular-nums;}
+table.yazboz td .d{font-weight:800; color:#eaa9b6; font-variant-numeric:tabular-nums;}
 table.yazboz td .c{font-size:11px; color:var(--dim); font-variant-numeric:tabular-nums;}
 table.yazboz td .neg{color:var(--ok);}
-table.yazboz tr.totrow td{font-weight:900; background:rgba(62,230,255,.16); font-size:14px; color:#fff; border-bottom:none;}
+table.yazboz tr.totrow td{font-weight:900; background:rgba(127,208,221,.13); font-size:14px; color:#fff; border-bottom:none;}
 
 /* events log */
 .evlist{font-size:13px; color:var(--txt);}
@@ -185,7 +185,7 @@ table.yazboz tr.totrow td{font-weight:900; background:rgba(62,230,255,.16); font
 .olay-row .rm{float:right; color:var(--red); font-weight:800; cursor:pointer; padding:0 6px;}
 .preview{background:rgba(45,212,191,.12); border:1px solid rgba(45,212,191,.35); border-radius:14px; padding:12px; font-size:14px; margin-top:12px;}
 .preview b.neg{color:var(--ok);}
-.preview b.pos{color:#ff9fb2;}
+.preview b.pos{color:#eaa9b6;}
 .hint{font-size:12px; color:var(--dim); margin:4px 0;}
 .err{color:#ff9fb2; font-size:13px; font-weight:700; margin:6px 0; display:none;}
 
@@ -245,7 +245,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div class="mini-tile t-yellow"><span>☺</span></div>
   </div>
   <h1>YAZBOZ</h1>
-  <div class="sub">masa oyunları · v2.6</div>
+  <div class="sub">masa oyunları · v2.7</div>
 </header>
 <main>
 
@@ -312,8 +312,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   </div>
   <div class="row">
     <button class="btn btn-tile btn-sm" onclick="shareText()">📤 Paylaş</button>
-    <button class="btn btn-tile btn-sm" onclick="openQR()">🔳 QR</button>
-    <button class="btn btn-tile btn-sm" id="btn-live" onclick="toggleLive()">📡 Canlı Oda</button>
+    <button class="btn btn-tile btn-sm" id="btn-live" onclick="toggleLive()">🔳 QR — Canlı İzleme</button>
   </div>
   <div id="live-info" class="hint center" style="color:var(--cyan); display:none"></div>
   <div class="card">
@@ -785,7 +784,7 @@ function renderGame(){
   const ev = document.getElementById('ev-log');
   ev.innerHTML = G.events.length ? G.events.map(e=>`<div>${e}</div>`).join('') : '<span class="hint">Henüz olay yok.</span>';
   document.getElementById('btn-el').style.display = G.hands.length>=G.elSayisi ? 'none':'block';
-  document.getElementById('btn-live').textContent = G.room ? '📡 Oda Açık' : '📡 Canlı Oda';
+  document.getElementById('btn-live').textContent = G.room ? '🔳 QR — Oda Açık' : '🔳 QR — Canlı İzleme';
   const li = document.getElementById('live-info');
   if(G.room){ li.style.display='block'; li.textContent = 'Canlı oda açık — QR butonundan kodu paylaş.'; if(!heartbeatT) startHeartbeat(); }
   else li.style.display='none';
@@ -1168,8 +1167,17 @@ function flatPending(){
 }
 let syncBusy = false;
 async function cloudSync(silent){
-  const id = cloudId();
-  if(!id || syncBusy) return;
+  if(syncBusy) return;
+  let id = cloudId();
+  // güvenlik ağı: Supabase hazırsa ve bekleyen sonuç varsa masayı otomatik kur (veri asla yalnız telefonda kalmasın)
+  if(!id && sbReady() && store.get('yb_pending', []).length){
+    try{
+      const c = randCode(), s = randCode()+randCode();
+      const ok = await sbRpc('yb_masa_push', {p_code:c, p_secret:s, p_players:getReg(), p_oyun:null});
+      if(ok===true){ id = 'S-'+c+'-'+s; store.set('yb_cloud', id); renderCloud && renderCloud(); }
+    }catch(e){}
+  }
+  if(!id) return;
   syncBusy = true;
   setCloudStatus('☁️ Eşitleniyor…');
   try{
@@ -1596,11 +1604,11 @@ function startHeartbeat(){
 }
 async function toggleLive(){
   if(!G) return;
-  if(G.room){ openQR(); return; }
+  if(G.room){ showRoomQR(G.room); return; }
   try{
     G.room = await NET.createRoom(liveSnapshot());
     startHeartbeat();
-    saveGame(); renderGame(); openQR();
+    saveGame(); renderGame(); showRoomQR(G.room);
   }catch(e){
     alert('Canlı oda şu an açılamadı — skor servisi yanıt vermedi (detay: '+(e&&e.message||e)+'). Skoru "Paylaş" butonuyla gönderebilirsin, birazdan tekrar denemek de mümkün.');
   }
@@ -1882,8 +1890,10 @@ function showRoomQR(room){
   const pub = NET.publicCode(room);
   const link = appUrl()+'?izle='+pub+viewerCfgParams();
   document.getElementById('qr-title').textContent = '🔳 Canlı Oda';
-  document.getElementById('qr-hint').textContent = 'QR\'ı okutan doğrudan canlı skoru açar. Alternatif: kodu "İzleyici Olarak Katıl" ekranına girebilirler.';
-  document.getElementById('qr-code-text').textContent = pub+'\n'+link;
+  document.getElementById('qr-hint').textContent = 'QR\'ı okutan doğrudan canlı skoru açar. Olmazsa: linki kopyala, WhatsApp\'tan gönder — tıklayan direkt izler.';
+  document.getElementById('qr-code-text').innerHTML =
+    `Oda: <b>${pub}</b><br><a href="${link}" style="color:var(--cyan);word-break:break-all">${link}</a><br>
+     <button class="btn btn-tile btn-sm" style="margin-top:8px" onclick="navigator.clipboard&&navigator.clipboard.writeText('${link}');this.textContent='Kopyalandı ✔'">📋 Linki Kopyala</button>`;
   const box = document.getElementById('qrbox');
   box.innerHTML='';
   withQRLib(ok=>{
