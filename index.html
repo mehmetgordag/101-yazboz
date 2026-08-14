@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#04263f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%23073a52'/%3E%3Crect x='10' y='8' width='44' height='48' rx='7' fill='%23f7f1e3'/%3E%3Ctext x='32' y='34' font-family='Arial,sans-serif' font-weight='bold' font-size='17' fill='%23c0392b' text-anchor='middle'%3E101%3C/text%3E%3Ccircle cx='32' cy='45' r='4' fill='%23c0392b'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" sizes="512x512" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
 <title>101 Okey Yazboz</title>
 <style>
 :root{
@@ -234,7 +237,7 @@ textarea{width:100%; min-height:90px; border-radius:14px; border:1px solid var(-
     <div class="mini-tile t-yellow"><span>☺</span></div>
   </div>
   <h1>101 OKEY YAZBOZ</h1>
-  <div class="sub">puan defteri · v1.9</div>
+  <div class="sub">puan defteri · v2.0</div>
 </header>
 <main>
 
@@ -463,8 +466,15 @@ const DEF_SET = {
    otomatik bağlanır (Ayarlar'a bir şey girmeye gerek kalmaz). Anon anahtar halka açıktır. */
 const YB_DEFAULTS = {
   sbUrl:'https://ksttzgpposhdsxnqmfph.supabase.co',
-  sbKey:'sb_publishable_4WJKvKbreXwlOcj5OiGfIA_fKShjHOY'
+  sbKey:'sb_publishable_4WJKvKbreXwlOcj5OiGfIA_fKShjHOY',
+  siteUrl:'https://mehmetgordag.github.io/101-yazboz/'
 };
+/* Uygulamanın herkese açık adresi: sayfa nereden açılmış olursa olsun (dosya, önbellek, webview)
+   paylaşım linkleri her zaman bu adresi kullanır */
+function appUrl(){
+  if(location.protocol.startsWith('http')) return location.origin + location.pathname;
+  return YB_DEFAULTS.siteUrl;
+}
 let SET = Object.assign({}, DEF_SET, store.get('yb_set', {}));
 if(!SET.sbUrl && YB_DEFAULTS.sbUrl) SET.sbUrl = YB_DEFAULTS.sbUrl;
 if(!SET.sbKey && YB_DEFAULTS.sbKey) SET.sbKey = YB_DEFAULTS.sbKey;
@@ -1305,9 +1315,7 @@ function shareText(){
   let liveLine = '';
   if(G.room){
     const pub = NET.publicCode(G.room);
-    liveLine = location.protocol.startsWith('http')
-      ? `\n📡 Canlı skor için tıkla:\n${location.origin+location.pathname}?izle=${pub}${viewerCfgParams()}`
-      : `\n📡 Canlı izleme kodu:\n${pub}`;
+    liveLine = `\n📡 Canlı skor için tıkla:\n${appUrl()}?izle=${pub}${viewerCfgParams()}`;
   }
   const t = snapshotText() + liveLine;
   if(navigator.share) navigator.share({text:t}).catch(()=>{});
@@ -1338,9 +1346,9 @@ function openQR(){
   // QR içeriği: emoji vb. özel karakterler QR kütüphanesini bozduğu için temizlenir
   const pubRoom = G.room ? NET.publicCode(G.room) : null;
   // site yayındaysa QR gerçek bir link taşır: okutan direkt canlı skora düşer
-  const roomLink = (pubRoom && location.protocol.startsWith('http'))
-    ? location.origin + location.pathname + '?izle=' + pubRoom + viewerCfgParams()
-    : pubRoom;
+  const roomLink = pubRoom
+    ? appUrl() + '?izle=' + pubRoom + viewerCfgParams()
+    : null;
   const content = roomLink || snapshotText().replace(/[^\x20-\x7EğüşöçıİĞÜŞÖÇ\n:.,&()\/-]/g,'').trim();
   document.getElementById('qr-title').textContent = G.room ? '🔳 Canlı Oda Kodu' : '🔳 Anlık Skor';
   document.getElementById('qr-hint').textContent = G.room
