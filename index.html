@@ -224,6 +224,10 @@ table.yazboz tr.totrow td{font-weight:900; background:rgba(62,230,255,.16); font
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.55;}}
 textarea{width:100%; min-height:90px; border-radius:14px; border:1px solid var(--stroke); font-size:12px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; padding:10px; background:rgba(255,255,255,.08); color:var(--txt);}
 .confetti{font-size:40px; text-align:center; margin:6px 0;}
+/* defter tablosu girişleri */
+input.dfin{width:56px; min-width:56px; padding:8px 4px; text-align:center; font-size:15px; border-radius:9px; max-width:none;}
+input.dfm{width:58px; min-width:58px; padding:8px 4px; text-align:center; font-size:12px; border-radius:9px;}
+table.yazboz td.dcell{padding:4px 3px;}
 ::-webkit-scrollbar{height:5px; width:5px;}
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25); border-radius:99px;}
 </style>
@@ -237,14 +241,16 @@ textarea{width:100%; min-height:90px; border-radius:14px; border:1px solid var(-
     <div class="mini-tile t-yellow"><span>☺</span></div>
   </div>
   <h1>101 OKEY YAZBOZ</h1>
-  <div class="sub">puan defteri · v2.0</div>
+  <div class="sub">puan defteri · v2.1</div>
 </header>
 <main>
 
 <!-- ANA SAYFA -->
 <section id="scr-home" class="screen">
   <button class="btn btn-primary" onclick="goSetup()">🎲 Yeni Oyun</button>
-  <button class="btn btn-green" id="btn-devam" style="display:none" onclick="resumeGame()">▶️ Devam Eden Oyun</button>
+  <button class="btn btn-green" id="btn-devam" style="display:none" onclick="resumeGame()">▶️ Devam Eden 101 Oyunu</button>
+  <button class="btn btn-green" id="btn-devam-defter" style="display:none" onclick="resumeDefter()">▶️ Devam Eden Defter</button>
+  <button class="btn btn-tile" onclick="goDefterSetup()">🃏 Diğer Oyunlar — Defter</button>
   <button class="btn btn-tile" onclick="show('scr-viewer')">📡 İzleyici Olarak Katıl</button>
   <button class="btn btn-tile" onclick="renderStats();show('scr-stats')">🏆 İstatistikler</button>
   <button class="btn btn-outline" onclick="renderSettings();show('scr-settings')">⚙️ Kurallar & Ayarlar</button>
@@ -316,6 +322,54 @@ textarea{width:100%; min-height:90px; border-radius:14px; border:1px solid var(-
     <div class="evlist" id="ev-log"><span class="hint">Henüz olay yok.</span></div>
   </div>
   <button class="btn btn-danger btn-sm" onclick="abortGame()">Oyunu İptal Et</button>
+</section>
+
+<!-- DEFTER KURULUM -->
+<section id="scr-defter-setup" class="screen">
+  <button class="back" onclick="show('scr-home')">← Geri</button>
+  <div class="card">
+    <h3>🃏 Oyun Seç</h3>
+    <div class="chips" id="dg-chips"></div>
+    <p class="hint" id="dg-note"></p>
+    <div class="checkline" id="dg-esli-wrap" style="display:none">
+      <input type="checkbox" id="dg-esli" onchange="DSU.esli=this.checked;renderDefterSetup()">
+      <label for="dg-esli">Eşli (2'ye 2 — koltuk 1-2 birinci takım)</label>
+    </div>
+    <label class="fld" style="color:var(--txt)">El sayısı</label>
+    <input type="number" id="dg-els" min="1" max="30" onchange="DSU.els=Math.max(1,Math.min(30,Number(this.value)||10))">
+  </div>
+  <div class="card">
+    <h3>Oyuncular <span class="hint" id="dg-pcount" style="display:inline"></span></h3>
+    <div class="row">
+      <input type="text" id="dg-new-name" placeholder="Yeni isim ekle" style="flex:1" onkeydown="if(event.key==='Enter')dAddName()">
+      <button class="btn btn-tile btn-sm" style="flex:none;margin-top:0" onclick="dAddName()">＋ Ekle</button>
+    </div>
+    <div class="chips" id="dg-pool"></div>
+    <label class="fld" style="color:var(--txt)">Masadakiler (çıkarmak için dokun)</label>
+    <div class="chips" id="dg-sel"></div>
+  </div>
+  <div class="err" id="dg-err"></div>
+  <button class="btn btn-primary" onclick="startDefter()">Defteri Aç ✍️</button>
+</section>
+
+<!-- DEFTER OYUN -->
+<section id="scr-defter" class="screen">
+  <div class="row" style="align-items:center">
+    <button class="back" style="flex:none" onclick="show('scr-home')">← Ana Sayfa</button>
+    <div style="flex:1; text-align:right; font-weight:800" id="d-title"></div>
+  </div>
+  <div class="totals" id="d-totals"></div>
+  <p class="hint" id="d-note"></p>
+  <div class="card">
+    <h3>Yazboz <span class="hint" style="display:inline">— kutulara puanları yaz, toplamlar kendiliğinden</span></h3>
+    <div class="yazboz-wrap"><table class="yazboz" id="d-table"></table></div>
+  </div>
+  <div class="row">
+    <button class="btn btn-tile btn-sm" onclick="dShare()">📤 Paylaş</button>
+    <button class="btn btn-tile btn-sm" id="d-btn-live" onclick="toggleLiveD()">📡 Canlı Oda</button>
+  </div>
+  <button class="btn btn-primary" onclick="bitirDefter()">🏁 Oyunu Bitir — Kazananı Yaz</button>
+  <button class="btn btn-danger btn-sm" onclick="abortDefter()">Defteri İptal Et</button>
 </section>
 
 <!-- İSTATİSTİK -->
@@ -606,12 +660,15 @@ function removePlayer(n){
 function addPoolName(){
   const inp = document.getElementById('new-name');
   const v = (inp.value||'').trim();
-  if(!v) return;
-  const all = [...SU.pool, ...SU.seats.filter(Boolean)];
-  if(all.some(n=>n.toLowerCase()===v.toLowerCase())){ inp.value=''; return; }
-  const e = SU.seats.indexOf(null);
-  if(e>=0) SU.seats[e]=v; else SU.pool.push(v);
   inp.value='';
+  if(!v) return;
+  // aynı isim havuzdaysa onu koltuğa al; koltuktaysa dokunma
+  const inPool = SU.pool.find(n=>n.toLowerCase()===v.toLowerCase());
+  if(SU.seats.some(n=>n && n.toLowerCase()===v.toLowerCase())){ renderSU(); return; }
+  const name = inPool || v;
+  if(inPool) SU.pool = SU.pool.filter(n=>n!==inPool);
+  const e = SU.seats.indexOf(null);
+  if(e>=0) SU.seats[e]=name; else if(!SU.pool.includes(name)) SU.pool.push(name);
   renderSU();
 }
 function seatName(n){
@@ -1084,7 +1141,7 @@ function endGame(){
 }
 function finishAndHome(){
   closeModal('modal-final');
-  stopLivePush(); store.del('yb_active'); G=null;
+  if(G && G.done){ stopLivePush(); store.del('yb_active'); G=null; }
   boot(); renderStats(); show('scr-stats');
 }
 
@@ -1584,9 +1641,9 @@ function joinRoom(){
 }
 function renderViewer(d){
   const totals = d.cols.map((_,i)=>d.hands.reduce((s,h)=>s+h[i],0));
-  const min = Math.min(...totals);
+  const best = (d.dir==='high' ? Math.max : Math.min)(...totals);
   document.getElementById('v-totals').innerHTML = d.cols.map((c,i)=>
-    `<div class="total-card ${totals[i]===min && d.hands.length?'leader':''}"><div class="tname">${c}</div><div class="tscore">${totals[i]}</div></div>`).join('');
+    `<div class="total-card ${totals[i]===best && d.hands.length?'leader':''}"><div class="tname">${c}</div><div class="tscore">${totals[i]}</div></div>`).join('');
   let h = '<tr><th>El</th>'+d.cols.map(c=>`<th>${c}</th>`).join('')+'</tr>';
   const run = d.cols.map(()=>0);
   d.hands.forEach((hd,hi)=>{
@@ -1595,7 +1652,7 @@ function renderViewer(d){
   h += '<tr class="totrow"><td>Σ</td>'+totals.map(t=>`<td>${t}</td>`).join('')+'</tr>';
   document.getElementById('v-yazboz').innerHTML = h;
   document.getElementById('viewer-updated').textContent =
-    `El ${d.el}/${d.elSayisi}` + (d.done?' — Oyun bitti 🏁':'');
+    (d.game ? d.game+' — ' : '') + `El ${d.el}/${d.elSayisi}` + (d.done?' — Oyun bitti 🏁':'');
 }
 function stopViewer(){
   clearInterval(viewerTimer); viewerTimer=null;
@@ -1603,10 +1660,230 @@ function stopViewer(){
   document.getElementById('viewer-board').style.display='none';
 }
 
+/* ================= DEFTER MODU (diğer oyunlar) ================= */
+const DEF_GAMES = {
+  amerikano: {name:'AMERİKANO (KÜT)', minP:2, maxP:5, els:16, dir:'low', esli:false, meta:[],
+    note:'Ceza: Joker 25 • As 11 • Figür 10 — düşük puan kazanır. 16. satır Final.'},
+  normalokey:{name:'NORMAL OKEY', minP:4, maxP:4, els:10, dir:'low', esli:false, meta:[],
+    note:'Düşük puan kazanır. Çifte/okey bitişleri puana yansıtın.'},
+  batakihale:{name:'BATAK — İHALE', minP:4, maxP:4, els:10, dir:'high', esli:true, meta:['İhale','Koz'],
+    note:'Yüksek puan kazanır. İhaleyi alamayan eksi yazar.'},
+  batakkoz:  {name:'BATAK — KOZ MACAYA', minP:4, maxP:4, els:10, dir:'high', esli:true, meta:['Koz'],
+    note:'Yüksek puan kazanır.'},
+  batak3:    {name:'BATAK — 3 KİŞİ', minP:3, maxP:3, els:10, dir:'high', esli:false, meta:['İhale','Koz'],
+    note:'Yüksek puan kazanır.'},
+  pisti:     {name:'PİŞTİ', minP:2, maxP:4, els:12, dir:'high', esli:false, meta:[],
+    note:'Pişti 10 • As 1 • Karo 10 3 • En çok kâğıt 3 — yüksek puan kazanır.'}
+};
+let D = null;
+let DSU = {game:'batakihale', esli:false, els:10, sel:[], pool:[]};
+
+function goDefterSetup(){
+  const reg = getReg();
+  DSU.pool = Object.keys(reg).sort((a,b)=>reg[b].oyun-reg[a].oyun).slice(0,30);
+  DSU.sel = []; DSU.esli = false;
+  DSU.els = DEF_GAMES[DSU.game].els;
+  renderDefterSetup();
+  show('scr-defter-setup');
+}
+function pickDGame(g){
+  DSU.game = g; DSU.els = DEF_GAMES[g].els;
+  if(!DEF_GAMES[g].esli) DSU.esli = false;
+  renderDefterSetup();
+}
+function dAddName(){
+  const inp = document.getElementById('dg-new-name');
+  const v = (inp.value||'').trim(); inp.value='';
+  if(!v) return;
+  if(DSU.sel.some(n=>n.toLowerCase()===v.toLowerCase())) return;
+  const inPool = DSU.pool.find(n=>n.toLowerCase()===v.toLowerCase());
+  const g = DEF_GAMES[DSU.game];
+  if(DSU.sel.length >= g.maxP) return;
+  if(inPool) DSU.pool = DSU.pool.filter(n=>n!==inPool);
+  DSU.sel.push(inPool || v);
+  renderDefterSetup();
+}
+function dPick(n){
+  const g = DEF_GAMES[DSU.game];
+  if(DSU.sel.length >= g.maxP) return;
+  DSU.sel.push(n); DSU.pool = DSU.pool.filter(x=>x!==n);
+  renderDefterSetup();
+}
+function dUnpick(n){
+  DSU.sel = DSU.sel.filter(x=>x!==n);
+  if(!DSU.pool.includes(n)) DSU.pool.unshift(n);
+  renderDefterSetup();
+}
+function renderDefterSetup(){
+  const g = DEF_GAMES[DSU.game];
+  document.getElementById('dg-chips').innerHTML = Object.entries(DEF_GAMES).map(([k,v])=>
+    `<div class="chip small ${k===DSU.game?'sel':''}" onclick="pickDGame('${k}')">${v.name}</div>`).join('');
+  document.getElementById('dg-note').textContent = g.note;
+  document.getElementById('dg-esli-wrap').style.display = g.esli ? 'flex' : 'none';
+  document.getElementById('dg-esli').checked = DSU.esli;
+  document.getElementById('dg-els').value = DSU.els;
+  document.getElementById('dg-pcount').textContent = g.minP===g.maxP ? `(${g.maxP} kişi)` : `(${g.minP}–${g.maxP} kişi)`;
+  document.getElementById('dg-pool').innerHTML = DSU.pool.length
+    ? DSU.pool.map(n=>`<div class="chip small" onclick="dPick('${escq(n)}')">${n}</div>`).join('')
+    : '<span class="hint">Havuz boş — yukarıdan isim ekle.</span>';
+  document.getElementById('dg-sel').innerHTML = DSU.sel.length
+    ? DSU.sel.map(n=>`<div class="chip small sel" onclick="dUnpick('${escq(n)}')">${n} ✕</div>`).join('')
+    : '<span class="hint">Havuzdan isimlere dokunarak masaya al.</span>';
+}
+function startDefter(){
+  const g = DEF_GAMES[DSU.game];
+  const err = document.getElementById('dg-err'); err.style.display='none';
+  DSU.els = Math.max(1, Math.min(30, Number(document.getElementById('dg-els').value)||g.els));
+  if(DSU.sel.length < g.minP || DSU.sel.length > g.maxP){
+    err.textContent = `Bu oyun için ${g.minP===g.maxP? g.maxP : g.minP+'–'+g.maxP} oyuncu gerekli.`;
+    err.style.display='block'; return;
+  }
+  if(DSU.esli && DSU.sel.length!==4){ err.textContent='Eşli için 4 oyuncu gerekli.'; err.style.display='block'; return; }
+  const names = [...DSU.sel];
+  const cols = DSU.esli
+    ? [{name:`${names[0]} & ${names[1]}`, members:[0,1]}, {name:`${names[2]} & ${names[3]}`, members:[2,3]}]
+    : names.map((n,i)=>({name:n, members:[i]}));
+  D = { game:DSU.game, gname:g.name, dir:g.dir, els:DSU.els, meta:g.meta, note:g.note,
+        names, cols, rows: Array.from({length:DSU.els}, ()=>({m:g.meta.map(()=>''), v:cols.map(()=>null)})),
+        room:null, done:false, startedAt:new Date().toISOString() };
+  const reg = getReg(); names.forEach(n=>ensurePlayer(reg,n)); setReg(reg);
+  saveD(); renderDefter(); show('scr-defter');
+}
+function saveD(){ store.set('yb_defter_active', D); }
+function resumeDefter(){ D = store.get('yb_defter_active', null); if(D){ renderDefter(); show('scr-defter'); } }
+function abortDefter(){
+  if(!confirm('Defter iptal edilsin mi? Puanlar istatistiklere yazılmaz.')) return;
+  clearInterval(dHeartT); dHeartT=null;
+  store.del('yb_defter_active'); D=null; boot(); show('scr-home');
+}
+function dTotals(){
+  return D.cols.map((c,ci)=> D.rows.reduce((s,r)=> s + (r.v[ci]||0), 0));
+}
+function dSet(r, ci, val){
+  D.rows[r].v[ci] = val==='' ? null : (Number(val)||0);
+  saveD(); dUpdateTotals(); dPushLive();
+}
+function dMeta(r, mi, val){
+  D.rows[r].m[mi] = val;
+  saveD(); dPushLive();
+}
+function dUpdateTotals(){
+  const t = dTotals();
+  const played = D.rows.some(r=>r.v.some(x=>x!==null));
+  const best = (D.dir==='high'? Math.max:Math.min)(...t);
+  document.getElementById('d-totals').innerHTML = D.cols.map((c,i)=>`
+    <div class="total-card ${played && t[i]===best ? 'leader':''}">
+      <div class="tname">${c.name}</div>
+      <div class="tscore">${t[i]}</div>
+    </div>`).join('');
+  t.forEach((v,i)=>{ const el=document.getElementById('d-tot-'+i); if(el) el.textContent=v; });
+}
+function renderDefter(){
+  if(!D) return;
+  document.getElementById('d-title').textContent = D.gname;
+  document.getElementById('d-note').textContent = D.note;
+  document.getElementById('d-btn-live').textContent = D.room ? '📡 Oda Açık' : '📡 Canlı Oda';
+  let h = '<tr><th>El</th>' + D.meta.map(m=>`<th>${m}</th>`).join('') +
+          D.cols.map(c=>`<th>${c.name}</th>`).join('') + '</tr>';
+  D.rows.forEach((r,ri)=>{
+    const elLabel = (D.game==='amerikano' && ri===D.els-1) ? 'F' : (ri+1);
+    h += `<tr><td>${elLabel}</td>`;
+    r.m.forEach((mv,mi)=>{ h += `<td class="dcell"><input class="dfm" type="text" value="${mv}" oninput="dMeta(${ri},${mi},this.value)"></td>`; });
+    r.v.forEach((v,ci)=>{ h += `<td class="dcell"><input class="dfin" type="number" inputmode="numeric" value="${v===null?'':v}" oninput="dSet(${ri},${ci},this.value)"></td>`; });
+    h += '</tr>';
+  });
+  h += `<tr class="totrow"><td>Σ</td>${D.meta.map(()=>'<td></td>').join('')}` +
+       D.cols.map((c,i)=>`<td id="d-tot-${i}"></td>`).join('') + '</tr>';
+  document.getElementById('d-table').innerHTML = h;
+  dUpdateTotals();
+  if(D.room && !dHeartT) startDHeart();
+}
+/* defter canlı oda */
+let dPushTimer=null, dHeartT=null;
+function dSnapshot(){
+  const rows = D.rows.filter(r=>r.v.some(x=>x!==null));
+  return { cols:D.cols.map(c=>c.name), hands:rows.map(r=>r.v.map(x=>x||0)),
+           el:rows.length, elSayisi:D.els, done:D.done, dir:D.dir, game:D.gname, ts:Date.now() };
+}
+function dPushLive(){
+  if(!D || !D.room) return;
+  clearTimeout(dPushTimer);
+  dPushTimer = setTimeout(()=>NET.push(D.room, dSnapshot()).catch(()=>{}), 600);
+}
+function startDHeart(){
+  clearInterval(dHeartT);
+  dHeartT = setInterval(()=>{ if(D && D.room) NET.push(D.room, dSnapshot()).catch(()=>{}); }, 12000);
+}
+async function toggleLiveD(){
+  if(!D) return;
+  if(D.room){ showRoomQR(D.room); return; }
+  try{
+    D.room = await NET.createRoom(dSnapshot());
+    startDHeart(); saveD(); renderDefter(); showRoomQR(D.room);
+  }catch(e){
+    alert('Canlı oda açılamadı (detay: '+(e&&e.message||e)+').');
+  }
+}
+function dShare(){
+  const t = dTotals();
+  let s = `🃏 ${D.gname} — YAZBOZ\n` + D.cols.map((c,i)=>`${c.name}: ${t[i]}`).join('\n');
+  if(D.room) s += `\n📡 Canlı skor:\n${appUrl()}?izle=${NET.publicCode(D.room)}`;
+  if(navigator.share) navigator.share({text:s}).catch(()=>{});
+  else { navigator.clipboard && navigator.clipboard.writeText(s); alert('Skor panoya kopyalandı.'); }
+}
+function bitirDefter(){
+  const t = dTotals();
+  if(!D.rows.some(r=>r.v.some(x=>x!==null))){ alert('Önce puan gir.'); return; }
+  const best = (D.dir==='high'? Math.max:Math.min)(...t);
+  const winCols = D.cols.filter((c,i)=>t[i]===best);
+  const winNames = winCols.flatMap(c=>c.members.map(m=>D.names[m]));
+  if(!confirm(`Kazanan: ${winCols.map(c=>c.name).join(' & ')} (${best}). Defter kapatılsın mı?`)) return;
+  D.done = true;
+  const reg = getReg();
+  const deltas = D.names.map(n=>({n, oyun:1, gal:winNames.includes(n)?1:0, bit:0, kafa:0, rcift:0, rseri:0, best:null}));
+  applyDeltas(reg, deltas); setReg(reg);
+  const pend = store.get('yb_pending', []);
+  pend.push({deltas, ozet:{ ts:Date.now(), mode:D.gname, el:D.rows.filter(r=>r.v.some(x=>x!==null)).length,
+    cols:D.cols.map(c=>c.name), totals:t, winners:winCols.map(c=>c.name) }});
+  store.set('yb_pending', pend);
+  cloudSync();
+  NET && D.room && NET.push(D.room, dSnapshot()).catch(()=>{});
+  document.getElementById('final-title').textContent = `Kazanan: ${winCols.map(c=>c.name).join(' & ')} 🏆`;
+  document.getElementById('final-body').innerHTML =
+    `<div class="totals">${D.cols.map((c,i)=>`<div class="total-card ${t[i]===best?'leader':''}"><div class="tname">${c.name}</div><div class="tscore">${t[i]}</div></div>`).join('')}</div>
+     <p class="hint">${D.gname} — istatistiklere işlendi.</p>`;
+  clearInterval(dHeartT); dHeartT=null;
+  store.del('yb_defter_active'); D=null;
+  openModal('modal-final');
+}
+/* ortak QR göstericisi (defter ve 101 odaları) */
+function showRoomQR(room){
+  const pub = NET.publicCode(room);
+  const link = appUrl()+'?izle='+pub+viewerCfgParams();
+  document.getElementById('qr-title').textContent = '🔳 Canlı Oda';
+  document.getElementById('qr-hint').textContent = 'QR\'ı okutan doğrudan canlı skoru açar. Alternatif: kodu "İzleyici Olarak Katıl" ekranına girebilirler.';
+  document.getElementById('qr-code-text').textContent = pub+'\n'+link;
+  const box = document.getElementById('qrbox');
+  box.innerHTML='';
+  withQRLib(ok=>{
+    try{
+      if(!ok) throw new Error();
+      new QRCode(box, {text:link, width:200, height:200, correctLevel: QRCode.CorrectLevel.M});
+    }catch(e){
+      box.innerHTML = `<div><img width="200" height="200" alt="QR"
+        src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(link)}"
+        onerror="this.parentElement.innerHTML='<span class=hint>QR üretilemedi — kodu paylaş.</span>'"></div>`;
+    }
+  });
+  openModal('modal-qr');
+}
+
 /* ================= BAŞLANGIÇ ================= */
 function boot(){
   const g = store.get('yb_active', null);
   document.getElementById('btn-devam').style.display = (g && !g.done) ? 'block' : 'none';
+  const dg = store.get('yb_defter_active', null);
+  document.getElementById('btn-devam-defter').style.display = (dg && !dg.done) ? 'block' : 'none';
 }
 boot();
 show('scr-home');
