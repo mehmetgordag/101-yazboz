@@ -246,7 +246,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div class="mini-tile t-yellow"><span>☺</span></div>
   </div>
   <h1>YAZBOZ</h1>
-  <div class="sub">masa oyunları · v3.6</div>
+  <div class="sub">masa oyunları · v3.7</div>
 </header>
 <main>
 
@@ -401,8 +401,9 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   <button class="btn btn-tile" onclick="renderDetay();show('scr-detay')">📊 Detaylı İstatistikler — Oyuncu Kartları</button>
   <div class="card" id="cloud-card"></div>
   <div class="card" id="games-card" style="display:none">
-    <h3>🕑 Son Oyunlar</h3>
+    <h3>🕑 Oyun Geçmişi</h3>
     <div class="evlist" id="games-list"></div>
+    <button class="btn btn-tile btn-sm" id="btn-all-games" style="display:none" onclick="showAllGames()">📜 Tümünü Göster</button>
   </div>
   <div class="card">
     <h3>Veri Yedeği</h3>
@@ -1577,23 +1578,34 @@ async function loadSonOyunlar(){
   const sb = parseS(cloudId()||'');
   if(!sb || !sbReady()){ card.style.display='none'; return; }
   try{
-    const arr = await sbRpc('yb_oyunlar', {p_code:sb.c, p_limit:15});
+    const arr = await sbRpc('yb_oyunlar', {p_code:sb.c, p_limit:50});
     if(!arr || !arr.length){ card.style.display='none'; return; }
     window._sonOyunlar = arr;
     card.style.display='block';
-    document.getElementById('games-list').innerHTML = arr.map((o,i)=>{
-      const z = o.ozet || {};
-      const dt = new Date(o.ts || z.ts || 0);
-      const tot = (z.cols||[]).map((c,ci)=>`${c}: <b>${(z.totals||[])[ci]}</b>`).join(' · ');
-      const hasEller = z.eller && z.eller.length;
-      return `<div ${hasEller?`onclick="toggleOyunDetay(${i})" style="cursor:pointer"`:''}>
-        <b style="color:var(--cyan)">${z.mode||'Oyun'}</b> — 🏆 <b>${(z.winners||[]).join(' & ')||'?'}</b>${z.pes?' <span class="hint" style="display:inline">('+z.pes+' pes etti 🏳️)</span>':''}
-        <span class="hint" style="display:inline">· ${dt.toLocaleDateString('tr-TR')} ${dt.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}</span><br>
-        <span class="hint" style="display:inline">${tot}${hasEller?' · <u>el el görmek için dokun</u>':''}</span>
-        <div id="od-${i}" style="display:none"></div>
-      </div>`;
-    }).join('');
+    renderGamesList(window._gamesShowAll ? arr.length : 10);
   }catch(e){ card.style.display='none'; }
+}
+function renderGamesList(count){
+  const arr = window._sonOyunlar || [];
+  document.getElementById('games-list').innerHTML = arr.slice(0, count).map((o,i)=>{
+    const z = o.ozet || {};
+    const dt = new Date(o.ts || z.ts || 0);
+    const tot = (z.cols||[]).map((c,ci)=>`${c}: <b>${(z.totals||[])[ci]}</b>`).join(' · ');
+    const hasEller = z.eller && z.eller.length;
+    return `<div ${hasEller?`onclick="toggleOyunDetay(${i})" style="cursor:pointer"`:''}>
+      <b style="color:var(--cyan)">${z.mode||'Oyun'}</b> — 🏆 <b>${(z.winners||[]).join(' & ')||'?'}</b>${z.pes?' <span class="hint" style="display:inline">('+z.pes+' pes etti 🏳️)</span>':''}
+      <span class="hint" style="display:inline">· ${dt.toLocaleDateString('tr-TR')} ${dt.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}</span><br>
+      <span class="hint" style="display:inline">${tot}${hasEller?' · <u>el el görmek için dokun</u>':' · <i>el detayı yok (eski sürümde oynandı)</i>'}</span>
+      <div id="od-${i}" style="display:none"></div>
+    </div>`;
+  }).join('');
+  const btn = document.getElementById('btn-all-games');
+  btn.style.display = arr.length > count ? 'inline-block' : 'none';
+  btn.textContent = `📜 Tümünü Göster (${arr.length} oyun)`;
+}
+function showAllGames(){
+  window._gamesShowAll = true;
+  renderGamesList((window._sonOyunlar||[]).length);
 }
 function toggleOyunDetay(i){
   const box = document.getElementById('od-'+i);
