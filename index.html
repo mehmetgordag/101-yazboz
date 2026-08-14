@@ -245,7 +245,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div class="mini-tile t-yellow"><span>☺</span></div>
   </div>
   <h1>YAZBOZ</h1>
-  <div class="sub">masa oyunları · v2.7</div>
+  <div class="sub">masa oyunları · v2.8</div>
 </header>
 <main>
 
@@ -1133,7 +1133,7 @@ function endGame(){
   setReg(reg);
   const pend = store.get('yb_pending', []);
   pend.push({deltas, ozet:{
-    ts: Date.now(), mode: G.mode, el: G.hands.length,
+    ts: Date.now(), mode: '101 OKEY ('+(G.mode==='esli'?'eşli':'tekli')+')', el: G.hands.length,
     cols: G.cols.map(c=>c.name), totals, winners: winners.map(c=>c.name)
   }});
   store.set('yb_pending', pend);
@@ -1166,15 +1166,35 @@ function flatPending(){
   return store.get('yb_pending', []).flatMap(g=> (g && g.deltas) ? g.deltas : [g]);
 }
 let syncBusy = false;
+/* Masa kurulumu: yerel kayıtların TAMAMI (bekleyen oyunlar dahil) tek seferde gönderilir,
+   oyun özetleri geçmişe yazılır, kuyruk temizlenir — böylece çift sayma imkânsızdır. */
+async function masaKur(){
+  if(!sbReady()) return null;
+  const c = randCode(), s = randCode()+randCode();
+  const ok = await sbRpc('yb_masa_push', {p_code:c, p_secret:s, p_players:getReg(), p_oyun:null});
+  if(ok!==true) throw new Error('supabase kabul etmedi');
+  const id = 'S-'+c+'-'+s;
+  store.set('yb_cloud', id);
+  for(const g of store.get('yb_pending', [])){
+    if(g && g.ozet){ try{ await sbRpc('yb_masa_push', {p_code:c, p_secret:s, p_players:null, p_oyun:g.ozet}); }catch(e){} }
+  }
+  store.set('yb_pending', []);
+  store.set('yb_lastsync', Date.now());
+  renderCloud && renderCloud();
+  return id;
+}
 async function cloudSync(silent){
   if(syncBusy) return;
   let id = cloudId();
   // güvenlik ağı: Supabase hazırsa ve bekleyen sonuç varsa masayı otomatik kur (veri asla yalnız telefonda kalmasın)
   if(!id && sbReady() && store.get('yb_pending', []).length){
     try{
-      const c = randCode(), s = randCode()+randCode();
-      const ok = await sbRpc('yb_masa_push', {p_code:c, p_secret:s, p_players:getReg(), p_oyun:null});
-      if(ok===true){ id = 'S-'+c+'-'+s; store.set('yb_cloud', id); renderCloud && renderCloud(); }
+      id = await masaKur();
+      if(id){
+        setCloudStatus('☁️ Masa kuruldu ve eşitlendi ✔');
+        if(document.getElementById('scr-stats').classList.contains('active')){ renderStatsTables(); loadSonOyunlar(); }
+        return;
+      }
     }catch(e){}
   }
   if(!id) return;
@@ -1188,14 +1208,24 @@ async function cloudSync(silent){
       // oda bulunamadıysa (süre aşımı/bozulma) yereldeki veriyle yeniden kur; gerçek bağlantı hatasıysa çevrimdışına düş
       if(!(e && /bulunamadı|bozuk/.test(e.message||''))) throw e;
     }
-    const cloud = (d && d.players) ? d.players : {};
-    // kendini onarma: yereldeki kayıt daha ilerideyse (sabotaj/veri kaybı) yerel kazanır
+    const cloudP = (d && d.players) ? d.players : {};
     const local = getReg();
-    for(const n in local){
-      if(!cloud[n] || (cloud[n].oyun||0) < (local[n].oyun||0)) cloud[n] = local[n];
+    const pending = flatPending();
+    // bekleyenlerin oyuncu bazında özeti (çift saymayı önlemek için)
+    const pendAgg = {}; applyDeltas(pendAgg, pending);
+    const cloud = {}; const localWon = new Set();
+    for(const n of new Set([...Object.keys(cloudP), ...Object.keys(local)])){
+      const c = cloudP[n], l = local[n], pa = pendAgg[n];
+      const beklenen = (c ? c.oyun||0 : 0) + (pa ? pa.oyun||0 : 0);
+      if(l && (l.oyun||0) > beklenen){
+        // bulut geride kalmış (silinme/bozulma/süre aşımı): yerel esas — bekleyenler zaten içinde
+        cloud[n] = JSON.parse(JSON.stringify(l)); localWon.add(n);
+      } else {
+        cloud[n] = c ? JSON.parse(JSON.stringify(c)) : {oyun:0,gal:0,bit:0,kafa:0,rcift:0,rseri:0,best:null};
+      }
     }
-    // bekleyen oyun sonuçlarını buluta işle
-    applyDeltas(cloud, flatPending());
+    // bekleyen sonuçları SADECE bulut esas alınan oyunculara işle (yerel kazananlarda zaten işli)
+    applyDeltas(cloud, pending.filter(dd=>!localWon.has(dd.n)));
     if(sb){
       if(!sb.s) throw new Error('Bu masa kodu salt-okunur — sonuç yazmak için tam kodu (gizli anahtarlı) girmen gerekir.');
       const games = store.get('yb_pending', []).filter(g=>g && g.ozet);
@@ -1232,12 +1262,11 @@ async function cloudCreate(){
   try{
     let code;
     if(sbReady()){
-      const c = randCode(), s = randCode()+randCode();
-      const ok = await sbRpc('yb_masa_push', {p_code:c, p_secret:s, p_players:getReg(), p_oyun:null});
-      if(ok!==true) throw new Error('supabase kabul etmedi');
-      code = 'S-'+c+'-'+s;
+      code = await masaKur();
+      if(!code) throw new Error('supabase kabul etmedi');
     } else {
       code = await NET.createRoom({type:'yb-stats', players:getReg(), updated:Date.now()}, true);
+      store.set('yb_pending', []); // mevcut kayıtlar toplu gönderildi
     }
     store.set('yb_cloud', code);
     store.set('yb_pending', []);
@@ -1264,12 +1293,23 @@ function cloudDisconnect(){
   if(!confirm('Bulut bağlantısı kesilsin mi? (Veriler telefonda kalır, buluttaki kayıt silinmez)')) return;
   store.del('yb_cloud'); renderCloud();
 }
-function cloudShareCode(){
-  const id = cloudId(); if(!id) return;
-  const t = '🎴 101 Okey Yazboz — istatistik bulut kodu:\n'+id+'\n(Uygulamada İstatistikler → Bulut → "Koda bağlan" kısmına yapıştır)';
-  if(navigator.share) navigator.share({text:t}).catch(()=>{});
-  else { navigator.clipboard && navigator.clipboard.writeText(t); alert('Kod panoya kopyalandı.'); }
+function masaInviteLink(){
+  const id = cloudId(); if(!id) return null;
+  return appUrl()+'?masa='+id;
 }
+async function shareMasaInvite(){
+  let id = cloudId();
+  if(!id && sbReady()){
+    // masa yoksa önce sessizce kur
+    try{ id = await masaKur(); }catch(e){}
+  }
+  if(!id){ alert('Masa kurulamadı — internet bağlantını kontrol edip tekrar dene.'); return; }
+  const link = masaInviteLink();
+  const t = '🎴 YAZBOZ masamıza katıl!\nBu linki bir kere aç, telefonun otomatik bağlansın — oynadığın oyunlar ortak skorboarda işlenir:\n'+link;
+  if(navigator.share) navigator.share({text:t}).catch(()=>{});
+  else { navigator.clipboard && navigator.clipboard.writeText(t); alert('Davet linki panoya kopyalandı — WhatsApp\'a yapıştır.'); }
+}
+function cloudShareCode(){ shareMasaInvite(); }
 function renderCloud(){
   const c = document.getElementById('cloud-card');
   const id = cloudId();
@@ -1279,15 +1319,16 @@ function renderCloud(){
       <p class="hint" id="cloud-status">${pend? '⏳ '+pend+' bekleyen sonuç var':'☁️ Bağlı'}</p>
       <div class="codebox">${id}</div>
       <div class="row">
-        <button class="btn btn-tile btn-sm" onclick="cloudShareCode()">📤 Kodu Paylaş</button>
-        <button class="btn btn-tile btn-sm" onclick="cloudSync()">🔄 Şimdi Eşitle</button>
+        <button class="btn btn-green btn-sm" onclick="shareMasaInvite()">👪 Davet Linki Gönder</button>
+        <button class="btn btn-tile btn-sm" onclick="cloudSync()">🔄 Eşitle</button>
         <button class="btn btn-danger btn-sm" onclick="cloudDisconnect()">Kes</button>
       </div>
-      <p class="hint">Oyun bittiğinde sonuçlar otomatik buluta yazılır. Aynı koda bağlanan herkes aynı skorboardu görür.</p>`;
+      <p class="hint">Davet linkini açan telefon bu masaya otomatik bağlanır: sen olmasan da onların oynadığı oyunlar ortak skorboarda işlenir. Linki sadece ailene/masa arkadaşlarına gönder.</p>`;
   } else {
     c.innerHTML = `<h3>☁️ Bulut Senkron — Kapalı</h3>
-      <p class="hint">İstatistikler şu an sadece bu telefonda. Buluta taşırsan telefon değişse de kaybolmaz ve arkadaşların da aynı skorboarda bağlanabilir.</p>
-      <button class="btn btn-green btn-sm" onclick="cloudCreate()">☁️ Bulut Kaydı Oluştur</button>
+      <p class="hint">İstatistikler şu an sadece bu telefonda. (İlk oyun bittiğinde masa otomatik kurulur; istersen şimdi kur ve davet linkini gönder.)</p>
+      <button class="btn btn-green btn-sm" onclick="cloudCreate()">☁️ Masayı Şimdi Kur</button>
+      <button class="btn btn-tile btn-sm" onclick="shareMasaInvite()">👪 Kur + Davet Linki Gönder</button>
       <label class="fld" style="margin-top:10px">Ya da mevcut koda bağlan:</label>
       <input type="text" id="cloud-code-in" placeholder="Arkadaşının paylaştığı kod">
       <button class="btn btn-tile btn-sm" style="margin-top:8px" onclick="cloudConnect()">Bağlan</button>`;
@@ -1307,8 +1348,8 @@ async function loadSonOyunlar(){
       const z = o.ozet || {};
       const dt = new Date(o.ts || z.ts || 0);
       const tot = (z.cols||[]).map((c,i)=>`${c}: <b>${(z.totals||[])[i]}</b>`).join(' · ');
-      return `<div>🏆 <b>${(z.winners||[]).join(' & ')||'?'}</b>
-        <span class="hint" style="display:inline">— ${dt.toLocaleDateString('tr-TR')} ${dt.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}</span><br>
+      return `<div><b style="color:var(--cyan)">${z.mode||'Oyun'}</b> — 🏆 <b>${(z.winners||[]).join(' & ')||'?'}</b>
+        <span class="hint" style="display:inline">· ${dt.toLocaleDateString('tr-TR')} ${dt.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}</span><br>
         <span class="hint" style="display:inline">${tot}</span></div>`;
     }).join('');
   }catch(e){ card.style.display='none'; }
@@ -1938,6 +1979,20 @@ function viewerCfgParams(){
     const izle = q.get('izle');
     // linkte sunucu bilgisi varsa ve bu telefonda ayar yoksa kaydet
     if(q.get('s') && !SET.sbUrl){ SET.sbUrl=q.get('s'); SET.sbKey=q.get('k')||''; saveSet(); }
+    // masa daveti: linki açan telefon ortak masaya bağlanır
+    const masa = q.get('masa');
+    if(masa){
+      const code = NET.normalize(masa);
+      const cur = cloudId();
+      if(cur !== code && (!cur || confirm('Bu telefon başka bir masaya bağlı. Davet edilen masaya geçilsin mi?'))){
+        store.set('yb_cloud', code);
+        store.set('yb_pending', []);
+      }
+      cloudSync(true);
+      alert('✔ Masaya bağlandın! Bundan sonra bu telefonda oynanan oyunlar ortak skorboarda işlenecek.');
+      renderStats(); show('scr-stats');
+      history.replaceState(null,'',location.pathname); // kod adres çubuğunda asılı kalmasın
+    }
     if(izle){
       document.getElementById('viewer-code').value = izle;
       show('scr-viewer');
