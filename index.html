@@ -254,7 +254,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div class="mini-tile t-yellow"><span>☺</span></div>
   </div>
   <h1>YAZBOZ</h1>
-  <div class="sub">masa oyunları · v4.0</div>
+  <div class="sub">masa oyunları · v4.1</div>
 </header>
 <main>
 
@@ -1450,6 +1450,7 @@ async function cloudSync(silent){
       await NET.push(id, {type:'yb-stats', players:cloud, updated:Date.now()});
     }
     setReg(cloud);
+    maybeBackup(cloud); // her başarılı eşitlemede sessiz yedek
     store.set('yb_pending', []);
     store.set('yb_lastsync', Date.now());
     setCloudStatus('☁️ Eşitlendi ✔ '+new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}));
@@ -1785,6 +1786,14 @@ function wipeStats(){
   }
   renderStats();
   alert('Silindi. Fikrini değiştirirsen: "Yedekten Geri Yükle" ya da "Geçmişten Yeniden Kur" her zaman orada.');
+}
+/* otomatik yedek: boş ya da daha fakir veriyle asla ezilmez */
+function maybeBackup(players){
+  if(!players || !Object.keys(players).length) return;
+  const tot = o => Object.values(o||{}).reduce((s,p)=>s+((p&&p.oyun)||0),0);
+  const cur = store.get('yb_backup', null);
+  if(cur && tot(cur.players) > tot(players)) return; // eldeki yedek daha zenginse dokunma
+  store.set('yb_backup', {ts: Date.now(), players});
 }
 /* silmeden önce alınan yerel yedeği geri yükle */
 function restoreBackup(){
