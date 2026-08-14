@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#04263f">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%23073a52'/%3E%3Crect x='10' y='8' width='44' height='48' rx='7' fill='%23f7f1e3'/%3E%3Ctext x='32' y='34' font-family='Arial,sans-serif' font-weight='bold' font-size='17' fill='%23c0392b' text-anchor='middle'%3E101%3C/text%3E%3Ccircle cx='32' cy='45' r='4' fill='%23c0392b'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%23073a52'/%3E%3Crect x='10' y='8' width='44' height='48' rx='7' fill='%23f7f1e3'/%3E%3Ctext x='32' y='36' font-family='Arial,sans-serif' font-weight='bold' font-size='19' fill='%23c0392b' text-anchor='middle'%3EYB%3C/text%3E%3Ccircle cx='22' cy='46' r='3' fill='%23c0392b'/%3E%3Ccircle cx='29' cy='46' r='3' fill='%23222'/%3E%3Ccircle cx='36' cy='46' r='3' fill='%231f7cf0'/%3E%3Ccircle cx='43' cy='46' r='3' fill='%23d9930a'/%3E%3C/svg%3E">
 <link rel="icon" type="image/png" sizes="512x512" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<title>101 Okey Yazboz</title>
+<title>Yazboz — Masa Oyunları</title>
 <style>
 :root{
   color-scheme:dark;
@@ -228,6 +228,7 @@ textarea{width:100%; min-height:90px; border-radius:14px; border:1px solid var(-
 input.dfin{width:56px; min-width:56px; padding:8px 4px; text-align:center; font-size:15px; border-radius:9px; max-width:none;}
 input.dfm{width:58px; min-width:58px; padding:8px 4px; text-align:center; font-size:12px; border-radius:9px;}
 table.yazboz td.dcell{padding:4px 3px;}
+table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line-height:1.25;}
 ::-webkit-scrollbar{height:5px; width:5px;}
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25); border-radius:99px;}
 </style>
@@ -240,14 +241,14 @@ table.yazboz td.dcell{padding:4px 3px;}
     <div class="mini-tile t-blue"><span>1</span><span class="dot">●</span></div>
     <div class="mini-tile t-yellow"><span>☺</span></div>
   </div>
-  <h1>101 OKEY YAZBOZ</h1>
-  <div class="sub">puan defteri · v2.1</div>
+  <h1>YAZBOZ</h1>
+  <div class="sub">masa oyunları · v2.3</div>
 </header>
 <main>
 
 <!-- ANA SAYFA -->
 <section id="scr-home" class="screen">
-  <button class="btn btn-primary" onclick="goSetup()">🎲 Yeni Oyun</button>
+  <button class="btn btn-primary" onclick="goSetup()">🎴 101 Okey — Yeni Oyun</button>
   <button class="btn btn-green" id="btn-devam" style="display:none" onclick="resumeGame()">▶️ Devam Eden 101 Oyunu</button>
   <button class="btn btn-green" id="btn-devam-defter" style="display:none" onclick="resumeDefter()">▶️ Devam Eden Defter</button>
   <button class="btn btn-tile" onclick="goDefterSetup()">🃏 Diğer Oyunlar — Defter</button>
@@ -337,6 +338,10 @@ table.yazboz td.dcell{padding:4px 3px;}
     </div>
     <label class="fld" style="color:var(--txt)">El sayısı</label>
     <input type="number" id="dg-els" min="1" max="30" onchange="DSU.els=Math.max(1,Math.min(30,Number(this.value)||10))">
+    <div id="dg-sart-wrap" style="display:none">
+      <label class="fld" style="color:var(--txt)">El açılış şartları <span class="hint" style="display:inline">(her satır bir el — masanıza göre düzenleyin)</span></label>
+      <textarea id="dg-sart" style="min-height:130px;font-size:14px;font-family:inherit"></textarea>
+    </div>
   </div>
   <div class="card">
     <h3>Oyuncular <span class="hint" id="dg-pcount" style="display:inline"></span></h3>
@@ -1363,7 +1368,7 @@ function wipeStats(){
 /* ================= PAYLAŞIM / QR / CANLI ================= */
 function snapshotText(){
   const totals = colTotals(G);
-  let t = `🎴 101 OKEY YAZBOZ\nEl ${G.hands.length}/${G.elSayisi}\n`;
+  let t = `🎴 YAZBOZ • 101 OKEY\nEl ${G.hands.length}/${G.elSayisi}\n`;
   G.cols.forEach((c,i)=>{ t += `${c.name}: ${totals[i]}\n`; });
   if(G.done){ const min=Math.min(...totals); t += `🏆 Kazanan: ${G.cols.filter((c,i)=>totals[i]===min).map(c=>c.name).join(' & ')}\n`; }
   return t;
@@ -1662,8 +1667,9 @@ function stopViewer(){
 
 /* ================= DEFTER MODU (diğer oyunlar) ================= */
 const DEF_GAMES = {
-  amerikano: {name:'AMERİKANO (KÜT)', minP:2, maxP:5, els:16, dir:'low', esli:false, meta:[],
-    note:'Ceza: Joker 25 • As 11 • Figür 10 — düşük puan kazanır. 16. satır Final.'},
+  amerikano: {name:'AMERİKANO (KÜT)', minP:2, maxP:5, els:7, dir:'low', esli:false, meta:[],
+    sart:['2 Küt (3\'lü)','1 Küt + 1 Seri (4\'lü)','2 Seri','3 Küt','2 Küt + 1 Seri','1 Küt + 2 Seri','3 Seri — FİNAL (elden bitilir)'],
+    note:'Küt: 3 aynı sayı (farklı renk) • Seri: aynı renk 4 ardışık • Açan işleyebilir • Ceza: Joker 25 • As 11 • Figür ve 10\'lar 10 • 2–9 sayı değeri • Biten 0 yazar • Düşük toplam kazanır • Final eli elden bitilir.'},
   normalokey:{name:'NORMAL OKEY', minP:4, maxP:4, els:10, dir:'low', esli:false, meta:[],
     note:'Düşük puan kazanır. Çifte/okey bitişleri puana yansıtın.'},
   batakihale:{name:'BATAK — İHALE', minP:4, maxP:4, els:10, dir:'high', esli:true, meta:['İhale','Koz'],
@@ -1689,7 +1695,7 @@ function goDefterSetup(){
 function pickDGame(g){
   DSU.game = g; DSU.els = DEF_GAMES[g].els;
   if(!DEF_GAMES[g].esli) DSU.esli = false;
-  renderDefterSetup();
+  renderDefterSetup(true);
 }
 function dAddName(){
   const inp = document.getElementById('dg-new-name');
@@ -1714,8 +1720,14 @@ function dUnpick(n){
   if(!DSU.pool.includes(n)) DSU.pool.unshift(n);
   renderDefterSetup();
 }
-function renderDefterSetup(){
+function renderDefterSetup(resetSart){
   const g = DEF_GAMES[DSU.game];
+  const sw = document.getElementById('dg-sart-wrap');
+  sw.style.display = g.sart ? 'block' : 'none';
+  if(g.sart && (resetSart || !document.getElementById('dg-sart').value.trim())){
+    const saved = store.get('yb_sart2_'+DSU.game, null);
+    document.getElementById('dg-sart').value = (saved || g.sart).join('\n');
+  }
   document.getElementById('dg-chips').innerHTML = Object.entries(DEF_GAMES).map(([k,v])=>
     `<div class="chip small ${k===DSU.game?'sel':''}" onclick="pickDGame('${k}')">${v.name}</div>`).join('');
   document.getElementById('dg-note').textContent = g.note;
@@ -1743,7 +1755,13 @@ function startDefter(){
   const cols = DSU.esli
     ? [{name:`${names[0]} & ${names[1]}`, members:[0,1]}, {name:`${names[2]} & ${names[3]}`, members:[2,3]}]
     : names.map((n,i)=>({name:n, members:[i]}));
-  D = { game:DSU.game, gname:g.name, dir:g.dir, els:DSU.els, meta:g.meta, note:g.note,
+  let sart = null;
+  if(g.sart){
+    sart = document.getElementById('dg-sart').value.split('\n').map(s=>s.trim()).filter(Boolean);
+    store.set('yb_sart2_'+DSU.game, sart);
+    if(sart.length && DSU.els !== sart.length) DSU.els = sart.length; // el sayısı şart listesine uyar
+  }
+  D = { game:DSU.game, gname:g.name, dir:g.dir, els:DSU.els, meta:g.meta, note:g.note, sart,
         names, cols, rows: Array.from({length:DSU.els}, ()=>({m:g.meta.map(()=>''), v:cols.map(()=>null)})),
         room:null, done:false, startedAt:new Date().toISOString() };
   const reg = getReg(); names.forEach(n=>ensurePlayer(reg,n)); setReg(reg);
@@ -1783,11 +1801,11 @@ function renderDefter(){
   document.getElementById('d-title').textContent = D.gname;
   document.getElementById('d-note').textContent = D.note;
   document.getElementById('d-btn-live').textContent = D.room ? '📡 Oda Açık' : '📡 Canlı Oda';
-  let h = '<tr><th>El</th>' + D.meta.map(m=>`<th>${m}</th>`).join('') +
+  let h = `<tr><th>${D.sart ? 'El / Açılış' : 'El'}</th>` + D.meta.map(m=>`<th>${m}</th>`).join('') +
           D.cols.map(c=>`<th>${c.name}</th>`).join('') + '</tr>';
   D.rows.forEach((r,ri)=>{
-    const elLabel = (D.game==='amerikano' && ri===D.els-1) ? 'F' : (ri+1);
-    h += `<tr><td>${elLabel}</td>`;
+    const sart = D.sart && D.sart[ri] ? `<br><span class="c" style="font-size:10px">${D.sart[ri]}</span>` : '';
+    h += `<tr><td class="${D.sart?'sartcell':''}"><b>${ri+1}</b>${sart}</td>`;
     r.m.forEach((mv,mi)=>{ h += `<td class="dcell"><input class="dfm" type="text" value="${mv}" oninput="dMeta(${ri},${mi},this.value)"></td>`; });
     r.v.forEach((v,ci)=>{ h += `<td class="dcell"><input class="dfin" type="number" inputmode="numeric" value="${v===null?'':v}" oninput="dSet(${ri},${ci},this.value)"></td>`; });
     h += '</tr>';
