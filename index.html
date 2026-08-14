@@ -246,7 +246,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div class="mini-tile t-yellow"><span>☺</span></div>
   </div>
   <h1>YAZBOZ</h1>
-  <div class="sub">masa oyunları · v3.3</div>
+  <div class="sub">masa oyunları · v3.6</div>
 </header>
 <main>
 
@@ -327,8 +327,9 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div class="evlist" id="ev-log"><span class="hint">Henüz olay yok.</span></div>
   </div>
   <div class="row">
+    <button class="btn btn-outline btn-sm" id="btn-undo" onclick="undoLastEl()">↩️ Son Eli Düzelt</button>
     <button class="btn btn-outline btn-sm" onclick="openErken()">🏳️ Erken Bitir / Pes</button>
-    <button class="btn btn-danger btn-sm" onclick="abortGame()">Oyunu İptal Et</button>
+    <button class="btn btn-danger btn-sm" onclick="abortGame()">İptal</button>
   </div>
 </section>
 
@@ -397,11 +398,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div style="overflow-x:auto"><table class="stat-table" id="stat-table"></table></div>
     <p class="hint">G: oyun · W: galibiyet · %: kazanma oranı · 🔥: en uzun galibiyet serisi · B: el bitirme · B%: bitirme oranı (bit/el) · K: kafa · Pes · 👑 kral · 🚬 kulluk</p>
   </div>
-  <div class="card">
-    <h3>Detaylı İstatistikler (101 Okey)</h3>
-    <div style="overflow-x:auto"><table class="stat-table" id="stat-table2"></table></div>
-    <p class="hint">El: oynadığı el · Ort: ortalama el puanı (düşük iyi) · Okey/Çift: okeyle-çiftten bitirme · Açmz: açamadığı el · İşlk: işlek taş · Kap: taş kaptırma (toplam ceza) · OKap: okey kaptırma · K.Yedi: kafa yeme · R/S: çift-seri rekoru · Açl/Çft: rekor değerleri · En iyi / En kötü: tek el uçları</p>
-  </div>
+  <button class="btn btn-tile" onclick="renderDetay();show('scr-detay')">📊 Detaylı İstatistikler — Oyuncu Kartları</button>
   <div class="card" id="cloud-card"></div>
   <div class="card" id="games-card" style="display:none">
     <h3>🕑 Son Oyunlar</h3>
@@ -416,6 +413,12 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     </div>
     <textarea id="databox" placeholder="Dışa aktarınca veri burada görünür; içe aktarmak için buraya yapıştır."></textarea>
   </div>
+</section>
+
+<!-- DETAYLI İSTATİSTİK -->
+<section id="scr-detay" class="screen">
+  <button class="back" onclick="show('scr-stats')">← İstatistikler</button>
+  <div id="detay-cards"></div>
 </section>
 
 <!-- AYARLAR -->
@@ -804,16 +807,27 @@ function renderGame(){
   const totals = colTotals(G);
   const min = Math.min(...totals), max = Math.max(...totals);
   const played = G.hands.length>0, fark = max-min;
-  // skor farkı yokken kulluk tahtı kariyer kulluğunundur 🚬 (1. elden itibaren görünür)
-  let kariyerKullukCol = -1;
-  if(!(played && fark>0) && G.cols.length>1){
-    const kn = kullukOf(getReg(), G.names);
-    if(kn) kariyerKullukCol = G.cols.findIndex(c=>c.members.some(m=>G.names[m]===kn));
+  // kulluk KİŞİSELDİR 🚬: oyun içinde kişisel cezası en yüksek olan; eşitse en çok açamayan;
+  // hiç el yoksa / tam eşitlikse kariyer kulluğu oturur (1. elden itibaren isminde görünür)
+  let kn = null;
+  if(G.names.length>1){
+    if(played){
+      const per = G.names.map((n,i)=>G.hands.reduce((s,h)=>s+(h.deltas[i]||0),0));
+      const pm = Math.max(...per), pmin = Math.min(...per);
+      if(pm>pmin && per.filter(x=>x===pm).length===1) kn = G.names[per.indexOf(pm)];
+      else {
+        const ac = G.names.map(n=>(G.statDelta[n]&&G.statDelta[n].acamadi)||0);
+        const am = Math.max(...ac);
+        if(am>0 && ac.filter(x=>x===am).length===1) kn = G.names[ac.indexOf(am)];
+        else kn = kullukOf(getReg(), G.names);
+      }
+    } else kn = kullukOf(getReg(), G.names);
   }
+  const colDisp = c => c.members.map(m=> G.names[m]===kn ? G.names[m]+' 🚬' : G.names[m]).join(' & ');
   document.getElementById('totals').innerHTML = G.cols.map((c,i)=>`
-    <div class="total-card ${played && totals[i]===min? 'leader':''} ${(played && G.cols.length>1 && fark>0 && totals[i]===max) || i===kariyerKullukCol ? 'loser':''}"
+    <div class="total-card ${played && totals[i]===min? 'leader':''}"
          style="border-top:3px solid ${COLC[i%COLC.length]}">
-      <div class="tname" style="color:${COLC[i%COLC.length]}">${c.name}</div>
+      <div class="tname" style="color:${COLC[i%COLC.length]}">${colDisp(c)}</div>
       <div class="tscore">${totals[i]}</div>
       <div class="tsub">${G.mode==='esli'?'takım':'oyuncu'}</div>
     </div>`).join('');
@@ -829,6 +843,8 @@ function renderGame(){
   const ev = document.getElementById('ev-log');
   ev.innerHTML = G.events.length ? G.events.map(e=>`<div>${e}</div>`).join('') : '<span class="hint">Henüz olay yok.</span>';
   document.getElementById('btn-el').style.display = G.hands.length>=G.elSayisi ? 'none':'block';
+  const lastH = G.hands[G.hands.length-1];
+  document.getElementById('btn-undo').style.display = (!G.done && lastH && lastH.sdPrev) ? 'inline-block' : 'none';
   document.getElementById('btn-live').textContent = G.room ? '🔳 QR — Oda Açık' : '🔳 QR — Canlı İzleme';
   const li = document.getElementById('live-info');
   if(G.room){ li.style.display='block'; li.textContent = 'Canlı oda açık — QR butonundan kodu paylaş.'; if(!heartbeatT) startHeartbeat(); }
@@ -1195,9 +1211,12 @@ function saveEl(){
   const r = computeEl();
   const err = document.getElementById('el-err');
   if(!r.valid){ err.textContent=r.errmsg; err.style.display='block'; return; }
+  // geri alma için anlık görüntü (son eli düzeltme özelliği)
+  const sdPrev = JSON.parse(JSON.stringify(G.statDelta));
+  const evPrev = G.events.length;
   // sütun deltaları
   const colDeltas = G.cols.map(c=>c.members.reduce((s,m)=>s+r.deltas[m],0));
-  G.hands.push({ deltas:r.deltas, colDeltas, finisher:elForm.finisher, kafa:r.kafa, okey:elForm.okey, cift:elForm.cift });
+  G.hands.push({ deltas:r.deltas, colDeltas, finisher:elForm.finisher, kafa:r.kafa, okey:elForm.okey, cift:elForm.cift, sdPrev, evPrev });
   G.events.push(...r.events);
   // istatistik delta
   const sd = G.statDelta;
@@ -1241,6 +1260,19 @@ function saveEl(){
   if(G.hands.length>=G.elSayisi) endGame();
 }
 
+/* son eli geri al: puanlar ve istatistikler o elin öncesine döner, giriş ekranı açılır */
+function undoLastEl(){
+  if(!G || G.done || !G.hands.length) return;
+  const lastH = G.hands[G.hands.length-1];
+  if(!lastH.sdPrev){ alert('Bu el eski sürümde girildiği için düzeltilemiyor.'); return; }
+  if(!confirm(`Son el (El ${G.hands.length}) silinip yeniden girilecek. O eldeki hızlı cezalar da dahil her şeyi tekrar girmen gerekir. Devam?`)) return;
+  G.hands.pop();
+  G.statDelta = lastH.sdPrev;
+  if(typeof lastH.evPrev==='number') G.events.length = lastH.evPrev;
+  saveGame(); renderGame();
+  openElModal();
+}
+
 /* ================= OYUN SONU ================= */
 function openErken(){
   if(!G) return;
@@ -1266,7 +1298,10 @@ function endGame(pesCol){
   pend.push({deltas, ozet:{
     ts: Date.now(), mode: '101 OKEY ('+(G.mode==='esli'?'eşli':'tekli')+')', el: G.hands.length,
     cols: G.cols.map(c=>c.name), totals, winners: winners.map(c=>c.name),
-    pes: pes ? G.cols[pesCol].name : undefined
+    pes: pes ? G.cols[pesCol].name : undefined,
+    eller: G.hands.map(h=>({ d: h.colDeltas,
+      f: h.finisher>=0 ? G.cols.findIndex(c=>c.members.includes(h.finisher)) : -1,
+      fn: h.finisher>=0 ? G.names[h.finisher] : null, k: h.kafa?1:0 }))
   }});
   store.set('yb_pending', pend);
   cloudSync();
@@ -1502,24 +1537,84 @@ function kullukOf(reg, names){
   return withGames.length>=2 ? kulluk : null;
 }
 
+/* Detaylı istatistik sayfası: oyuncu kartları */
+function renderDetay(){
+  const reg = getReg();
+  const names = Object.keys(reg).sort((a,b)=>reg[b].gal-reg[a].gal || reg[b].bit-reg[a].bit);
+  const box = document.getElementById('detay-cards');
+  if(!names.length){ box.innerHTML='<div class="card"><p class="hint">Henüz veri yok.</p></div>'; return; }
+  const mini=(l,v)=>`<div class="en-card"><div class="et">${l}</div><div class="ev">${v}</div></div>`;
+  box.innerHTML = names.map(n=>{
+    const p = ensurePlayer(reg,n);
+    const wp = p.oyun? Math.round(100*p.gal/p.oyun):0;
+    const bp = p.els? Math.round(100*p.bit/p.els):null;
+    const ort = p.els? Math.round(p.puan/p.els):null;
+    const tag = (n===window._kral?' 👑':'')+(n===window._kulluk?' 🚬':'');
+    return `<div class="card"><h3>${n}${tag}</h3><div class="enler">
+      ${mini('🎮 Oyun / Galibiyet', p.oyun+' / '+p.gal+' (%'+wp+')')}
+      ${mini('🔥 En uzun seri', p.streakMax||0)}
+      ${mini('🃏 Oynadığı el', p.els||0)}
+      ${mini('🧊 Ortalama el puanı', ort===null?'—':ort)}
+      ${mini('✅ Bitirme', p.bit+(bp===null?'':' (%'+bp+')'))}
+      ${mini('🀄 Okeyle / ♊ Çiftten', (p.okeyBit||0)+' / '+(p.ciftBit||0))}
+      ${mini('🗣️ Kafa attı / 💥 yedi', p.kafa+' / '+(p.kafaYedi||0))}
+      ${mini('🙈 Açamadığı el', p.acamadi||0)}
+      ${mini('⚠️ İşlek taş', p.islek||0)}
+      ${mini('🎯 Taş kaptırma', p.kap? p.kap+' ('+p.kapPuan+' ceza)':'—')}
+      ${mini('🫠 Okey kaptırdı', p.okap||0)}
+      ${mini('🏅 Çift / 📏 Seri rekoru', p.rcift+' / '+p.rseri)}
+      ${mini('🎯 En yüksek açılış', p.srmax||'—')}
+      ${mini('🃏 En çok çiftle açılış', p.crmax||'—')}
+      ${mini('⭐ En iyi el / 🥴 En kötü', (p.best===null?'—':p.best)+' / '+(p.worst==null?'—':'+'+p.worst))}
+      ${mini('🏳️ Pes / 💰 Kariyer puanı', (p.pes||0)+' / '+(p.puan||0))}
+    </div></div>`;
+  }).join('');
+}
+
 /* Son oyunlar (Supabase masasına bağlıyken oyun geçmişi) */
 async function loadSonOyunlar(){
   const card = document.getElementById('games-card');
   const sb = parseS(cloudId()||'');
   if(!sb || !sbReady()){ card.style.display='none'; return; }
   try{
-    const arr = await sbRpc('yb_oyunlar', {p_code:sb.c, p_limit:10});
+    const arr = await sbRpc('yb_oyunlar', {p_code:sb.c, p_limit:15});
     if(!arr || !arr.length){ card.style.display='none'; return; }
+    window._sonOyunlar = arr;
     card.style.display='block';
-    document.getElementById('games-list').innerHTML = arr.map(o=>{
+    document.getElementById('games-list').innerHTML = arr.map((o,i)=>{
       const z = o.ozet || {};
       const dt = new Date(o.ts || z.ts || 0);
-      const tot = (z.cols||[]).map((c,i)=>`${c}: <b>${(z.totals||[])[i]}</b>`).join(' · ');
-      return `<div><b style="color:var(--cyan)">${z.mode||'Oyun'}</b> — 🏆 <b>${(z.winners||[]).join(' & ')||'?'}</b>
+      const tot = (z.cols||[]).map((c,ci)=>`${c}: <b>${(z.totals||[])[ci]}</b>`).join(' · ');
+      const hasEller = z.eller && z.eller.length;
+      return `<div ${hasEller?`onclick="toggleOyunDetay(${i})" style="cursor:pointer"`:''}>
+        <b style="color:var(--cyan)">${z.mode||'Oyun'}</b> — 🏆 <b>${(z.winners||[]).join(' & ')||'?'}</b>${z.pes?' <span class="hint" style="display:inline">('+z.pes+' pes etti 🏳️)</span>':''}
         <span class="hint" style="display:inline">· ${dt.toLocaleDateString('tr-TR')} ${dt.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}</span><br>
-        <span class="hint" style="display:inline">${tot}</span></div>`;
+        <span class="hint" style="display:inline">${tot}${hasEller?' · <u>el el görmek için dokun</u>':''}</span>
+        <div id="od-${i}" style="display:none"></div>
+      </div>`;
     }).join('');
   }catch(e){ card.style.display='none'; }
+}
+function toggleOyunDetay(i){
+  const box = document.getElementById('od-'+i);
+  if(!box) return;
+  if(box.style.display==='none'){
+    const z = (window._sonOyunlar[i]||{}).ozet || {};
+    let run = (z.cols||[]).map(()=>0);
+    let h = `<div class="yazboz-wrap" style="margin-top:8px"><table class="yazboz">
+      <tr><th>El</th>${(z.cols||[]).map((c,ci)=>`<th style="color:${COLC[ci%COLC.length]}">${c}</th>`).join('')}</tr>`;
+    (z.eller||[]).forEach((e,ri)=>{
+      h += `<tr><td>${ri+1}</td>` + e.d.map((v,ci)=>{
+        run[ci]+=v;
+        const mark = e.f===ci ? ` <span style="color:${COLC[ci%COLC.length]}" title="${e.fn||''} bitirdi">✔${e.k?'💥':''}</span>` : '';
+        return `<td><span class="d ${v<0?'neg':''}">${v>0?'+':''}${v}</span>${mark}<br><span class="c">${run[ci]}</span></td>`;
+      }).join('') + '</tr>';
+    });
+    h += `<tr class="totrow"><td>Σ</td>${(z.totals||[]).map(t=>`<td>${t}</td>`).join('')}</tr></table></div>`;
+    box.innerHTML = h;
+    box.style.display='block';
+  } else box.style.display='none';
+  event && event.stopPropagation && event.stopPropagation();
 }
 
 /* ================= İSTATİSTİK ================= */
@@ -1550,13 +1645,7 @@ function renderStatsTables(){
       const pct = p.oyun? Math.round(100*p.gal/p.oyun) : 0;
       const bpct = p.els? '%'+Math.round(100*p.bit/p.els) : '—';
       return `<tr><td>${dec(n)}</td><td>${p.oyun}</td><td>${p.gal}</td><td>%${pct}</td><td>${p.streakMax||0}</td><td>${p.bit}</td><td>${bpct}</td><td>${p.kafa}</td><td>${p.pes||0}</td></tr>`; }).join('');
-  // detay tablosu
-  document.getElementById('stat-table2').innerHTML =
-    '<tr><th>Oyuncu</th><th>El</th><th>Ort</th><th>Okey</th><th>Çift</th><th>Açmz</th><th>İşlk</th><th>Kap</th><th>OKap</th><th>K.Yedi</th><th>R</th><th>S</th><th>Açl</th><th>Çft</th><th>En iyi</th><th>En kötü</th></tr>' +
-    names.map(n=>{ const p=reg[n];
-      const ort = p.els? Math.round(p.puan/p.els) : null;
-      const kap = p.kap? `${p.kap} (${p.kapPuan})` : '—';
-      return `<tr><td>${n}</td><td>${p.els||0}</td><td>${ort===null?'—':ort}</td><td>${p.okeyBit||0}</td><td>${p.ciftBit||0}</td><td>${p.acamadi||0}</td><td>${p.islek||0}</td><td>${kap}</td><td>${p.okap||0}</td><td>${p.kafaYedi||0}</td><td>${p.rcift}</td><td>${p.rseri}</td><td>${p.srmax||'—'}</td><td>${p.crmax||'—'}</td><td>${p.best===null?'—':p.best}</td><td>${p.worst===null||p.worst===undefined?'—':'+'+p.worst}</td></tr>`; }).join('');
+  window._kral=kral; window._kulluk=kulluk; // detay sayfası için
   // enler
   const en = (key,label,emoji,minMode)=>{
     let bestVal=null, holders=[];
@@ -2043,15 +2132,20 @@ function dUpdateTotals(){
   const played = D.rows.some(r=>r.v.some(x=>x!==null));
   const best = (D.dir==='high'? Math.max:Math.min)(...t);
   const worst = (D.dir==='high'? Math.min:Math.max)(...t);
-  let kariyerKullukCol = -1;
-  if(!(played && best!==worst) && D.cols.length>1){
-    const kn = kullukOf(getReg(), D.names);
-    if(kn) kariyerKullukCol = D.cols.findIndex(c=>c.members.some(m=>D.names[m]===kn));
+  // defterde kulluk: skor en kötü sütuna (teklide kişidir); eşitlikte kariyer kulluğu
+  let kn = null, knCol = -1;
+  if(D.cols.length>1){
+    if(played && best!==worst) knCol = t.indexOf(worst);
+    else kn = kullukOf(getReg(), D.names);
   }
+  const colDisp = (c,i) => {
+    const base = c.members.map(m=> D.names[m]===kn ? D.names[m]+' 🚬' : D.names[m]).join(' & ');
+    return i===knCol ? base+' 🚬' : base;
+  };
   document.getElementById('d-totals').innerHTML = D.cols.map((c,i)=>`
-    <div class="total-card ${played && t[i]===best ? 'leader':''} ${(played && D.cols.length>1 && best!==worst && t[i]===worst) || i===kariyerKullukCol ? 'loser':''}"
+    <div class="total-card ${played && t[i]===best ? 'leader':''}"
          style="border-top:3px solid ${COLC[i%COLC.length]}">
-      <div class="tname" style="color:${COLC[i%COLC.length]}">${c.name}</div>
+      <div class="tname" style="color:${COLC[i%COLC.length]}">${colDisp(c,i)}</div>
       <div class="tscore">${t[i]}</div>
     </div>`).join('');
   document.getElementById('d-fark').textContent = (played && D.cols.length>=2 && best!==worst)
@@ -2124,7 +2218,8 @@ function bitirDefter(){
   applyDeltas(reg, deltas); setReg(reg);
   const pend = store.get('yb_pending', []);
   pend.push({deltas, ozet:{ ts:Date.now(), mode:D.gname, el:D.rows.filter(r=>r.v.some(x=>x!==null)).length,
-    cols:D.cols.map(c=>c.name), totals:t, winners:winCols.map(c=>c.name) }});
+    cols:D.cols.map(c=>c.name), totals:t, winners:winCols.map(c=>c.name),
+    eller: D.rows.filter(r=>r.v.some(x=>x!==null)).map(r=>({d:r.v.map(x=>x||0), f:-1})) }});
   store.set('yb_pending', pend);
   cloudSync();
   NET && D.room && NET.push(D.room, dSnapshot()).catch(()=>{});
