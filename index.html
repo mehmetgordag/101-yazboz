@@ -145,6 +145,7 @@ input[type=number]{max-width:120px;}
   -webkit-text-fill-color:transparent; color:transparent;
 }
 .total-card.leader::after{content:"👑"; position:absolute; top:6px; right:8px; font-size:13px;}
+.total-card.loser::before{content:"🚬"; position:absolute; top:6px; left:8px; font-size:13px; opacity:.9;}
 .total-card .tsub{font-size:10px; color:var(--dim);}
 
 /* yazboz table */
@@ -245,7 +246,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div class="mini-tile t-yellow"><span>☺</span></div>
   </div>
   <h1>YAZBOZ</h1>
-  <div class="sub">masa oyunları · v2.8</div>
+  <div class="sub">masa oyunları · v3.1</div>
 </header>
 <main>
 
@@ -299,10 +300,12 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 <!-- OYUN -->
 <section id="scr-game" class="screen">
   <div class="row" style="align-items:center">
-    <button class="back" style="flex:none" onclick="show('scr-home')">← Ana Sayfa</button>
+    <button class="back" style="flex:none" onclick="goHome()">← Ana Sayfa</button>
     <div style="flex:1; text-align:right; font-weight:800" id="el-counter"></div>
   </div>
   <div class="totals" id="totals"></div>
+  <div class="hint center" id="fark-line" style="font-size:14px;font-weight:700;color:var(--cyan)"></div>
+  <div class="hint center" id="bitenler-line"></div>
   <button class="btn btn-primary" id="btn-el" onclick="openElModal()">✍️ El Bitti — Puan Gir</button>
   <button class="btn btn-tile" onclick="openOlayModal()">⚡ Ceza Yaz <span class="hint" style="display:inline">(el sürerken — işlek, kaptırma, rekor)</span></button>
   <div class="card" id="pending-card" style="display:none">
@@ -323,7 +326,10 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <h3>El Olayları</h3>
     <div class="evlist" id="ev-log"><span class="hint">Henüz olay yok.</span></div>
   </div>
-  <button class="btn btn-danger btn-sm" onclick="abortGame()">Oyunu İptal Et</button>
+  <div class="row">
+    <button class="btn btn-outline btn-sm" onclick="openErken()">🏳️ Erken Bitir / Pes</button>
+    <button class="btn btn-danger btn-sm" onclick="abortGame()">Oyunu İptal Et</button>
+  </div>
 </section>
 
 <!-- DEFTER KURULUM -->
@@ -361,10 +367,11 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 <!-- DEFTER OYUN -->
 <section id="scr-defter" class="screen">
   <div class="row" style="align-items:center">
-    <button class="back" style="flex:none" onclick="show('scr-home')">← Ana Sayfa</button>
+    <button class="back" style="flex:none" onclick="goHome()">← Ana Sayfa</button>
     <div style="flex:1; text-align:right; font-weight:800" id="d-title"></div>
   </div>
   <div class="totals" id="d-totals"></div>
+  <div class="hint center" id="d-fark" style="font-size:14px;font-weight:700;color:var(--cyan)"></div>
   <p class="hint" id="d-note"></p>
   <div class="card">
     <h3>Yazboz <span class="hint" style="display:inline">— kutulara puanları yaz, toplamlar kendiliğinden</span></h3>
@@ -386,9 +393,14 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div class="enler" id="enler"></div>
   </div>
   <div class="card">
-    <h3>Oyuncu İstatistikleri</h3>
+    <h3>Genel Skorboard</h3>
     <div style="overflow-x:auto"><table class="stat-table" id="stat-table"></table></div>
-    <p class="hint">G: oyun · W: galibiyet · B: el bitirme · K: kafa · R: çift rekoru · S: seri rekoru · En iyi: tek elde en iyi puan</p>
+    <p class="hint">G: oyun · W: galibiyet · %: kazanma oranı · 🔥: en uzun galibiyet serisi · B: el bitirme · B%: bitirme oranı (bit/el) · K: kafa · Pes · 👑 kral · 🚬 kulluk</p>
+  </div>
+  <div class="card">
+    <h3>Detaylı İstatistikler (101 Okey)</h3>
+    <div style="overflow-x:auto"><table class="stat-table" id="stat-table2"></table></div>
+    <p class="hint">El: oynadığı el · Ort: ortalama el puanı (düşük iyi) · Okey/Çift: okeyle-çiftten bitirme · Açmz: açamadığı el · İşlk: işlek taş · Kap: taş kaptırma (toplam ceza) · OKap: okey kaptırma · K.Yedi: kafa yeme · R/S: çift-seri rekoru · Açl/Çft: rekor değerleri · En iyi / En kötü: tek el uçları</p>
   </div>
   <div class="card" id="cloud-card"></div>
   <div class="card" id="games-card" style="display:none">
@@ -449,8 +461,9 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
         <div class="chip" id="bt-cift" onclick="setBitis('cift')">Çiftten (×2)</div>
       </div>
       <div class="chips" id="rekor-chips"></div>
+      <div id="rekor-extra"></div>
     </div>
-    <div id="kafa-note" class="hint" style="display:none; color:var(--red); font-weight:700">🗣️ KAFA! Kimse açamadı — rakip cezaları ×2. Bitiren rekor da açtıysa yukarıdan işaretle (−101).</div>
+    <div id="kafa-note" style="display:none"></div>
     <label class="fld">Diğer oyuncular</label>
     <div id="other-players"></div>
     <label class="fld">El içi olaylar (işlek, kaptırma, rekor...)</label>
@@ -480,6 +493,16 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
       <button class="btn btn-outline btn-sm" onclick="closeModal('modal-olay')">Vazgeç</button>
       <button class="btn btn-green" onclick="saveQuickOlay()">Yaz ✔</button>
     </div>
+  </div>
+</div>
+
+<!-- ERKEN BİTİRME / PES MODALI -->
+<div class="modal-bg" id="modal-erken">
+  <div class="modal">
+    <h3>🏳️ Oyunu Erken Bitir</h3>
+    <p class="hint">Mevcut puanlarla bitirebilir ya da pes eden tarafı seçebilirsin. Pes eden istatistiklere işlenir.</p>
+    <div id="erken-buttons"></div>
+    <button class="btn btn-outline btn-sm" onclick="closeModal('modal-erken')">Vazgeç</button>
   </div>
 </div>
 
@@ -593,8 +616,11 @@ function resetSettings(){
 /* ================= OYUNCU KAYITLARI ================= */
 function getReg(){ return store.get('yb_players', {}); }
 function setReg(r){ store.set('yb_players', r); }
+const PLAYER_DEFAULTS = {oyun:0, gal:0, bit:0, kafa:0, rcift:0, rseri:0, best:null, srmax:0, crmax:0, pes:0,
+  els:0, okeyBit:0, ciftBit:0, acamadi:0, islek:0, kap:0, kapPuan:0, okap:0, puan:0, worst:null, kafaYedi:0, streak:0, streakMax:0};
 function ensurePlayer(reg, name){
-  if(!reg[name]) reg[name] = {oyun:0, gal:0, bit:0, kafa:0, rcift:0, rseri:0, best:null};
+  if(!reg[name]) reg[name] = Object.assign({}, PLAYER_DEFAULTS);
+  else for(const k in PLAYER_DEFAULTS) if(reg[name][k]===undefined) reg[name][k]=PLAYER_DEFAULTS[k]; // eski sürüm kayıtlarını taşı
   return reg[name];
 }
 
@@ -604,6 +630,8 @@ function show(id){
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
 }
+/* ana sayfaya dönüş: devam butonları her zaman tazelenir (yanlışlıkla çıkınca oyun kaybolmaz) */
+function goHome(){ if(typeof boot==='function') boot(); show('scr-home'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 function openModal(id){ document.getElementById(id).classList.add('open'); }
 
@@ -746,7 +774,8 @@ function startGame(){
   G = {
     mode:setupMode, elSayisi:setupEl, names, cols,
     hands:[], events:[], room:null, pendingOlaylar:[],
-    statDelta: Object.fromEntries(names.map(n=>[n,{bit:0,kafa:0,rcift:0,rseri:0,best:null}])),
+    statDelta: Object.fromEntries(names.map(n=>[n,{bit:0,kafa:0,rcift:0,rseri:0,best:null,srmax:0,crmax:0,pes:0,
+      els:0,okeyBit:0,ciftBit:0,acamadi:0,islek:0,kap:0,kapPuan:0,okap:0,puan:0,worst:null,kafaYedi:0}])),
     done:false, startedAt: new Date().toISOString()
   };
   // isimleri kayda geç
@@ -767,17 +796,26 @@ function colTotals(g){
   return t;
 }
 
+const COLC = ['#6da8d8','#6cc7b5','#d8a86d','#c58fd8'];
 function renderGame(){
   if(!G) return;
   document.getElementById('el-counter').textContent = `El: ${Math.min(G.hands.length+1,G.elSayisi)} / ${G.elSayisi}`;
   const totals = colTotals(G);
-  const min = Math.min(...totals);
+  const min = Math.min(...totals), max = Math.max(...totals);
+  const played = G.hands.length>0, fark = max-min;
   document.getElementById('totals').innerHTML = G.cols.map((c,i)=>`
-    <div class="total-card ${totals[i]===min && G.hands.length? 'leader':''}">
-      <div class="tname">${c.name}</div>
+    <div class="total-card ${played && totals[i]===min? 'leader':''} ${played && G.cols.length>1 && fark>0 && totals[i]===max? 'loser':''}"
+         style="border-top:3px solid ${COLC[i%COLC.length]}">
+      <div class="tname" style="color:${COLC[i%COLC.length]}">${c.name}</div>
       <div class="tscore">${totals[i]}</div>
       <div class="tsub">${G.mode==='esli'?'takım':'oyuncu'}</div>
     </div>`).join('');
+  // anlık fark + kişi bazlı bitiş sayıları
+  document.getElementById('fark-line').textContent = (played && G.cols.length>=2 && fark>0)
+    ? `Fark: ${fark} (${G.cols[totals.indexOf(min)].name} önde)` : '';
+  const bitCounts = G.names.map((n,i)=>({n, c:G.hands.filter(h=>h.finisher===i).length})).filter(x=>x.c>0);
+  document.getElementById('bitenler-line').textContent = bitCounts.length
+    ? '✍️ Bitenler: ' + bitCounts.map(x=>`${x.n} ${x.c}`).join(' · ') : '';
   // yazboz tablosu
   document.getElementById('yazboz-table').innerHTML = yazbozHTML(G, totals);
   // olay günlüğü
@@ -803,13 +841,16 @@ function renderGame(){
 }
 
 function yazbozHTML(g, totals){
-  let h = '<tr><th>El</th>' + g.cols.map(c=>`<th>${c.name}</th>`).join('') + '</tr>';
+  let h = '<tr><th>El</th>' + g.cols.map((c,i)=>`<th style="color:${COLC[i%COLC.length]}">${c.name}</th>`).join('') + '</tr>';
   let run = g.cols.map(()=>0);
   g.hands.forEach((hand,hi)=>{
     h += `<tr><td>${hi+1}</td>`;
     hand.colDeltas.forEach((d,ci)=>{
       run[ci]+=d;
-      h += `<td><span class="d ${d<0?'neg':''}">${d>0?'+':''}${d}</span><br><span class="c">${run[ci]}</span></td>`;
+      // bu eli bu sütundaki biri mi bitirdi? tabelada anında görünsün
+      const fin = hand.finisher>=0 && g.cols[ci].members.includes(hand.finisher);
+      const mark = fin ? ` <span style="color:${COLC[ci%COLC.length]}" title="${g.names[hand.finisher]} bitirdi">✔${hand.kafa?'💥':''}</span>` : '';
+      h += `<td><span class="d ${d<0?'neg':''}">${d>0?'+':''}${d}</span>${mark}<br><span class="c">${run[ci]}</span></td>`;
     });
     h += '</tr>';
   });
@@ -821,8 +862,10 @@ function yazbozHTML(g, totals){
 let elForm = null;
 
 function openElModal(){
-  elForm = { finisher:null, okey:false, cift:false, rcift:false, rseri:false, others:{}, olaylar:[] };
+  elForm = { finisher:null, okey:false, cift:false, rcift:false, rseri:false, rseriPuan:0, rciftAdet:0, others:{}, olaylar:[] };
   setBitisChips();
+  document.getElementById('rekor-extra').innerHTML='';
+  const kn = document.getElementById('kafa-note'); kn.style.display='none'; kn.dataset.on='';
   // bitirenin rekoru: ayrı olay eklemeye gerek yok, bitişle birlikte işaretlenir
   document.getElementById('rekor-chips').innerHTML = SET.rekorAktif
     ? `<div class="chip" id="bt-rcift" onclick="toggleFinRekor('rcift')">🏅 ${SET.rekorCift}+ çift rekoru (−${SET.rekorBonus})</div>
@@ -855,7 +898,42 @@ function toggleFinRekor(k){
   elForm[k] = !elForm[k];
   const el = document.getElementById(k==='rcift'?'bt-rcift':'bt-rseri');
   if(el) el.classList.toggle('sel', elForm[k]);
+  renderRekorExtra();
   updatePreview();
+}
+/* kafa yakalanınca türü sor: rekorsuz (−200) / rekorlu (−301) */
+function updateKafaUI(kafa){
+  const note = document.getElementById('kafa-note');
+  if(!kafa){ note.style.display='none'; note.dataset.on=''; return; }
+  if(note.dataset.on!=='1'){
+    note.dataset.on='1';
+    const toplam = SET.bitmeBonus + SET.rekorBonus;
+    note.innerHTML = `<div class="hint" style="color:var(--red);font-weight:700;margin-top:6px">🗣️ KAFA! Kimse açamadı — rakip cezaları ×2. Kafa türünü seç:</div>`
+      + (SET.rekorAktif
+        ? `<div class="chips" style="margin-top:4px">
+             <div class="chip small" id="kn-plain" onclick="setKafaTip(false)">Rekorsuz Kafa (−${SET.bitmeBonus})</div>
+             <div class="chip small" id="kn-rekor" onclick="setKafaTip(true)">🏅 Rekorlu Kafa (−${toplam})</div>
+           </div>` : '');
+  }
+  note.style.display='block';
+  const kp=document.getElementById('kn-plain'), kr=document.getElementById('kn-rekor');
+  if(kp) kp.classList.toggle('sel', !elForm.rseri);
+  if(kr) kr.classList.toggle('sel', !!elForm.rseri);
+}
+function setKafaTip(rekorlu){
+  elForm.rseri = rekorlu;
+  const bt = document.getElementById('bt-rseri');
+  if(bt) bt.classList.toggle('sel', rekorlu);
+  renderRekorExtra();
+  updatePreview();
+}
+function renderRekorExtra(){
+  let h='';
+  if(elForm.rseri) h += `<label class="fld">Seri rekoru: kaç puanla açtı?</label>
+    <input type="number" min="0" inputmode="numeric" placeholder="örn. 56" value="${elForm.rseriPuan||''}" oninput="elForm.rseriPuan=Number(this.value)||0">`;
+  if(elForm.rcift) h += `<label class="fld">Çift rekoru: kaç çiftle açtı?</label>
+    <input type="number" min="0" inputmode="numeric" placeholder="örn. 8" value="${elForm.rciftAdet||''}" oninput="elForm.rciftAdet=Number(this.value)||0">`;
+  document.getElementById('rekor-extra').innerHTML = h;
 }
 function pickFinisher(i){
   elForm.finisher = i;
@@ -952,8 +1030,14 @@ function olayExtra(id){
   if(o.type==='kaptirma'){
     box.innerHTML = `<label class="fld">Atılan taşın değeri</label>
       <input type="number" min="1" max="13" inputmode="numeric" placeholder="örn. 5" oninput="elForm.olaylar[${id}].tas=Number(this.value)||0;updatePreview()">
-      <div class="checkline"><input type="checkbox" id="oa-${id}" onchange="elForm.olaylar[${id}].alanCift=this.checked;updatePreview()"><label for="oa-${id}">Alan kişi ÇİFT açtı (yoksa seri ×${SET.kapSeri})</label></div>
-      <div class="checkline"><input type="checkbox" id="ob-${id}" onchange="elForm.olaylar[${id}].atanCift=this.checked;updatePreview()"><label for="ob-${id}">Atan kişi çifte gidiyordu (×${SET.kapCiftCift})</label></div>`;
+      <div class="checkline"><input type="checkbox" id="oa-${id}" onchange="elForm.olaylar[${id}].alanCift=this.checked;updatePreview()"><label for="oa-${id}">Alan kişi ÇİFT açtı (×${SET.kapCift})</label></div>
+      <div class="checkline"><input type="checkbox" id="ob-${id}" onchange="elForm.olaylar[${id}].atanCift=this.checked;updatePreview()"><label for="ob-${id}">Atan kişi çifte gidiyordu (×${SET.kapCift}; alan da çiftse ×${SET.kapCiftCift})</label></div>`;
+  } else if(o.type==='rseri'){
+    box.innerHTML = `<label class="fld">Kaç puanla açtı? (rekor kaydı için)</label>
+      <input type="number" min="0" inputmode="numeric" placeholder="örn. 56" oninput="elForm.olaylar[${id}].val=Number(this.value)||0">`;
+  } else if(o.type==='rcift'){
+    box.innerHTML = `<label class="fld">Kaç çiftle açtı? (rekor kaydı için)</label>
+      <input type="number" min="0" inputmode="numeric" placeholder="örn. 8" oninput="elForm.olaylar[${id}].val=Number(this.value)||0">`;
   } else box.innerHTML='';
 }
 
@@ -967,7 +1051,7 @@ function computeEl(){
   // çiftten bitişte kafa olmaz (çifte giden zaten açık oynar)
   const kafa = f.finisher>=0 && !f.cift && others.length>0 && others.every(([j,o])=>o.durum==='acamadi');
   res.kafa = kafa;
-  document.getElementById('kafa-note').style.display = kafa?'block':'none';
+  updateKafaUI(kafa);
 
   if(f.finisher>=0){
     const finName = G.names[f.finisher];
@@ -1021,7 +1105,8 @@ function olayDelta(o){
   if(o.type==='rcift') return SET.rekorAktif ? {v:-SET.rekorBonus, label:'çift rekoru', ev:n=>`🏅 ${n} ÇİFT REKORU açtı (−${SET.rekorBonus})`} : null;
   if(o.type==='rseri') return SET.rekorAktif ? {v:-SET.rekorBonus, label:'seri rekoru', ev:n=>`🏅 ${n} SERİ REKORU (${SET.rekorSeri} yan 1) açtı (−${SET.rekorBonus})`} : null;
   if(o.type==='kaptirma'){
-    const c = (o.atanCift && o.alanCift) ? SET.kapCiftCift : (o.alanCift ? SET.kapCift : SET.kapSeri);
+    // atan VEYA alan çiftteyse ×20; ikisi de çiftteyse ×40; ikisi de düzse ×10
+    const c = (o.atanCift && o.alanCift) ? SET.kapCiftCift : ((o.alanCift || o.atanCift) ? SET.kapCift : SET.kapSeri);
     return {v:o.tas*c, label:`taş kaptırdı ${o.tas}×${c}`, ev:n=>`🎯 ${n} taş kaptırdı: ${o.tas} × ${c} = +${o.tas*c}`};
   }
   return null;
@@ -1031,7 +1116,7 @@ function olayDelta(o){
 let qForm = null;
 function openOlayModal(){
   if(!G) return;
-  qForm = {pid:null, type:null, tas:0, alanCift:false, atanCift:false};
+  qForm = {pid:null, type:null, tas:0, alanCift:false, atanCift:false, val:0};
   document.getElementById('q-player').innerHTML = G.names.map((n,i)=>`<div class="chip" id="qp-${i}" onclick="pickQP(${i})">${n}</div>`).join('');
   document.getElementById('q-type').innerHTML = OLAY_TYPES().map(o=>`<div class="chip small" id="qt-${o.v}" onclick="pickQT('${o.v}')">${o.l}</div>`).join('');
   document.getElementById('q-extra').innerHTML='';
@@ -1051,8 +1136,14 @@ function pickQT(t){
   if(t==='kaptirma'){
     ex.innerHTML = `<label class="fld">Atılan taşın değeri</label>
       <input type="number" min="1" max="13" inputmode="numeric" placeholder="örn. 5" oninput="qForm.tas=Number(this.value)||0;updateQ()">
-      <div class="checkline"><input type="checkbox" id="q-ac" onchange="qForm.alanCift=this.checked;updateQ()"><label for="q-ac">Alan kişi ÇİFT açtı</label></div>
-      <div class="checkline"><input type="checkbox" id="q-at" onchange="qForm.atanCift=this.checked;updateQ()"><label for="q-at">Atan kişi çifte gidiyordu</label></div>`;
+      <div class="checkline"><input type="checkbox" id="q-ac" onchange="qForm.alanCift=this.checked;updateQ()"><label for="q-ac">Alan kişi ÇİFT açtı (×${SET.kapCift})</label></div>
+      <div class="checkline"><input type="checkbox" id="q-at" onchange="qForm.atanCift=this.checked;updateQ()"><label for="q-at">Atan çifte gidiyordu (×${SET.kapCift}; alan da çiftse ×${SET.kapCiftCift})</label></div>`;
+  } else if(t==='rseri'){
+    ex.innerHTML = `<label class="fld">Kaç puanla açtı?</label>
+      <input type="number" min="0" inputmode="numeric" placeholder="örn. 56" oninput="qForm.val=Number(this.value)||0">`;
+  } else if(t==='rcift'){
+    ex.innerHTML = `<label class="fld">Kaç çiftle açtı?</label>
+      <input type="number" min="0" inputmode="numeric" placeholder="örn. 8" oninput="qForm.val=Number(this.value)||0">`;
   } else ex.innerHTML='';
   updateQ();
 }
@@ -1098,17 +1189,36 @@ function saveEl(){
   G.events.push(...r.events);
   // istatistik delta
   const sd = G.statDelta;
+  // el bazlı detaylar: el sayısı, kariyer puanı, en kötü el
+  G.names.forEach((n,i)=>{
+    const s = sd[n];
+    s.els = (s.els||0)+1;
+    s.puan = (s.puan||0) + r.deltas[i];
+    if(s.worst===null || s.worst===undefined || r.deltas[i] > s.worst) s.worst = r.deltas[i];
+  });
   if(elForm.finisher>=0){
     const finN = G.names[elForm.finisher];
     sd[finN].bit++;
     if(r.kafa) sd[finN].kafa++;
-    if(SET.rekorAktif && elForm.rcift) sd[finN].rcift++;
-    if(SET.rekorAktif && elForm.rseri) sd[finN].rseri++;
+    if(elForm.okey) sd[finN].okeyBit=(sd[finN].okeyBit||0)+1;
+    if(elForm.cift) sd[finN].ciftBit=(sd[finN].ciftBit||0)+1;
+    if(SET.rekorAktif && elForm.rcift){ sd[finN].rcift++; if(elForm.rciftAdet) sd[finN].crmax=Math.max(sd[finN].crmax||0, elForm.rciftAdet); }
+    if(SET.rekorAktif && elForm.rseri){ sd[finN].rseri++; if(elForm.rseriPuan) sd[finN].srmax=Math.max(sd[finN].srmax||0, elForm.rseriPuan); }
+  }
+  // rakip durumları: açamama + kafa yeme
+  for(const [js,o] of Object.entries(elForm.others)){
+    const sn = G.names[Number(js)];
+    if(o.durum==='acamadi') sd[sn].acamadi=(sd[sn].acamadi||0)+1;
+    if(r.kafa) sd[sn].kafaYedi=(sd[sn].kafaYedi||0)+1;
   }
   for(const o of [...(G.pendingOlaylar||[]), ...elForm.olaylar]){
     if(o.del) continue;
-    if(o.type==='rcift') sd[G.names[o.pid]].rcift++;
-    if(o.type==='rseri') sd[G.names[o.pid]].rseri++;
+    const sn = G.names[o.pid];
+    if(o.type==='rcift'){ sd[sn].rcift++; if(o.val) sd[sn].crmax=Math.max(sd[sn].crmax||0, o.val); }
+    if(o.type==='rseri'){ sd[sn].rseri++; if(o.val) sd[sn].srmax=Math.max(sd[sn].srmax||0, o.val); }
+    if(o.type==='islek') sd[sn].islek=(sd[sn].islek||0)+1;
+    if(o.type==='okeykap') sd[sn].okap=(sd[sn].okap||0)+1;
+    if(o.type==='kaptirma'){ sd[sn].kap=(sd[sn].kap||0)+1; const od=olayDelta(o); if(od) sd[sn].kapPuan=(sd[sn].kapPuan||0)+od.v; }
   }
   G.pendingOlaylar = [];
   G.names.forEach((n,i)=>{
@@ -1120,12 +1230,21 @@ function saveEl(){
 }
 
 /* ================= OYUN SONU ================= */
-function endGame(){
+function openErken(){
+  if(!G) return;
+  document.getElementById('erken-buttons').innerHTML =
+    `<button class="btn btn-primary" onclick="closeModal('modal-erken');endGame()">🏁 Mevcut puanlarla bitir (düşük kazanır)</button>` +
+    G.cols.map((c,i)=>`<button class="btn btn-danger" onclick="closeModal('modal-erken');endGame(${i})">🏳️ ${c.name} pes etti</button>`).join('');
+  openModal('modal-erken');
+}
+function endGame(pesCol){
   G.done = true;
   const totals = colTotals(G);
   const min = Math.min(...totals);
-  const winners = G.cols.filter((c,i)=>totals[i]===min);
+  const pes = (typeof pesCol==='number');
+  const winners = pes ? G.cols.filter((c,i)=>i!==pesCol) : G.cols.filter((c,i)=>totals[i]===min);
   const winNames = winners.flatMap(c=>c.members.map(m=>G.names[m]));
+  if(pes) G.cols[pesCol].members.forEach(m=>{ G.statDelta[G.names[m]].pes = (G.statDelta[G.names[m]].pes||0)+1; });
   // kalıcı istatistikleri işle (yerel + bulut kuyruğu; oyun özeti geçmişe yazılır)
   const deltas = G.names.map(n=>Object.assign({n, oyun:1, gal:winNames.includes(n)?1:0}, G.statDelta[n]));
   const reg = getReg();
@@ -1134,11 +1253,14 @@ function endGame(){
   const pend = store.get('yb_pending', []);
   pend.push({deltas, ozet:{
     ts: Date.now(), mode: '101 OKEY ('+(G.mode==='esli'?'eşli':'tekli')+')', el: G.hands.length,
-    cols: G.cols.map(c=>c.name), totals, winners: winners.map(c=>c.name)
+    cols: G.cols.map(c=>c.name), totals, winners: winners.map(c=>c.name),
+    pes: pes ? G.cols[pesCol].name : undefined
   }});
   store.set('yb_pending', pend);
   cloudSync();
-  document.getElementById('final-title').textContent = `Kazanan: ${winners.map(c=>c.name).join(' & ')} 🏆`;
+  document.getElementById('final-title').textContent = pes
+    ? `${G.cols[pesCol].name} pes etti 🏳️ — Kazanan: ${winners.map(c=>c.name).join(' & ')} 🏆`
+    : `Kazanan: ${winners.map(c=>c.name).join(' & ')} 🏆`;
   document.getElementById('final-body').innerHTML =
     `<div class="totals">${G.cols.map((c,i)=>`<div class="total-card ${totals[i]===min?'leader':''}"><div class="tname">${c.name}</div><div class="tscore">${totals[i]}</div></div>`).join('')}</div>
      <p class="hint">En düşük puan kazanır. Oyuncu istatistikleri güncellendi.</p>`;
@@ -1156,8 +1278,18 @@ function applyDeltas(players, ds){
   for(const d of ds){
     const p = ensurePlayer(players, d.n);
     p.oyun+=d.oyun||0; p.gal+=d.gal||0; p.bit+=d.bit||0; p.kafa+=d.kafa||0;
-    p.rcift+=d.rcift||0; p.rseri+=d.rseri||0;
+    p.rcift+=d.rcift||0; p.rseri+=d.rseri||0; p.pes+=d.pes||0;
+    p.els+=d.els||0; p.okeyBit+=d.okeyBit||0; p.ciftBit+=d.ciftBit||0; p.acamadi+=d.acamadi||0;
+    p.islek+=d.islek||0; p.kap+=d.kap||0; p.kapPuan+=d.kapPuan||0; p.okap+=d.okap||0;
+    p.puan+=d.puan||0; p.kafaYedi+=d.kafaYedi||0;
     if(d.best!==undefined && d.best!==null && (p.best===null || d.best<p.best)) p.best=d.best;
+    if(d.worst!==undefined && d.worst!==null && (p.worst===null || d.worst>p.worst)) p.worst=d.worst;
+    if(d.srmax && d.srmax>(p.srmax||0)) p.srmax=d.srmax; // en yüksek seri açılışı
+    if(d.crmax && d.crmax>(p.crmax||0)) p.crmax=d.crmax; // en çok çiftle açılış
+    if(d.oyun){ // galibiyet serisi
+      if(d.gal){ p.streak=(p.streak||0)+d.gal; if(p.streak>(p.streakMax||0)) p.streakMax=p.streak; }
+      else p.streak=0;
+    }
   }
 }
 function cloudId(){ return store.get('yb_cloud', null); }
@@ -1371,25 +1503,60 @@ function renderStatsTables(){
     document.getElementById('enler').innerHTML='<span class="hint">Henüz veri yok.</span>';
     return;
   }
+  names.forEach(n=>ensurePlayer(reg,n)); // eski kayıtları yeni alanlara taşı
   names.sort((a,b)=>reg[b].gal-reg[a].gal || reg[b].bit-reg[a].bit);
-  tb.innerHTML = '<tr><th>Oyuncu</th><th>G</th><th>W</th><th>B</th><th>K</th><th>R</th><th>S</th><th>En iyi</th></tr>' +
-    names.map(n=>{ const p=reg[n]; return `<tr><td>${n}</td><td>${p.oyun}</td><td>${p.gal}</td><td>${p.bit}</td><td>${p.kafa}</td><td>${p.rcift}</td><td>${p.rseri}</td><td>${p.best===null?'—':p.best}</td></tr>`; }).join('');
+  // kral (en çok kazanan) ve kulluk 🚬 (en düşük galibiyet oranı; eşitlikte çok oynayan)
+  const kral = names.length && reg[names[0]].gal>0 ? names[0] : null;
+  let kulluk=null, kr=Infinity;
+  names.forEach(n=>{
+    const p=reg[n]; if(!p.oyun) return;
+    const r=p.gal/p.oyun;
+    if(r<kr || (r===kr && kulluk && p.oyun>reg[kulluk].oyun)){ kr=r; kulluk=n; }
+  });
+  if(names.length<2) kulluk=null;
+  const dec = n => n + (n===kral?' 👑':'') + (n===kulluk?' 🚬':'');
+  tb.innerHTML = '<tr><th>Oyuncu</th><th>G</th><th>W</th><th>%</th><th>🔥</th><th>B</th><th>B%</th><th>K</th><th>Pes</th></tr>' +
+    names.map(n=>{ const p=reg[n];
+      const pct = p.oyun? Math.round(100*p.gal/p.oyun) : 0;
+      const bpct = p.els? Math.round(100*p.bit/p.els) : 0;
+      return `<tr><td>${dec(n)}</td><td>${p.oyun}</td><td>${p.gal}</td><td>%${pct}</td><td>${p.streakMax||0}</td><td>${p.bit}</td><td>%${bpct}</td><td>${p.kafa}</td><td>${p.pes||0}</td></tr>`; }).join('');
+  // detay tablosu
+  document.getElementById('stat-table2').innerHTML =
+    '<tr><th>Oyuncu</th><th>El</th><th>Ort</th><th>Okey</th><th>Çift</th><th>Açmz</th><th>İşlk</th><th>Kap</th><th>OKap</th><th>K.Yedi</th><th>R</th><th>S</th><th>Açl</th><th>Çft</th><th>En iyi</th><th>En kötü</th></tr>' +
+    names.map(n=>{ const p=reg[n];
+      const ort = p.els? Math.round(p.puan/p.els) : null;
+      const kap = p.kap? `${p.kap} (${p.kapPuan})` : '—';
+      return `<tr><td>${n}</td><td>${p.els||0}</td><td>${ort===null?'—':ort}</td><td>${p.okeyBit||0}</td><td>${p.ciftBit||0}</td><td>${p.acamadi||0}</td><td>${p.islek||0}</td><td>${kap}</td><td>${p.okap||0}</td><td>${p.kafaYedi||0}</td><td>${p.rcift}</td><td>${p.rseri}</td><td>${p.srmax||'—'}</td><td>${p.crmax||'—'}</td><td>${p.best===null?'—':p.best}</td><td>${p.worst===null||p.worst===undefined?'—':'+'+p.worst}</td></tr>`; }).join('');
   // enler
   const en = (key,label,emoji,minMode)=>{
     let bestVal=null, holders=[];
     names.forEach(n=>{
       const v = reg[n][key];
-      if(v===null || (!minMode && v<=0)) return;
+      if(v===null || v===undefined || (!minMode && v<=0)) return;
       if(bestVal===null || (minMode ? v<bestVal : v>bestVal)){ bestVal=v; holders=[n]; }
       else if(v===bestVal) holders.push(n);
     });
     if(bestVal===null) return '';
     return `<div class="en-card"><div class="et">${emoji} ${label}</div><div class="en">${holders.join(', ')}</div><div class="ev">${bestVal}</div></div>`;
   };
+  const kullukCard = kulluk
+    ? `<div class="en-card" style="border-color:rgba(232,138,155,.4)"><div class="et">🚬 Masanın Kulluğu</div><div class="en">${kulluk}</div><div class="ev">%${Math.round(kr*100)} galibiyet</div></div>` : '';
+  // ortalama el puanı eni (düşük iyi) — hesaplanan değer
+  let avgBest=null, avgHolders=[];
+  names.forEach(n=>{ const p=reg[n]; if(!p.els||p.els<5) return; const a=p.puan/p.els;
+    if(avgBest===null||a<avgBest){avgBest=a;avgHolders=[n];} else if(a===avgBest) avgHolders.push(n); });
+  const avgCard = avgBest!==null
+    ? `<div class="en-card"><div class="et">🧊 En verimli oyuncu (ort. el)</div><div class="en">${avgHolders.join(', ')}</div><div class="ev">${Math.round(avgBest)}</div></div>` : '';
   document.getElementById('enler').innerHTML =
-    en('gal','En çok kazanan','🏆') + en('bit','En çok bitiren','✅') +
-    en('kafa','En çok kafa atan','🗣️') + en('rcift','En çok çift rekoru','🏅') +
-    en('rseri','En çok seri rekoru','📏') + en('best','En iyi tek el','⭐',true) || '<span class="hint">Henüz veri yok.</span>';
+    (en('gal','En çok kazanan','🏆') + kullukCard + en('streakMax','En uzun galibiyet serisi','🔥') +
+    en('bit','En çok bitiren','✅') + en('kafa','En çok kafa atan','🗣️') +
+    en('okeyBit','En çok okeyle bitiren','🀄') + en('ciftBit','En çok çiftten bitiren','♊') +
+    en('rcift','En çok çift rekoru','🏅') + en('rseri','En çok seri rekoru','📏') +
+    en('srmax','En yüksek açılış (puan)','🎯') + en('crmax','En çok çiftle açılış','🃏') +
+    avgCard + en('best','En iyi tek el','⭐',true) + en('worst','En kötü tek el','🥴') +
+    en('kafaYedi','En çok kafa yiyen','💥') + en('acamadi','En çok açamayan','🙈') +
+    en('islek','En çok işlek atan','⚠️') + en('kap','En çok taş kaptıran','🎯') +
+    en('okap','En çok okey kaptıran','🫠') + en('pes','En çok pes eden','🏳️')) || '<span class="hint">Henüz veri yok.</span>';
 }
 function exportData(){
   document.getElementById('databox').value = JSON.stringify({players:getReg(), settings:SET});
@@ -1698,8 +1865,10 @@ function joinRoom(){
 function renderViewer(d){
   const totals = d.cols.map((_,i)=>d.hands.reduce((s,h)=>s+h[i],0));
   const best = (d.dir==='high' ? Math.max : Math.min)(...totals);
+  const worst = (d.dir==='high' ? Math.min : Math.max)(...totals);
   document.getElementById('v-totals').innerHTML = d.cols.map((c,i)=>
-    `<div class="total-card ${totals[i]===best && d.hands.length?'leader':''}"><div class="tname">${c}</div><div class="tscore">${totals[i]}</div></div>`).join('');
+    `<div class="total-card ${totals[i]===best && d.hands.length?'leader':''} ${d.hands.length && d.cols.length>1 && best!==worst && totals[i]===worst?'loser':''}"
+       style="border-top:3px solid ${COLC[i%COLC.length]}"><div class="tname" style="color:${COLC[i%COLC.length]}">${c}</div><div class="tscore">${totals[i]}</div></div>`).join('');
   let h = '<tr><th>El</th>'+d.cols.map(c=>`<th>${c}</th>`).join('')+'</tr>';
   const run = d.cols.map(()=>0);
   d.hands.forEach((hd,hi)=>{
@@ -1708,7 +1877,9 @@ function renderViewer(d){
   h += '<tr class="totrow"><td>Σ</td>'+totals.map(t=>`<td>${t}</td>`).join('')+'</tr>';
   document.getElementById('v-yazboz').innerHTML = h;
   document.getElementById('viewer-updated').textContent =
-    (d.game ? d.game+' — ' : '') + `El ${d.el}/${d.elSayisi}` + (d.done?' — Oyun bitti 🏁':'');
+    (d.game ? d.game+' — ' : '') + `El ${d.el}/${d.elSayisi}`
+    + (totals.length>=2 && best!==worst ? ` · Fark: ${Math.abs(best-worst)}` : '')
+    + (d.done?' — Oyun bitti 🏁':'');
 }
 function stopViewer(){
   clearInterval(viewerTimer); viewerTimer=null;
@@ -1841,11 +2012,15 @@ function dUpdateTotals(){
   const t = dTotals();
   const played = D.rows.some(r=>r.v.some(x=>x!==null));
   const best = (D.dir==='high'? Math.max:Math.min)(...t);
+  const worst = (D.dir==='high'? Math.min:Math.max)(...t);
   document.getElementById('d-totals').innerHTML = D.cols.map((c,i)=>`
-    <div class="total-card ${played && t[i]===best ? 'leader':''}">
-      <div class="tname">${c.name}</div>
+    <div class="total-card ${played && t[i]===best ? 'leader':''} ${played && D.cols.length>1 && best!==worst && t[i]===worst ? 'loser':''}"
+         style="border-top:3px solid ${COLC[i%COLC.length]}">
+      <div class="tname" style="color:${COLC[i%COLC.length]}">${c.name}</div>
       <div class="tscore">${t[i]}</div>
     </div>`).join('');
+  document.getElementById('d-fark').textContent = (played && D.cols.length>=2 && best!==worst)
+    ? `Fark: ${Math.abs(best-worst)} (${D.cols[t.indexOf(best)].name} önde)` : '';
   t.forEach((v,i)=>{ const el=document.getElementById('d-tot-'+i); if(el) el.textContent=v; });
 }
 function renderDefter(){
@@ -1910,7 +2085,7 @@ function bitirDefter(){
   if(!confirm(`Kazanan: ${winCols.map(c=>c.name).join(' & ')} (${best}). Defter kapatılsın mı?`)) return;
   D.done = true;
   const reg = getReg();
-  const deltas = D.names.map(n=>({n, oyun:1, gal:winNames.includes(n)?1:0, bit:0, kafa:0, rcift:0, rseri:0, best:null}));
+  const deltas = D.names.map(n=>({n, oyun:1, gal:winNames.includes(n)?1:0, bit:0, kafa:0, rcift:0, rseri:0, best:null, srmax:0, crmax:0, pes:0}));
   applyDeltas(reg, deltas); setReg(reg);
   const pend = store.get('yb_pending', []);
   pend.push({deltas, ozet:{ ts:Date.now(), mode:D.gname, el:D.rows.filter(r=>r.v.some(x=>x!==null)).length,
