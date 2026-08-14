@@ -254,7 +254,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div class="mini-tile t-yellow"><span>☺</span></div>
   </div>
   <h1>YAZBOZ</h1>
-  <div class="sub">masa oyunları · v3.9</div>
+  <div class="sub">masa oyunları · v4.0</div>
 </header>
 <main>
 
@@ -419,9 +419,11 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   </div>
   <div class="card">
     <h3>Veri Yedeği</h3>
-    <div class="row">
+    <div class="row" style="flex-wrap:wrap">
       <button class="btn btn-tile btn-sm" onclick="exportData()">Dışa Aktar</button>
       <button class="btn btn-tile btn-sm" onclick="importData()">İçe Aktar</button>
+      <button class="btn btn-green btn-sm" onclick="restoreBackup()">↪️ Yedekten Geri Yükle</button>
+      <button class="btn btn-green btn-sm" onclick="rebuildFromHistory()">🧩 Geçmişten Yeniden Kur</button>
       <button class="btn btn-danger btn-sm" onclick="wipeStats()">Sıfırla</button>
     </div>
     <textarea id="databox" placeholder="Dışa aktarınca veri burada görünür; içe aktarmak için buraya yapıştır."></textarea>
@@ -1765,17 +1767,83 @@ function importData(){
   }catch(e){ alert('Geçersiz veri.'); }
 }
 function wipeStats(){
-  if(!confirm('Tüm oyuncu istatistikleri silinsin mi?')) return;
+  // yanlışlıkla silmeye karşı: yazarak onay + otomatik yedek
+  const v = prompt('⚠️ TÜM istatistikler (101 + Amerikano) silinecek!\nOnaylamak için büyük harfle SİL yaz:');
+  if(v !== 'SİL'){ if(v!==null) alert('Silme iptal edildi — hiçbir şey silinmedi.'); return; }
+  store.set('yb_backup', {ts: Date.now(), players: getReg()}); // silmeden önce yerel yedek
   setReg({}); store.set('yb_pending', []);
   const id = cloudId();
-  if(id && confirm('Buluttaki ortak kayıt da sıfırlansın mı?')){
-    const sb = parseS(id);
-    (sb && sb.s
-      ? sbRpc('yb_masa_push', {p_code:sb.c, p_secret:sb.s, p_players:{}, p_oyun:null})
-      : NET.push(id, {type:'yb-stats', players:{}, updated:Date.now()})
-    ).catch(()=>{});
+  if(id){
+    const v2 = prompt('Buluttaki ORTAK kayıt da silinsin mi? Bu, masaya bağlı DİĞER telefonları da etkiler!\nSilmek için yine SİL yaz; silmemek için boş bırakıp Tamam de:');
+    if(v2 === 'SİL'){
+      const sb = parseS(id);
+      (sb && sb.s
+        ? sbRpc('yb_masa_push', {p_code:sb.c, p_secret:sb.s, p_players:{}, p_oyun:null})
+        : NET.push(id, {type:'yb-stats', players:{}, updated:Date.now()})
+      ).catch(()=>{});
+    }
   }
   renderStats();
+  alert('Silindi. Fikrini değiştirirsen: "Yedekten Geri Yükle" ya da "Geçmişten Yeniden Kur" her zaman orada.');
+}
+/* silmeden önce alınan yerel yedeği geri yükle */
+function restoreBackup(){
+  const b = store.get('yb_backup', null);
+  if(!b || !b.players || !Object.keys(b.players).length){ alert('Kayıtlı yedek bulunamadı.'); return; }
+  const dt = new Date(b.ts).toLocaleString('tr-TR');
+  if(!confirm(`${dt} tarihli yedek geri yüklensin mi?`)) return;
+  setReg(b.players);
+  store.set('yb_pending', []);
+  cloudSync(); // yerel ileride olduğu için buluta da geri yazılır
+  renderStats();
+  alert('✔ Yedek geri yüklendi.');
+}
+/* oyun geçmişinden istatistikleri yeniden inşa et (bulut geçmişi silinmez, oradan kurtarır) */
+async function rebuildFromHistory(){
+  const id = cloudId();
+  const sb = parseS(id||'');
+  if(!sb || !sbReady()){ alert('Masa bağlantısı yok — önce masaya bağlan.'); return; }
+  if(!confirm('Oyun geçmişindeki tüm oyunlardan istatistikler yeniden kurulacak ve buluta yazılacak. Devam?')) return;
+  try{
+    const arr = await sbRpc('yb_oyunlar', {p_code:sb.c, p_limit:50});
+    if(!arr || !arr.length){ alert('Geçmişte kayıtlı oyun bulunamadı.'); return; }
+    const games = arr.slice().sort((a,b)=>((a.ts||(a.ozet||{}).ts||0)-(b.ts||(b.ozet||{}).ts||0)));
+    const built = {};
+    for(const o of games){
+      const z = o.ozet || {}; if(!z.cols) continue;
+      const isAm = (z.mode||'').includes('AMERİKANO');
+      const pref = isAm ? AM : '';
+      const winners = new Set(z.winners||[]);
+      z.cols.forEach((cname,ci)=>{
+        cname.split(' & ').forEach(nm=>{
+          const p = ensurePlayer(built, pref+nm);
+          p.oyun++;
+          if(winners.has(cname)){ p.gal++; p.streak++; if(p.streak>p.streakMax) p.streakMax=p.streak; }
+          else p.streak=0;
+          if(z.pes===cname) p.pes++;
+          if(isAm){
+            const t=(z.totals||[])[ci]||0;
+            p.puan+=t;
+            if(p.best===null||t<p.best) p.best=t;
+            if(p.worst===null||t>p.worst) p.worst=t;
+          } else if(z.eller){ p.els += z.eller.length; }
+        });
+      });
+      if(!isAm && z.eller){
+        z.eller.forEach(e=>{
+          if(e.fn){ const p=ensurePlayer(built, e.fn); p.bit++; if(e.k) p.kafa++; }
+        });
+      }
+    }
+    // mevcut sayılarla birleştir: hangisi ilerideyse o kalır
+    const reg = getReg();
+    for(const k in built){ if(!reg[k] || (reg[k].oyun||0) < built[k].oyun) reg[k]=built[k]; }
+    setReg(reg);
+    store.set('yb_pending', []);
+    await sbRpc('yb_masa_push', {p_code:sb.c, p_secret:sb.s, p_players:reg, p_oyun:null});
+    renderStats();
+    alert(`✔ ${games.length} oyundan istatistikler yeniden kuruldu ve buluta yazıldı.\nNot: geçmişte tutulmayan detaylar (işlek, kaptırma, açılış rekorları vb.) geri getirilemez.`);
+  }catch(e){ alert('Kurtarma başarısız: '+(e&&e.message||e)); }
 }
 
 /* ================= PAYLAŞIM / QR / CANLI ================= */
