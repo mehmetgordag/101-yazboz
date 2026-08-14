@@ -242,7 +242,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div class="mini-tile t-yellow"><span>☺</span></div>
   </div>
   <h1>YAZBOZ</h1>
-  <div class="sub">masa oyunları · v2.3</div>
+  <div class="sub">masa oyunları · v2.5</div>
 </header>
 <main>
 
@@ -1667,9 +1667,9 @@ function stopViewer(){
 
 /* ================= DEFTER MODU (diğer oyunlar) ================= */
 const DEF_GAMES = {
-  amerikano: {name:'AMERİKANO (KÜT)', minP:2, maxP:5, els:7, dir:'low', esli:false, meta:[],
-    sart:['2 Küt (3\'lü)','1 Küt + 1 Seri (4\'lü)','2 Seri','3 Küt','2 Küt + 1 Seri','1 Küt + 2 Seri','3 Seri — FİNAL (elden bitilir)'],
-    note:'Küt: 3 aynı sayı (farklı renk) • Seri: aynı renk 4 ardışık • Açan işleyebilir • Ceza: Joker 25 • As 11 • Figür ve 10\'lar 10 • 2–9 sayı değeri • Biten 0 yazar • Düşük toplam kazanır • Final eli elden bitilir.'},
+  amerikano: {name:'AMERİKANO (KÜT)', minP:2, maxP:5, els:12, dir:'low', esli:false, meta:[],
+    sart:['Üçlü Küt (10-10-10)','Üçlü Seri (7-8-9)','Üçlü Seri + Üçlü Küt (7-8-9 + 10-10-10)','2× Üçlü Küt (10-10-10 + 5-5-5)','2× Üçlü Seri (7-8-9 + 6-7-8)','Dörtlü Küt (10-10-10-10)','Dörtlü Seri (6-7-8-9)','Dörtlü Küt + Dörtlü Seri (3-3-3-3 + 5-6-7-8)','2× Dörtlü Küt (8-8-8-8 + 5-5-5-5)','2× Dörtlü Seri (4-5-6-7 + 5-6-7-8)','Beşli Seri (4-5-6-7-8)','ELDEN BİTME — FİNAL'],
+    note:'Küt: aynı sayı (farklı renk) • Seri: aynı renk ardışık • BİTEN −200 yazar • AÇAMAYAN +200 yer • Açanlar eldeki kartların toplamını yazar (Joker 25 • As 11 • Figür ve 10\'lar 10 • 2–9 sayı değeri) • Düşük toplam kazanır.'},
   normalokey:{name:'NORMAL OKEY', minP:4, maxP:4, els:10, dir:'low', esli:false, meta:[],
     note:'Düşük puan kazanır. Çifte/okey bitişleri puana yansıtın.'},
   batakihale:{name:'BATAK — İHALE', minP:4, maxP:4, els:10, dir:'high', esli:true, meta:['İhale','Koz'],
@@ -1725,7 +1725,7 @@ function renderDefterSetup(resetSart){
   const sw = document.getElementById('dg-sart-wrap');
   sw.style.display = g.sart ? 'block' : 'none';
   if(g.sart && (resetSart || !document.getElementById('dg-sart').value.trim())){
-    const saved = store.get('yb_sart2_'+DSU.game, null);
+    const saved = store.get('yb_sart3_'+DSU.game, null);
     document.getElementById('dg-sart').value = (saved || g.sart).join('\n');
   }
   document.getElementById('dg-chips').innerHTML = Object.entries(DEF_GAMES).map(([k,v])=>
@@ -1758,7 +1758,7 @@ function startDefter(){
   let sart = null;
   if(g.sart){
     sart = document.getElementById('dg-sart').value.split('\n').map(s=>s.trim()).filter(Boolean);
-    store.set('yb_sart2_'+DSU.game, sart);
+    store.set('yb_sart3_'+DSU.game, sart);
     if(sart.length && DSU.els !== sart.length) DSU.els = sart.length; // el sayısı şart listesine uyar
   }
   D = { game:DSU.game, gname:g.name, dir:g.dir, els:DSU.els, meta:g.meta, note:g.note, sart,
