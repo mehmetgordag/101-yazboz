@@ -234,7 +234,7 @@ textarea{width:100%; min-height:90px; border-radius:14px; border:1px solid var(-
     <div class="mini-tile t-yellow"><span>☺</span></div>
   </div>
   <h1>101 OKEY YAZBOZ</h1>
-  <div class="sub">puan defteri</div>
+  <div class="sub">puan defteri · v1.9</div>
 </header>
 <main>
 
@@ -274,7 +274,11 @@ textarea{width:100%; min-height:90px; border-radius:14px; border:1px solid var(-
     </div>
     <div class="chips" id="pool-chips"></div>
     <div id="seats"></div>
-    <button class="btn btn-outline btn-sm" onclick="shuffleSeats()">🎲 Eşleri Karıştır</button>
+    <div class="row" style="flex-wrap:wrap">
+      <button class="btn btn-outline btn-sm" onclick="shuffleSeats()">🎲 Eşleri Karıştır</button>
+      <button class="btn btn-outline btn-sm" onclick="clearSeats()">↩︎ Koltukları Boşalt</button>
+      <button class="btn btn-outline btn-sm" id="btn-delmode" onclick="toggleDelMode()">🗑️ Oyuncu Sil</button>
+    </div>
   </div>
   <div class="err" id="setup-err"></div>
   <button class="btn btn-primary" onclick="startGame()">Oyunu Başlat 🎯</button>
@@ -381,8 +385,9 @@ textarea{width:100%; min-height:90px; border-radius:14px; border:1px solid var(-
         <div class="chip" id="bt-okey" onclick="setBitis('okey')">Okey atarak (×2)</div>
         <div class="chip" id="bt-cift" onclick="setBitis('cift')">Çiftten (×2)</div>
       </div>
+      <div class="chips" id="rekor-chips"></div>
     </div>
-    <div id="kafa-note" class="hint" style="display:none; color:var(--red); font-weight:700">🗣️ KAFA! Kimse açamadı — cezalar ×2, bitirene ekstra rekor puanı.</div>
+    <div id="kafa-note" class="hint" style="display:none; color:var(--red); font-weight:700">🗣️ KAFA! Kimse açamadı — rakip cezaları ×2. Bitiren rekor da açtıysa yukarıdan işaretle (−101).</div>
     <label class="fld">Diğer oyuncular</label>
     <div id="other-players"></div>
     <label class="fld">El içi olaylar (işlek, kaptırma, rekor...)</label>
@@ -454,7 +459,15 @@ const DEF_SET = {
   acmayanCeza:200, acanCarpan:1, bitmeBonus:200,
   ciftBitisCarpan:2, okeyBitisCarpan:2, ciftGidenCarpan:2, kafaCarpan:2
 };
+/* Site sahibi: buraya kendi Supabase bilgilerini yazarsa siteyi açan HER telefon
+   otomatik bağlanır (Ayarlar'a bir şey girmeye gerek kalmaz). Anon anahtar halka açıktır. */
+const YB_DEFAULTS = {
+  sbUrl:'https://ksttzgpposhdsxnqmfph.supabase.co',
+  sbKey:'sb_publishable_4WJKvKbreXwlOcj5OiGfIA_fKShjHOY'
+};
 let SET = Object.assign({}, DEF_SET, store.get('yb_set', {}));
+if(!SET.sbUrl && YB_DEFAULTS.sbUrl) SET.sbUrl = YB_DEFAULTS.sbUrl;
+if(!SET.sbKey && YB_DEFAULTS.sbKey) SET.sbKey = YB_DEFAULTS.sbKey;
 function saveSet(){ store.set('yb_set', SET); }
 
 const SET_SCHEMA = [
@@ -540,12 +553,45 @@ function pickEl(n){
 let SU = {pool:[], seats:[null,null,null,null]};
 const escq = n => n.replace(/'/g,"\\'");
 
+let delMode = false;
 function goSetup(){
   const reg = getReg();
-  SU.pool = Object.keys(reg).sort((a,b)=>reg[b].oyun-reg[a].oyun).slice(0,16);
+  SU.pool = Object.keys(reg).sort((a,b)=>reg[b].oyun-reg[a].oyun).slice(0,30);
   SU.seats = [null,null,null,null];
+  delMode = false;
   renderSU();
   show('scr-setup');
+}
+function clearSeats(){
+  SU.seats.forEach(n=>{ if(n && !SU.pool.includes(n)) SU.pool.unshift(n); });
+  SU.seats = [null,null,null,null];
+  renderSU();
+}
+function toggleDelMode(){
+  delMode = !delMode;
+  document.getElementById('btn-delmode').textContent = delMode ? '✔ Silme Bitti' : '🗑️ Oyuncu Sil';
+  renderSU();
+}
+function removePlayer(n){
+  if(!confirm(`"${n}" silinsin mi? Kayıtlı istatistikleri de silinir.`)) return;
+  SU.pool = SU.pool.filter(x=>x!==n);
+  SU.seats = SU.seats.map(x=> x===n ? null : x);
+  const reg = getReg(); delete reg[n]; setReg(reg);
+  // bulut masasından da sil (yetki varsa) — yoksa eşitlemede geri gelmesin diye
+  const id = cloudId();
+  if(id){ (async()=>{ try{
+    const sb = parseS(id);
+    if(sb && sb.s){
+      const d = await sbRpc('yb_masa_pull', {p_code:sb.c});
+      const pl = (d && d.players) || {}; delete pl[n];
+      await sbRpc('yb_masa_push', {p_code:sb.c, p_secret:sb.s, p_players:pl, p_oyun:null});
+    } else if(!sb){
+      const d = await NET.pull(id);
+      const pl = (d && d.players) || {}; delete pl[n];
+      await NET.push(id, {type:'yb-stats', players:pl, updated:Date.now()});
+    }
+  }catch(e){} })(); }
+  renderSU();
 }
 function addPoolName(){
   const inp = document.getElementById('new-name');
@@ -582,7 +628,9 @@ function shuffleSeats(){
 }
 function renderSU(){
   document.getElementById('pool-chips').innerHTML = SU.pool.length
-    ? SU.pool.map(n=>`<div class="chip small" onclick="seatName('${escq(n)}')">${n}</div>`).join('')
+    ? SU.pool.map(n=> delMode
+        ? `<div class="chip small" style="border-color:var(--red);color:#ffb9c7" onclick="removePlayer('${escq(n)}')">${n} ✕</div>`
+        : `<div class="chip small" onclick="seatName('${escq(n)}')">${n}</div>`).join('')
     : '<span class="hint">Havuz boş — yukarıdan yeni isim ekleyebilirsin.</span>';
   const slot = (i,label)=> SU.seats[i]
     ? `<div class="chip sel" style="display:block;text-align:center;margin:6px 0" onclick="unseat(${i})">${SU.seats[i]} <span style="opacity:.6">✕</span></div>`
@@ -700,8 +748,13 @@ function yazbozHTML(g, totals){
 let elForm = null;
 
 function openElModal(){
-  elForm = { finisher:null, okey:false, cift:false, others:{}, olaylar:[] };
+  elForm = { finisher:null, okey:false, cift:false, rcift:false, rseri:false, others:{}, olaylar:[] };
   setBitisChips();
+  // bitirenin rekoru: ayrı olay eklemeye gerek yok, bitişle birlikte işaretlenir
+  document.getElementById('rekor-chips').innerHTML = SET.rekorAktif
+    ? `<div class="chip" id="bt-rcift" onclick="toggleFinRekor('rcift')">🏅 ${SET.rekorCift}+ çift rekoru (−${SET.rekorBonus})</div>
+       <div class="chip" id="bt-rseri" onclick="toggleFinRekor('rseri')">📏 Seri rekoru ${SET.rekorSeri} yan 1 (−${SET.rekorBonus})</div>`
+    : '';
   document.getElementById('finisher-chips').innerHTML = G.names.map((n,i)=>
     `<div class="chip" id="fin-${i}" onclick="pickFinisher(${i})">${n}</div>`).join('')
     + `<div class="chip" id="fin-none" onclick="pickFinisher(-1)">🚫 Biten olmadı</div>`;
@@ -725,12 +778,22 @@ function setBitisChips(){
   document.getElementById('bt-okey').classList.toggle('sel', elForm.okey);
   document.getElementById('bt-cift').classList.toggle('sel', elForm.cift);
 }
+function toggleFinRekor(k){
+  elForm[k] = !elForm[k];
+  const el = document.getElementById(k==='rcift'?'bt-rcift':'bt-rseri');
+  if(el) el.classList.toggle('sel', elForm[k]);
+  updatePreview();
+}
 function pickFinisher(i){
   elForm.finisher = i;
   G.names.forEach((_,j)=>document.getElementById('fin-'+j).classList.toggle('sel', j===i));
   document.getElementById('fin-none').classList.toggle('sel', i===-1);
   // biten yoksa bitiş şekli sorulmaz, herkesin puanı düz işlenir
-  if(i===-1){ elForm.okey=false; elForm.cift=false; setBitisChips(); }
+  if(i===-1){
+    elForm.okey=false; elForm.cift=false; elForm.rcift=false; elForm.rseri=false;
+    setBitisChips();
+    ['bt-rcift','bt-rseri'].forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.remove('sel'); });
+  }
   document.getElementById('bitis-wrap').style.display = i===-1 ? 'none' : '';
   elForm.others = {};
   // eşli oyunda bitirenin eşi sayılmaz
@@ -764,9 +827,10 @@ function setDurum(j, d, chipEl){
   chipEl.classList.add('sel');
   const ex = document.getElementById('pb-extra-'+j);
   if(d==='acamadi'){
+    // açamayan çifte gidiyor sayılmaz — soru sorulmaz
     elForm.others[j].kalan = 0;
-    ex.innerHTML = `<div class="checkline"><input type="checkbox" id="cg-${j}" onchange="elForm.others[${j}].ciftGid=this.checked;updatePreview()"><label for="cg-${j}">Çifte gidiyordu</label></div>`;
     elForm.others[j].ciftGid = false;
+    ex.innerHTML = '';
   } else {
     elForm.others[j].ciftGid = (d==='cift');
     ex.innerHTML = `<label class="fld">Elinde kalan taşların toplamı</label>
@@ -827,7 +891,8 @@ function computeEl(){
   if(f.finisher===null){ res.errmsg='Eli bitireni seç.'; return res; }
   const others = Object.entries(f.others);
   for(const [j,o] of others){ if(!o.durum){ res.errmsg = G.names[j]+' için durum seç.'; return res; } }
-  const kafa = f.finisher>=0 && others.length>0 && others.every(([j,o])=>o.durum==='acamadi');
+  // çiftten bitişte kafa olmaz (çifte giden zaten açık oynar)
+  const kafa = f.finisher>=0 && !f.cift && others.length>0 && others.every(([j,o])=>o.durum==='acamadi');
   res.kafa = kafa;
   document.getElementById('kafa-note').style.display = kafa?'block':'none';
 
@@ -838,8 +903,9 @@ function computeEl(){
     let finTxt = `${finName} bitirdi`;
     if(f.okey) finTxt += ' (okey atarak)';
     if(f.cift) finTxt += ' (çiftten)';
-    if(kafa && SET.rekorAktif){ fin -= SET.rekorBonus; finTxt += ' — KAFA! rekor bonusu dahil'; }
-    else if(kafa) finTxt += ' — KAFA!';
+    if(kafa) finTxt += ' — KAFA!';
+    if(SET.rekorAktif && f.rcift){ fin -= SET.rekorBonus; finTxt += ' + çift rekoru'; }
+    if(SET.rekorAktif && f.rseri){ fin -= SET.rekorBonus; finTxt += ` + seri rekoru (${SET.rekorSeri} yan 1)`; }
     res.deltas[f.finisher] += fin;
     res.lines.push({name:finName, v:fin});
     res.events.push(`✅ El ${G.hands.length+1}: ${finTxt} (${fin})`);
@@ -963,6 +1029,8 @@ function saveEl(){
     const finN = G.names[elForm.finisher];
     sd[finN].bit++;
     if(r.kafa) sd[finN].kafa++;
+    if(SET.rekorAktif && elForm.rcift) sd[finN].rcift++;
+    if(SET.rekorAktif && elForm.rseri) sd[finN].rseri++;
   }
   for(const o of [...(G.pendingOlaylar||[]), ...elForm.olaylar]){
     if(o.del) continue;
@@ -1234,7 +1302,14 @@ function snapshotText(){
   return t;
 }
 function shareText(){
-  const t = snapshotText() + (G.room ? `\n📡 Canlı izleme kodu:\n${NET.publicCode(G.room)}` : '');
+  let liveLine = '';
+  if(G.room){
+    const pub = NET.publicCode(G.room);
+    liveLine = location.protocol.startsWith('http')
+      ? `\n📡 Canlı skor için tıkla:\n${location.origin+location.pathname}?izle=${pub}${viewerCfgParams()}`
+      : `\n📡 Canlı izleme kodu:\n${pub}`;
+  }
+  const t = snapshotText() + liveLine;
   if(navigator.share) navigator.share({text:t}).catch(()=>{});
   else { navigator.clipboard && navigator.clipboard.writeText(t); alert('Skor panoya kopyalandı — WhatsApp\'a yapıştırabilirsin.'); }
 }
@@ -1262,12 +1337,18 @@ function withQRLib(cb){
 function openQR(){
   // QR içeriği: emoji vb. özel karakterler QR kütüphanesini bozduğu için temizlenir
   const pubRoom = G.room ? NET.publicCode(G.room) : null;
-  const content = pubRoom || snapshotText().replace(/[^\x20-\x7EğüşöçıİĞÜŞÖÇ\n:.,&()\/-]/g,'').trim();
+  // site yayındaysa QR gerçek bir link taşır: okutan direkt canlı skora düşer
+  const roomLink = (pubRoom && location.protocol.startsWith('http'))
+    ? location.origin + location.pathname + '?izle=' + pubRoom + viewerCfgParams()
+    : pubRoom;
+  const content = roomLink || snapshotText().replace(/[^\x20-\x7EğüşöçıİĞÜŞÖÇ\n:.,&()\/-]/g,'').trim();
   document.getElementById('qr-title').textContent = G.room ? '🔳 Canlı Oda Kodu' : '🔳 Anlık Skor';
   document.getElementById('qr-hint').textContent = G.room
-    ? 'İzleyiciler bu kodu uygulamadaki "İzleyici Olarak Katıl" ekranına girsin (QR okutup kodu kopyalayabilirler).'
+    ? (content.startsWith('http')
+        ? 'QR\'ı telefon kamerasıyla okutan doğrudan canlı skor ekranına düşer. Alternatif: alttaki kodu uygulamadaki "İzleyici Olarak Katıl" ekranına girebilirler.'
+        : 'İzleyiciler bu kodu uygulamadaki "İzleyici Olarak Katıl" ekranına girsin.')
     : 'Bu QR anlık skoru metin olarak taşır. Canlı takip için "Canlı Oda" başlat.';
-  document.getElementById('qr-code-text').textContent = pubRoom || snapshotText();
+  document.getElementById('qr-code-text').textContent = pubRoom ? (pubRoom + (content.startsWith('http') ? '\n'+content : '')) : snapshotText();
   const box = document.getElementById('qrbox');
   box.innerHTML='';
   withQRLib(ok=>{
@@ -1521,6 +1602,25 @@ function boot(){
 }
 boot();
 show('scr-home');
+// izleyici linkine sunucu bilgisini de göm (linki açan telefon ayarsız da bağlanabilsin)
+function viewerCfgParams(){
+  if(!sbReady() || YB_DEFAULTS.sbUrl) return ''; // varsayılanlar gömülüyse gerek yok
+  return '&s='+encodeURIComponent(sbBase())+'&k='+encodeURIComponent((SET.sbKey||'').trim());
+}
+// linkle gelen izleyici: ?izle=KOD → otomatik canlı skor ekranı
+(function(){
+  try{
+    const q = new URLSearchParams(location.search);
+    const izle = q.get('izle');
+    // linkte sunucu bilgisi varsa ve bu telefonda ayar yoksa kaydet
+    if(q.get('s') && !SET.sbUrl){ SET.sbUrl=q.get('s'); SET.sbKey=q.get('k')||''; saveSet(); }
+    if(izle){
+      document.getElementById('viewer-code').value = izle;
+      show('scr-viewer');
+      joinRoom();
+    }
+  }catch(e){}
+})();
 </script>
 </body>
 </html>
