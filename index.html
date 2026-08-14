@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#04263f">
+<title>101 Okey Yazboz</title>
+<style>
+:root{
+  color-scheme:dark;
+  --txt:#f0fbff; --dim:rgba(224,246,255,.62);
+  --glass:rgba(255,255,255,.10); --glass2:rgba(255,255,255,.16); --glass3:rgba(255,255,255,.07);
+  --stroke:rgba(255,255,255,.22); --stroke2:rgba(255,255,255,.38);
+  --cyan:#3ee6ff; --teal:#2dd4bf; --blue:#4facfe;
+  --red:#ff5d7a; --ok:#41e696; --yellow:#ffd166;
+  --ink:#f0fbff; --line:rgba(255,255,255,.22); --tile:#ffffff; --tile2:rgba(255,255,255,.14);
+  --muted:rgba(224,246,255,.62); --danger:#ff5d7a; --felt:#04263f; --felt2:#075166;
+  --grad:linear-gradient(135deg,#3ee6ff 0%,#26a9ff 55%,#1f7cf0 100%);
+  --grad-teal:linear-gradient(135deg,#2dd4bf,#0ea5e9);
+  --shadow:0 10px 30px rgba(2,20,35,.45);
+  --blur:blur(22px) saturate(1.7);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Arial,sans-serif;
+  background:linear-gradient(165deg,#03223a 0%,#075166 48%,#043050 100%) fixed;
+  min-height:100vh; color:var(--txt);
+  padding-bottom:calc(40px + env(safe-area-inset-bottom));
+}
+body::before,body::after{
+  content:""; position:fixed; z-index:-1; border-radius:50%; pointer-events:none;
+}
+body::before{
+  width:64vmax; height:64vmax; left:-18vmax; top:-24vmax;
+  background:radial-gradient(circle,rgba(62,230,255,.25),transparent 62%);
+  filter:blur(30px);
+}
+body::after{
+  width:56vmax; height:56vmax; right:-16vmax; bottom:-20vmax;
+  background:radial-gradient(circle,rgba(45,212,191,.22),transparent 62%);
+  filter:blur(30px);
+}
+header{ text-align:center; padding:calc(16px + env(safe-area-inset-top)) 10px 6px; }
+header h1{
+  margin:0; font-size:24px; letter-spacing:2.5px; font-weight:800;
+  background:var(--grad); -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent; color:transparent;
+  filter:drop-shadow(0 2px 10px rgba(62,230,255,.35));
+}
+header .sub{font-size:11px; color:var(--dim); letter-spacing:4px; text-transform:uppercase;}
+main{max-width:520px; margin:0 auto; padding:8px 14px;}
+.screen{display:none;}
+.screen.active{display:block; animation:fadein .22s ease;}
+@keyframes fadein{from{opacity:0; transform:translateY(8px);}to{opacity:1; transform:none;}}
+
+/* glass cards & buttons */
+.card{
+  background:var(--glass); color:var(--txt); border-radius:22px; padding:16px;
+  margin:12px 0; border:1px solid var(--stroke);
+  box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.25);
+  backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur);
+}
+.card h3{margin:0 0 8px; font-size:15px; letter-spacing:.3px;}
+.btn{
+  display:block; width:100%; border:1px solid transparent; border-radius:16px; padding:15px;
+  font-size:16px; font-weight:700; cursor:pointer; margin:9px 0;
+  box-shadow:var(--shadow); font-family:inherit; color:var(--txt);
+  backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur);
+  transition:transform .08s ease, box-shadow .15s ease;
+}
+.btn:active{transform:scale(.97);}
+.btn-primary{
+  background:var(--grad); color:#032533; border:none;
+  box-shadow:0 10px 26px rgba(38,169,255,.45), inset 0 1px 0 rgba(255,255,255,.5);
+}
+.btn-tile{background:var(--glass2); border-color:var(--stroke);}
+.btn-green{background:var(--grad-teal); color:#022b26; border:none; box-shadow:0 10px 24px rgba(45,212,191,.4), inset 0 1px 0 rgba(255,255,255,.45);}
+.btn-outline{background:rgba(255,255,255,.06); border:1px solid var(--stroke); box-shadow:none;}
+.btn-danger{background:rgba(255,93,122,.2); color:#ffb9c7; border:1px solid rgba(255,93,122,.5); box-shadow:none;}
+.btn-sm{padding:10px 14px; font-size:14px; width:auto; display:inline-block; margin:4px 4px 4px 0;}
+.row{display:flex; gap:8px;}
+.row .btn{flex:1;}
+
+/* chips */
+.chips{display:flex; flex-wrap:wrap; gap:8px; margin:8px 0;}
+.chip{
+  padding:10px 16px; border-radius:999px; background:var(--glass2); color:var(--txt);
+  font-weight:700; font-size:14px; cursor:pointer; border:1px solid var(--stroke); user-select:none;
+  backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur);
+  transition:all .12s ease;
+}
+.chip.sel{
+  border-color:var(--cyan); background:rgba(62,230,255,.18); color:#fff;
+  box-shadow:0 0 0 1px var(--cyan), 0 0 18px rgba(62,230,255,.4);
+}
+.chip.small{padding:7px 13px; font-size:13px;}
+
+/* inputs */
+label.fld{display:block; font-size:13px; font-weight:700; margin:10px 0 5px; color:var(--txt);}
+input[type=text],input[type=number],select{
+  width:100%; padding:12px; border-radius:13px; border:1px solid var(--stroke);
+  font-size:16px; background:rgba(255,255,255,.1); color:var(--txt); font-family:inherit;
+  backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur);
+}
+input::placeholder{color:rgba(224,246,255,.4);}
+input:focus,select:focus,textarea:focus{outline:none; border-color:var(--cyan); box-shadow:0 0 0 1px var(--cyan), 0 0 14px rgba(62,230,255,.25);}
+select option{background:#0a3a55; color:#fff;}
+input[type=number]{max-width:120px;}
+.checkline{display:flex; align-items:center; gap:9px; margin:9px 0; font-size:14px; color:var(--txt); font-weight:600;}
+.checkline input{width:20px; height:20px; accent-color:var(--cyan);}
+
+/* okey tile decorations */
+.tiles-deco{display:flex; justify-content:center; gap:6px; margin:8px 0 4px;}
+.mini-tile{
+  width:30px; height:42px; background:linear-gradient(180deg,#ffffff,#dff2ff);
+  border-radius:7px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-weight:800; font-size:16px;
+  box-shadow:0 4px 12px rgba(2,20,35,.5), inset 0 1px 0 #fff;
+}
+.mini-tile span{line-height:1;}
+.mini-tile .dot{font-size:9px;}
+.t-red{color:#e0355a;} .t-blue{color:#1f7cf0;} .t-yellow{color:#d9930a;} .t-black{color:#22303c;}
+
+/* score board */
+.totals{display:flex; gap:10px; margin:12px 0;}
+.total-card{
+  flex:1; background:var(--glass); color:var(--txt); border-radius:20px; padding:12px 8px;
+  text-align:center; border:1px solid var(--stroke); position:relative; overflow:hidden;
+  box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.25);
+  backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur);
+}
+.total-card .tname{font-size:12px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--dim);}
+.total-card .tscore{font-size:32px; font-weight:900; margin-top:2px; font-variant-numeric:tabular-nums; letter-spacing:-.5px;}
+.total-card.leader{
+  border-color:var(--cyan);
+  box-shadow:0 0 0 1.5px var(--cyan), 0 0 26px rgba(62,230,255,.45), inset 0 1px 0 rgba(255,255,255,.3);
+}
+.total-card.leader .tscore{
+  background:var(--grad); -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent; color:transparent;
+}
+.total-card.leader::after{content:"👑"; position:absolute; top:6px; right:8px; font-size:13px;}
+.total-card .tsub{font-size:10px; color:var(--dim);}
+
+/* yazboz table */
+.yazboz-wrap{overflow-x:auto; border-radius:16px; border:1px solid var(--stroke);}
+table.yazboz{width:100%; border-collapse:collapse; background:transparent; color:var(--txt); font-size:13px; min-width:300px;}
+table.yazboz th, table.yazboz td{padding:8px 6px; text-align:center; border-bottom:1px solid rgba(255,255,255,.12);}
+table.yazboz th{background:rgba(255,255,255,.12); font-size:12px; letter-spacing:.3px;}
+table.yazboz td .d{font-weight:800; color:#ff9fb2; font-variant-numeric:tabular-nums;}
+table.yazboz td .c{font-size:11px; color:var(--dim); font-variant-numeric:tabular-nums;}
+table.yazboz td .neg{color:var(--ok);}
+table.yazboz tr.totrow td{font-weight:900; background:rgba(62,230,255,.16); font-size:14px; color:#fff; border-bottom:none;}
+
+/* events log */
+.evlist{font-size:13px; color:var(--txt);}
+.evlist div{padding:5px 0; border-bottom:1px dashed rgba(255,255,255,.14);}
+
+/* modal */
+.modal-bg{
+  display:none; position:fixed; inset:0; background:rgba(2,16,28,.55); z-index:50;
+  align-items:flex-end; justify-content:center;
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+}
+.modal-bg.open{display:flex;}
+.modal{
+  background:rgba(14,52,76,.82); color:var(--txt); width:100%; max-width:520px;
+  border-radius:26px 26px 0 0; max-height:92vh; overflow-y:auto;
+  padding:18px 16px calc(28px + env(safe-area-inset-bottom));
+  border:1px solid var(--stroke); border-bottom:none;
+  box-shadow:0 -12px 44px rgba(2,20,35,.6), inset 0 1px 0 rgba(255,255,255,.28);
+  backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur);
+}
+.modal h3{margin:2px 0 12px; font-size:17px;}
+.player-block{border:1px solid var(--stroke); border-radius:16px; padding:12px; margin:9px 0; background:var(--glass3);}
+.player-block .pname{font-weight:800; margin-bottom:6px; color:var(--cyan);}
+.radio-row{display:flex; gap:6px; flex-wrap:wrap;}
+.radio-row .chip{padding:8px 12px; font-size:13px;}
+.olay-row{border:1px dashed var(--stroke2); border-radius:14px; padding:10px; margin:8px 0; background:var(--glass3); font-size:14px;}
+.olay-row .rm{float:right; color:var(--red); font-weight:800; cursor:pointer; padding:0 6px;}
+.preview{background:rgba(45,212,191,.12); border:1px solid rgba(45,212,191,.35); border-radius:14px; padding:12px; font-size:14px; margin-top:12px;}
+.preview b.neg{color:var(--ok);}
+.preview b.pos{color:#ff9fb2;}
+.hint{font-size:12px; color:var(--dim); margin:4px 0;}
+.err{color:#ff9fb2; font-size:13px; font-weight:700; margin:6px 0; display:none;}
+
+/* stats */
+.stat-table{width:100%; border-collapse:collapse; font-size:12.5px; background:transparent; border-radius:14px; overflow:hidden; border:1px solid var(--stroke); color:var(--txt);}
+.stat-table th,.stat-table td{padding:8px 4px; text-align:center; border-bottom:1px solid rgba(255,255,255,.12);}
+.stat-table th{background:rgba(255,255,255,.12); font-size:11px;}
+.stat-table td{font-variant-numeric:tabular-nums;}
+.stat-table td:first-child,.stat-table th:first-child{text-align:left; padding-left:10px; font-weight:700;}
+.enler{display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:8px;}
+.en-card{background:var(--glass3); border-radius:16px; padding:11px; text-align:center; border:1px solid var(--stroke);}
+.en-card .et{font-size:11px; color:var(--dim); font-weight:700;}
+.en-card .ev{font-size:16px; font-weight:900; margin-top:2px; font-variant-numeric:tabular-nums;}
+.en-card .en{font-size:12px; color:var(--cyan); font-weight:700;}
+
+/* settings */
+.set-row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.12); font-size:14px; color:var(--txt);}
+.set-row .sl{flex:1; font-weight:600;}
+.set-row .sl small{display:block; color:var(--dim); font-weight:400; font-size:11.5px;}
+.set-row input[type=number]{width:84px; padding:9px; text-align:center;}
+.switch{position:relative; width:50px; height:30px; flex:none;}
+.switch input{opacity:0; width:0; height:0;}
+.slider{position:absolute; inset:0; background:rgba(255,255,255,.22); border-radius:999px; transition:.2s; cursor:pointer; border:1px solid var(--stroke);}
+.slider:before{content:""; position:absolute; width:24px; height:24px; left:2px; top:2px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 2px 6px rgba(0,0,0,.35);}
+.switch input:checked + .slider{background:var(--grad); border-color:transparent;}
+.switch input:checked + .slider:before{transform:translateX(20px);}
+
+/* misc */
+.back{color:var(--dim); background:none; border:none; font-size:15px; font-weight:700; padding:8px 0; cursor:pointer; font-family:inherit;}
+.center{text-align:center;}
+#qrbox{display:flex; justify-content:center; padding:12px;}
+#qrbox > div{background:#fff; padding:12px; border-radius:18px; box-shadow:0 8px 26px rgba(2,20,35,.5);}
+.codebox{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; background:rgba(255,255,255,.08); border:1px dashed var(--stroke2); border-radius:12px; padding:10px; font-size:12px; word-break:break-all; color:var(--cyan); margin:8px 0;}
+.badge{display:inline-block; background:var(--red); color:#fff; border-radius:999px; padding:3px 11px; font-size:11px; font-weight:800;}
+.viewer-live{animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.55;}}
+textarea{width:100%; min-height:90px; border-radius:14px; border:1px solid var(--stroke); font-size:12px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; padding:10px; background:rgba(255,255,255,.08); color:var(--txt);}
+.confetti{font-size:40px; text-align:center; margin:6px 0;}
+::-webkit-scrollbar{height:5px; width:5px;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25); border-radius:99px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="tiles-deco">
+    <div class="mini-tile t-red"><span>1</span><span class="dot">●</span></div>
+    <div class="mini-tile t-black"><span>0</span><span class="dot">●</span></div>
+    <div class="mini-tile t-blue"><span>1</span><span class="dot">●</span></div>
+    <div class="mini-tile t-yellow"><span>☺</span></div>
+  </div>
+  <h1>101 OKEY YAZBOZ</h1>
+  <div class="sub">puan defteri</div>
+</header>
+<main>
+
+<!-- ANA SAYFA -->
+<section id="scr-home" class="screen">
+  <button class="btn btn-primary" onclick="goSetup()">🎲 Yeni Oyun</button>
+  <button class="btn btn-green" id="btn-devam" style="display:none" onclick="resumeGame()">▶️ Devam Eden Oyun</button>
+  <button class="btn btn-tile" onclick="show('scr-viewer')">📡 İzleyici Olarak Katıl</button>
+  <button class="btn btn-tile" onclick="renderStats();show('scr-stats')">🏆 İstatistikler</button>
+  <button class="btn btn-outline" onclick="renderSettings();show('scr-settings')">⚙️ Kurallar & Ayarlar</button>
+  <p class="hint center">İpucu: Bu sayfayı tarayıcında açıp "Ana Ekrana Ekle" dersen uygulama gibi kullanabilirsin.</p>
+</section>
+
+<!-- OYUN KURULUMU -->
+<section id="scr-setup" class="screen">
+  <button class="back" onclick="show('scr-home')">← Geri</button>
+  <div class="card">
+    <h3>Oyun Türü</h3>
+    <div class="chips" id="mode-chips">
+      <div class="chip sel" data-mode="esli" onclick="pickMode('esli')">👥 Eşli (2'ye 2)</div>
+      <div class="chip" data-mode="tekli" onclick="pickMode('tekli')">👤 Herkes Kendine</div>
+    </div>
+    <h3 style="margin-top:12px">El Sayısı</h3>
+    <div class="chips" id="el-chips">
+      <div class="chip" data-el="7" onclick="pickEl(7)">7</div>
+      <div class="chip" data-el="9" onclick="pickEl(9)">9</div>
+      <div class="chip sel" data-el="11" onclick="pickEl(11)">11</div>
+      <div class="chip" data-el="13" onclick="pickEl(13)">13</div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Oyuncular</h3>
+    <p class="hint">Havuzdaki bir isme dokun, sıradaki boş koltuğa otursun. Koltuktaki isme dokununca havuza geri döner.</p>
+    <div class="row">
+      <input type="text" id="new-name" placeholder="Yeni isim ekle" style="flex:1" onkeydown="if(event.key==='Enter')addPoolName()">
+      <button class="btn btn-tile btn-sm" style="flex:none;margin-top:0" onclick="addPoolName()">＋ Ekle</button>
+    </div>
+    <div class="chips" id="pool-chips"></div>
+    <div id="seats"></div>
+    <button class="btn btn-outline btn-sm" onclick="shuffleSeats()">🎲 Eşleri Karıştır</button>
+  </div>
+  <div class="err" id="setup-err"></div>
+  <button class="btn btn-primary" onclick="startGame()">Oyunu Başlat 🎯</button>
+</section>
+
+<!-- OYUN -->
+<section id="scr-game" class="screen">
+  <div class="row" style="align-items:center">
+    <button class="back" style="flex:none" onclick="show('scr-home')">← Ana Sayfa</button>
+    <div style="flex:1; text-align:right; font-weight:800" id="el-counter"></div>
+  </div>
+  <div class="totals" id="totals"></div>
+  <button class="btn btn-primary" id="btn-el" onclick="openElModal()">✍️ El Bitti — Puan Gir</button>
+  <button class="btn btn-tile" onclick="openOlayModal()">⚡ Ceza Yaz <span class="hint" style="display:inline">(el sürerken — işlek, kaptırma, rekor)</span></button>
+  <div class="card" id="pending-card" style="display:none">
+    <h3>⚡ Bu Elin Cezaları</h3>
+    <div class="evlist" id="pending-list"></div>
+    <p class="hint">El bittiğinde bu cezalar otomatik olarak ele işlenir.</p>
+  </div>
+  <div class="row">
+    <button class="btn btn-tile btn-sm" onclick="shareText()">📤 Paylaş</button>
+    <button class="btn btn-tile btn-sm" onclick="openQR()">🔳 QR</button>
+    <button class="btn btn-tile btn-sm" id="btn-live" onclick="toggleLive()">📡 Canlı Oda</button>
+  </div>
+  <div id="live-info" class="hint center" style="color:var(--cyan); display:none"></div>
+  <div class="card">
+    <h3>Yazboz</h3>
+    <div class="yazboz-wrap"><table class="yazboz" id="yazboz-table"></table></div>
+  </div>
+  <div class="card">
+    <h3>El Olayları</h3>
+    <div class="evlist" id="ev-log"><span class="hint">Henüz olay yok.</span></div>
+  </div>
+  <button class="btn btn-danger btn-sm" onclick="abortGame()">Oyunu İptal Et</button>
+</section>
+
+<!-- İSTATİSTİK -->
+<section id="scr-stats" class="screen">
+  <button class="back" onclick="show('scr-home')">← Geri</button>
+  <div class="card">
+    <h3>🏆 Skorboard — Enler</h3>
+    <div class="enler" id="enler"></div>
+  </div>
+  <div class="card">
+    <h3>Oyuncu İstatistikleri</h3>
+    <div style="overflow-x:auto"><table class="stat-table" id="stat-table"></table></div>
+    <p class="hint">G: oyun · W: galibiyet · B: el bitirme · K: kafa · R: çift rekoru · S: seri rekoru · En iyi: tek elde en iyi puan</p>
+  </div>
+  <div class="card" id="cloud-card"></div>
+  <div class="card">
+    <h3>Veri Yedeği</h3>
+    <div class="row">
+      <button class="btn btn-tile btn-sm" onclick="exportData()">Dışa Aktar</button>
+      <button class="btn btn-tile btn-sm" onclick="importData()">İçe Aktar</button>
+      <button class="btn btn-danger btn-sm" onclick="wipeStats()">Sıfırla</button>
+    </div>
+    <textarea id="databox" placeholder="Dışa aktarınca veri burada görünür; içe aktarmak için buraya yapıştır."></textarea>
+  </div>
+</section>
+
+<!-- AYARLAR -->
+<section id="scr-settings" class="screen">
+  <button class="back" onclick="show('scr-home')">← Geri</button>
+  <div class="card" id="settings-card"></div>
+  <button class="btn btn-outline" onclick="resetSettings()">Varsayılan Kurallara Dön</button>
+</section>
+
+<!-- İZLEYİCİ -->
+<section id="scr-viewer" class="screen">
+  <button class="back" onclick="stopViewer();show('scr-home')">← Geri</button>
+  <div class="card" id="viewer-join">
+    <h3>📡 Canlı Yazboz İzle</h3>
+    <p class="hint">Yazbozu tutan kişi "Canlı Oda" açsın ve oda kodunu sana göndersin (WhatsApp ya da QR). Kodu buraya yapıştır:</p>
+    <input type="text" id="viewer-code" placeholder="Oda kodu">
+    <button class="btn btn-green" style="margin-top:10px" onclick="joinRoom()">Bağlan</button>
+    <div class="err" id="viewer-err"></div>
+  </div>
+  <div id="viewer-board" style="display:none">
+    <p class="center"><span class="badge viewer-live">● CANLI</span> <span class="hint" id="viewer-updated"></span></p>
+    <div class="totals" id="v-totals"></div>
+    <div class="card">
+      <h3>Yazboz</h3>
+      <div class="yazboz-wrap"><table class="yazboz" id="v-yazboz"></table></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- EL GİRİŞ MODALI -->
+<div class="modal-bg" id="modal-el">
+  <div class="modal">
+    <h3>✍️ El Sonucu</h3>
+    <label class="fld">Eli kim bitirdi?</label>
+    <div class="chips" id="finisher-chips"></div>
+    <div id="bitis-wrap">
+      <label class="fld">Nasıl bitirdi?</label>
+      <div class="chips" id="bitis-chips">
+        <div class="chip sel" id="bt-duz" onclick="setBitis('duz')">Düz (−200)</div>
+        <div class="chip" id="bt-okey" onclick="setBitis('okey')">Okey atarak (×2)</div>
+        <div class="chip" id="bt-cift" onclick="setBitis('cift')">Çiftten (×2)</div>
+      </div>
+    </div>
+    <div id="kafa-note" class="hint" style="display:none; color:var(--red); font-weight:700">🗣️ KAFA! Kimse açamadı — cezalar ×2, bitirene ekstra rekor puanı.</div>
+    <label class="fld">Diğer oyuncular</label>
+    <div id="other-players"></div>
+    <label class="fld">El içi olaylar (işlek, kaptırma, rekor...)</label>
+    <div id="olaylar"></div>
+    <button class="btn btn-tile btn-sm" onclick="addOlayRow()">＋ Olay Ekle</button>
+    <div class="preview" id="el-preview"></div>
+    <div class="err" id="el-err"></div>
+    <div class="row">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-el')">Vazgeç</button>
+      <button class="btn btn-green" onclick="saveEl()">Eli Kaydet ✔</button>
+    </div>
+  </div>
+</div>
+
+<!-- HIZLI CEZA MODALI -->
+<div class="modal-bg" id="modal-olay">
+  <div class="modal">
+    <h3>⚡ Hızlı Ceza / Olay</h3>
+    <label class="fld">Kim?</label>
+    <div class="chips" id="q-player"></div>
+    <label class="fld">Ne oldu?</label>
+    <div class="chips" id="q-type"></div>
+    <div id="q-extra"></div>
+    <div class="preview" id="q-preview"></div>
+    <div class="err" id="q-err"></div>
+    <div class="row">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-olay')">Vazgeç</button>
+      <button class="btn btn-green" onclick="saveQuickOlay()">Yaz ✔</button>
+    </div>
+  </div>
+</div>
+
+<!-- QR MODALI -->
+<div class="modal-bg" id="modal-qr">
+  <div class="modal center">
+    <h3 id="qr-title">🔳 QR</h3>
+    <div id="qrbox"></div>
+    <div class="codebox" id="qr-code-text"></div>
+    <p class="hint" id="qr-hint"></p>
+    <button class="btn btn-tile" onclick="closeModal('modal-qr')">Kapat</button>
+  </div>
+</div>
+
+<!-- FİNAL MODALI -->
+<div class="modal-bg" id="modal-final">
+  <div class="modal center">
+    <div class="confetti">🎉🏆🎉</div>
+    <h3 id="final-title"></h3>
+    <div id="final-body"></div>
+    <button class="btn btn-primary" onclick="finishAndHome()">İstatistiklere Yazıldı — Ana Sayfa</button>
+  </div>
+</div>
+
+<script>
+/* ================= DEPOLAMA ================= */
+const store = {
+  m:{},
+  get(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):(k in this.m?this.m[k]:d); }catch(e){ return k in this.m?this.m[k]:d; } },
+  set(k,v){ this.m[k]=v; try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} },
+  del(k){ delete this.m[k]; try{ localStorage.removeItem(k); }catch(e){} }
+};
+
+/* ================= AYARLAR ================= */
+const DEF_SET = {
+  rekorAktif:1, rekorCift:7, rekorSeri:50, rekorBonus:101,
+  islekCeza:101, okeyKaptirmaCeza:101,
+  kapSeri:10, kapCift:20, kapCiftCift:40,
+  acmayanCeza:200, acanCarpan:1, bitmeBonus:200,
+  ciftBitisCarpan:2, okeyBitisCarpan:2, ciftGidenCarpan:2, kafaCarpan:2
+};
+let SET = Object.assign({}, DEF_SET, store.get('yb_set', {}));
+function saveSet(){ store.set('yb_set', SET); }
+
+const SET_SCHEMA = [
+  {t:'h', l:'Rekor Kuralları'},
+  {k:'rekorAktif', l:'Rekor kuralı aktif', s:'7+ çift veya seri (50 yan 1) açana bonus', tip:'sw'},
+  {k:'rekorCift', l:'Rekor için çift sayısı', s:'Bu kadar ve üzeri çiftle açan rekor yapar'},
+  {k:'rekorSeri', l:'Seri rekoru sınırı (50 yan 1)', s:'Tek seriden bu puan ve üzeri açan rekor yapar'},
+  {k:'rekorBonus', l:'Rekor bonusu', s:'Rekor yapana düşülen puan (−)'},
+  {t:'h', l:'El İçi Cezalar'},
+  {k:'islekCeza', l:'İşlek taş atma cezası', s:'Yere işleyen taş atana yazılır'},
+  {k:'okeyKaptirmaCeza', l:'Okey kaptırma cezası', s:'Yere açtığı okeyi kaptırana yazılır'},
+  {k:'kapSeri', l:'Taş kaptırma çarpanı (seri açana)', s:'Atılan taş × bu çarpan'},
+  {k:'kapCift', l:'Taş kaptırma çarpanı (çift açana)', s:'Atılan taş × bu çarpan'},
+  {k:'kapCiftCift', l:'Taş kaptırma çarpanı (çifte giderken çift açana)', s:'Atan çifte giderken, alan çift açarsa'},
+  {t:'h', l:'El Sonu Puanlama'},
+  {k:'bitmeBonus', l:'Bitirme puanı', s:'Bitiren takıma düşülen puan (−). Çift/okey ile ×2'},
+  {k:'acmayanCeza', l:'Açamayan cezası', s:'El bittiğinde açamayan oyuncuya yazılır'},
+  {k:'acanCarpan', l:'Açan oyuncu el çarpanı', s:'Elde kalan taş toplamı × bu çarpan'},
+  {k:'okeyBitisCarpan', l:'Okey atarak bitirme çarpanı', s:'Cezalar bu kadar katlanır'},
+  {k:'ciftBitisCarpan', l:'Çiftten bitirme çarpanı', s:'Cezalar bu kadar katlanır'},
+  {k:'ciftGidenCarpan', l:'Çifte giden çarpanı', s:'Çifte gidenin cezası her durumda bu kadar katlanır (çift/okey bitişle birleşince ×4)'},
+  {k:'kafaCarpan', l:'Kafa çarpanı', s:'Kimse açmadan biterse cezalar bu kadar katlanır'}
+];
+
+function renderSettings(){
+  const c = document.getElementById('settings-card');
+  let h = '<h3>⚙️ Kurallar & Ayarlar</h3><p class="hint">Masanızın kurallarına göre her şeyi değiştirebilirsin. Değerler anında kaydedilir.</p>';
+  for(const r of SET_SCHEMA){
+    if(r.t==='h'){ h += `<h3 style="margin-top:14px">${r.l}</h3>`; continue; }
+    if(r.tip==='sw'){
+      h += `<div class="set-row"><div class="sl">${r.l}<small>${r.s}</small></div>
+        <label class="switch"><input type="checkbox" ${SET[r.k]?'checked':''} onchange="SET['${r.k}']=this.checked?1:0;saveSet()"><span class="slider"></span></label></div>`;
+    } else {
+      h += `<div class="set-row"><div class="sl">${r.l}<small>${r.s}</small></div>
+        <input type="number" value="${SET[r.k]}" onchange="SET['${r.k}']=Number(this.value)||0;saveSet()"></div>`;
+    }
+  }
+  c.innerHTML = h;
+}
+function resetSettings(){ SET = Object.assign({}, DEF_SET); saveSet(); renderSettings(); }
+
+/* ================= OYUNCU KAYITLARI ================= */
+function getReg(){ return store.get('yb_players', {}); }
+function setReg(r){ store.set('yb_players', r); }
+function ensurePlayer(reg, name){
+  if(!reg[name]) reg[name] = {oyun:0, gal:0, bit:0, kafa:0, rcift:0, rseri:0, best:null};
+  return reg[name];
+}
+
+/* ================= EKRANLAR ================= */
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+
+/* ================= KURULUM ================= */
+let setupMode = 'esli', setupEl = 11;
+function pickMode(m){
+  setupMode = m;
+  document.querySelectorAll('#mode-chips .chip').forEach(c=>c.classList.toggle('sel', c.dataset.mode===m));
+  renderSU();
+}
+function pickEl(n){
+  setupEl = n;
+  document.querySelectorAll('#el-chips .chip').forEach(c=>c.classList.toggle('sel', Number(c.dataset.el)===n));
+}
+
+/* --- koltuk sistemi: dokun-yerleştir --- */
+let SU = {pool:[], seats:[null,null,null,null]};
+const escq = n => n.replace(/'/g,"\\'");
+
+function goSetup(){
+  const reg = getReg();
+  SU.pool = Object.keys(reg).sort((a,b)=>reg[b].oyun-reg[a].oyun).slice(0,16);
+  SU.seats = [null,null,null,null];
+  renderSU();
+  show('scr-setup');
+}
+function addPoolName(){
+  const inp = document.getElementById('new-name');
+  const v = (inp.value||'').trim();
+  if(!v) return;
+  const all = [...SU.pool, ...SU.seats.filter(Boolean)];
+  if(all.some(n=>n.toLowerCase()===v.toLowerCase())){ inp.value=''; return; }
+  const e = SU.seats.indexOf(null);
+  if(e>=0) SU.seats[e]=v; else SU.pool.push(v);
+  inp.value='';
+  renderSU();
+}
+function seatName(n){
+  const e = SU.seats.indexOf(null);
+  if(e<0) return;
+  SU.seats[e]=n;
+  SU.pool = SU.pool.filter(x=>x!==n);
+  renderSU();
+}
+function unseat(i){
+  const n = SU.seats[i];
+  if(!n) return;
+  SU.seats[i]=null;
+  if(!SU.pool.includes(n)) SU.pool.unshift(n);
+  renderSU();
+}
+function shuffleSeats(){
+  let cand = SU.seats.filter(Boolean);
+  for(const n of [...SU.pool]){ if(cand.length>=4) break; cand.push(n); }
+  SU.pool = SU.pool.filter(n=>!cand.includes(n));
+  for(let i=cand.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [cand[i],cand[j]]=[cand[j],cand[i]]; }
+  SU.seats = [cand[0]||null, cand[1]||null, cand[2]||null, cand[3]||null];
+  renderSU();
+}
+function renderSU(){
+  document.getElementById('pool-chips').innerHTML = SU.pool.length
+    ? SU.pool.map(n=>`<div class="chip small" onclick="seatName('${escq(n)}')">${n}</div>`).join('')
+    : '<span class="hint">Havuz boş — yukarıdan yeni isim ekleyebilirsin.</span>';
+  const slot = (i,label)=> SU.seats[i]
+    ? `<div class="chip sel" style="display:block;text-align:center;margin:6px 0" onclick="unseat(${i})">${SU.seats[i]} <span style="opacity:.6">✕</span></div>`
+    : `<div class="chip" style="display:block;text-align:center;margin:6px 0;border-style:dashed;opacity:.55">${label}</div>`;
+  const s = document.getElementById('seats');
+  if(setupMode==='esli'){
+    s.innerHTML = `<div class="row" style="margin-top:10px">
+      <div class="player-block" style="flex:1;margin:0"><div class="pname">1. Takım</div>${slot(0,'boş koltuk')}${slot(1,'boş koltuk')}</div>
+      <div class="player-block" style="flex:1;margin:0"><div class="pname">2. Takım</div>${slot(2,'boş koltuk')}${slot(3,'boş koltuk')}</div>
+    </div>`;
+  } else {
+    s.innerHTML = `<div class="player-block" style="margin-top:10px"><div class="pname">Masa</div>
+      ${slot(0,'1. oyuncu')}${slot(1,'2. oyuncu')}${slot(2,'3. oyuncu')}${slot(3,'4. oyuncu (opsiyonel)')}</div>`;
+  }
+}
+
+/* ================= OYUN DURUMU ================= */
+let G = null;
+
+function startGame(){
+  const err = document.getElementById('setup-err');
+  err.style.display='none';
+  let names;
+  if(setupMode==='esli'){
+    if(SU.seats.some(s=>!s)){ err.textContent='Takımları doldur — 4 oyuncu gerekli. Havuzdan isme dokunman yeterli.'; err.style.display='block'; return; }
+    names = [...SU.seats];
+  } else {
+    names = SU.seats.filter(Boolean);
+    if(names.length<3){ err.textContent='En az 3 oyuncu ekle.'; err.style.display='block'; return; }
+  }
+  if(new Set(names.map(n=>n.toLowerCase())).size !== names.length){
+    err.textContent='İsimler birbirinden farklı olmalı.'; err.style.display='block'; return;
+  }
+  let cols;
+  if(setupMode==='esli'){
+    cols = [ {name:`${names[0]} & ${names[1]}`, members:[0,1]}, {name:`${names[2]} & ${names[3]}`, members:[2,3]} ];
+  } else {
+    cols = names.map((n,i)=>({name:n, members:[i]}));
+  }
+  G = {
+    mode:setupMode, elSayisi:setupEl, names, cols,
+    hands:[], events:[], room:null, pendingOlaylar:[],
+    statDelta: Object.fromEntries(names.map(n=>[n,{bit:0,kafa:0,rcift:0,rseri:0,best:null}])),
+    done:false, startedAt: new Date().toISOString()
+  };
+  // isimleri kayda geç
+  const reg = getReg(); names.forEach(n=>ensurePlayer(reg,n)); setReg(reg);
+  saveGame(); renderGame(); show('scr-game');
+}
+
+function saveGame(){ store.set('yb_active', G); }
+function resumeGame(){ G = store.get('yb_active', null); if(G){ renderGame(); show('scr-game'); } }
+function abortGame(){
+  if(!confirm('Oyun iptal edilsin mi? Puanlar istatistiklere yazılmaz.')) return;
+  stopLivePush(); store.del('yb_active'); G=null; boot(); show('scr-home');
+}
+
+function colTotals(g){
+  const t = g.cols.map(()=>0);
+  g.hands.forEach(h=>h.colDeltas.forEach((d,i)=>t[i]+=d));
+  return t;
+}
+
+function renderGame(){
+  if(!G) return;
+  document.getElementById('el-counter').textContent = `El: ${Math.min(G.hands.length+1,G.elSayisi)} / ${G.elSayisi}`;
+  const totals = colTotals(G);
+  const min = Math.min(...totals);
+  document.getElementById('totals').innerHTML = G.cols.map((c,i)=>`
+    <div class="total-card ${totals[i]===min && G.hands.length? 'leader':''}">
+      <div class="tname">${c.name}</div>
+      <div class="tscore">${totals[i]}</div>
+      <div class="tsub">${G.mode==='esli'?'takım':'oyuncu'}</div>
+    </div>`).join('');
+  // yazboz tablosu
+  document.getElementById('yazboz-table').innerHTML = yazbozHTML(G, totals);
+  // olay günlüğü
+  const ev = document.getElementById('ev-log');
+  ev.innerHTML = G.events.length ? G.events.map(e=>`<div>${e}</div>`).join('') : '<span class="hint">Henüz olay yok.</span>';
+  document.getElementById('btn-el').style.display = G.hands.length>=G.elSayisi ? 'none':'block';
+  document.getElementById('btn-live').textContent = G.room ? '📡 Oda Açık' : '📡 Canlı Oda';
+  const li = document.getElementById('live-info');
+  if(G.room){ li.style.display='block'; li.textContent = 'Canlı oda açık — QR butonundan kodu paylaş.'; }
+  else li.style.display='none';
+  // bekleyen (el içi) cezalar
+  const po = G.pendingOlaylar || [];
+  const pc = document.getElementById('pending-card');
+  if(po.length){
+    pc.style.display='block';
+    document.getElementById('pending-list').innerHTML = po.map((o,i)=>{
+      const od = olayDelta(o); const v = od ? od.v : 0;
+      return `<div>${G.names[o.pid]} — ${od?od.label:'?'} <b style="color:${v<0?'var(--ok)':'#ff9fb2'}">${v>0?'+':''}${v}</b>
+        <span style="float:right;color:var(--red);font-weight:800;cursor:pointer;padding:0 6px" onclick="removePending(${i})">✕</span></div>`;
+    }).join('');
+  } else pc.style.display='none';
+  pushLive();
+}
+
+function yazbozHTML(g, totals){
+  let h = '<tr><th>El</th>' + g.cols.map(c=>`<th>${c.name}</th>`).join('') + '</tr>';
+  let run = g.cols.map(()=>0);
+  g.hands.forEach((hand,hi)=>{
+    h += `<tr><td>${hi+1}</td>`;
+    hand.colDeltas.forEach((d,ci)=>{
+      run[ci]+=d;
+      h += `<td><span class="d ${d<0?'neg':''}">${d>0?'+':''}${d}</span><br><span class="c">${run[ci]}</span></td>`;
+    });
+    h += '</tr>';
+  });
+  h += '<tr class="totrow"><td>Σ</td>' + totals.map(t=>`<td>${t}</td>`).join('') + '</tr>';
+  return h;
+}
+
+/* ================= EL GİRİŞİ ================= */
+let elForm = null;
+
+function openElModal(){
+  elForm = { finisher:null, okey:false, cift:false, others:{}, olaylar:[] };
+  setBitisChips();
+  document.getElementById('finisher-chips').innerHTML = G.names.map((n,i)=>
+    `<div class="chip" id="fin-${i}" onclick="pickFinisher(${i})">${n}</div>`).join('')
+    + `<div class="chip" id="fin-none" onclick="pickFinisher(-1)">🚫 Biten olmadı</div>`;
+  document.getElementById('bitis-wrap').style.display='';
+  document.getElementById('other-players').innerHTML='';
+  document.getElementById('olaylar').innerHTML='';
+  document.getElementById('el-err').style.display='none';
+  updatePreview();
+  openModal('modal-el');
+}
+
+function setBitis(t){
+  if(t==='duz'){ elForm.okey=false; elForm.cift=false; }
+  else if(t==='okey') elForm.okey=!elForm.okey;
+  else if(t==='cift') elForm.cift=!elForm.cift;
+  setBitisChips();
+  updatePreview();
+}
+function setBitisChips(){
+  document.getElementById('bt-duz').classList.toggle('sel', !elForm.okey && !elForm.cift);
+  document.getElementById('bt-okey').classList.toggle('sel', elForm.okey);
+  document.getElementById('bt-cift').classList.toggle('sel', elForm.cift);
+}
+function pickFinisher(i){
+  elForm.finisher = i;
+  G.names.forEach((_,j)=>document.getElementById('fin-'+j).classList.toggle('sel', j===i));
+  document.getElementById('fin-none').classList.toggle('sel', i===-1);
+  // biten yoksa bitiş şekli sorulmaz, herkesin puanı düz işlenir
+  if(i===-1){ elForm.okey=false; elForm.cift=false; setBitisChips(); }
+  document.getElementById('bitis-wrap').style.display = i===-1 ? 'none' : '';
+  elForm.others = {};
+  // eşli oyunda bitirenin eşi sayılmaz
+  let partner = -1;
+  if(G.mode==='esli' && i>=0){
+    const col = G.cols.find(c=>c.members.includes(i));
+    partner = col.members.find(m=>m!==i);
+  }
+  const box = document.getElementById('other-players');
+  const partnerNote = partner>=0 ? `<p class="hint">👥 Eşi <b>${G.names[partner]}</b> — bitiren takımda olduğu için eli sayılmaz.</p>`
+    : (i===-1 ? `<p class="hint">🚫 Biten olmadı — herkesin durumu girilir, bitirme puanı ve çarpan uygulanmaz.</p>` : '');
+  box.innerHTML = partnerNote + G.names.map((n,j)=>{
+    if(j===i || j===partner) return '';
+    elForm.others[j] = {durum:null, kalan:0, ciftGid:false};
+    return `<div class="player-block" id="pb-${j}">
+      <div class="pname">${n}</div>
+      <div class="radio-row">
+        <div class="chip" onclick="setDurum(${j},'seri',this)">Seriden açtı</div>
+        <div class="chip" onclick="setDurum(${j},'cift',this)">Çiftten açtı</div>
+        <div class="chip" onclick="setDurum(${j},'acamadi',this)">Açamadı</div>
+      </div>
+      <div id="pb-extra-${j}"></div>
+    </div>`;
+  }).join('');
+  updatePreview();
+}
+
+function setDurum(j, d, chipEl){
+  elForm.others[j].durum = d;
+  chipEl.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));
+  chipEl.classList.add('sel');
+  const ex = document.getElementById('pb-extra-'+j);
+  if(d==='acamadi'){
+    elForm.others[j].kalan = 0;
+    ex.innerHTML = `<div class="checkline"><input type="checkbox" id="cg-${j}" onchange="elForm.others[${j}].ciftGid=this.checked;updatePreview()"><label for="cg-${j}">Çifte gidiyordu</label></div>`;
+    elForm.others[j].ciftGid = false;
+  } else {
+    elForm.others[j].ciftGid = (d==='cift');
+    ex.innerHTML = `<label class="fld">Elinde kalan taşların toplamı</label>
+      <input type="number" min="0" inputmode="numeric" value="" placeholder="örn. 27" oninput="elForm.others[${j}].kalan=Number(this.value)||0;updatePreview()">`;
+  }
+  updatePreview();
+}
+
+const OLAY_TYPES = () => {
+  const t = [
+    {v:'islek', l:`İşlek taş attı (+${SET.islekCeza})`},
+    {v:'kaptirma', l:'Taş kaptırdı (attığı taşla rakip açtı)'},
+    {v:'okeykap', l:`Yere açtığı okeyi kaptırdı (+${SET.okeyKaptirmaCeza})`}
+  ];
+  if(SET.rekorAktif){
+    t.push({v:'rcift', l:`REKOR: ${SET.rekorCift}+ çift açtı (−${SET.rekorBonus})`});
+    t.push({v:'rseri', l:`REKOR: seriden ${SET.rekorSeri} yan 1 açtı (−${SET.rekorBonus})`});
+  }
+  return t;
+};
+
+function addOlayRow(){
+  const id = elForm.olaylar.length;
+  elForm.olaylar.push({pid:0, type:'islek', tas:0, alanCift:false, atanCift:false, del:false});
+  const div = document.createElement('div');
+  div.className='olay-row'; div.id='olay-'+id;
+  div.innerHTML = `<span class="rm" onclick="rmOlay(${id})">✕</span>
+    <select onchange="elForm.olaylar[${id}].pid=Number(this.value);updatePreview()">
+      ${G.names.map((n,i)=>`<option value="${i}">${n}</option>`).join('')}
+    </select>
+    <select style="margin-top:6px" onchange="elForm.olaylar[${id}].type=this.value;olayExtra(${id});updatePreview()">
+      ${OLAY_TYPES().map(o=>`<option value="${o.v}">${o.l}</option>`).join('')}
+    </select>
+    <div id="olay-extra-${id}"></div>`;
+  document.getElementById('olaylar').appendChild(div);
+  updatePreview();
+}
+function rmOlay(id){
+  elForm.olaylar[id].del = true;
+  document.getElementById('olay-'+id).remove();
+  updatePreview();
+}
+function olayExtra(id){
+  const o = elForm.olaylar[id];
+  const box = document.getElementById('olay-extra-'+id);
+  if(o.type==='kaptirma'){
+    box.innerHTML = `<label class="fld">Atılan taşın değeri</label>
+      <input type="number" min="1" max="13" inputmode="numeric" placeholder="örn. 5" oninput="elForm.olaylar[${id}].tas=Number(this.value)||0;updatePreview()">
+      <div class="checkline"><input type="checkbox" id="oa-${id}" onchange="elForm.olaylar[${id}].alanCift=this.checked;updatePreview()"><label for="oa-${id}">Alan kişi ÇİFT açtı (yoksa seri ×${SET.kapSeri})</label></div>
+      <div class="checkline"><input type="checkbox" id="ob-${id}" onchange="elForm.olaylar[${id}].atanCift=this.checked;updatePreview()"><label for="ob-${id}">Atan kişi çifte gidiyordu (×${SET.kapCiftCift})</label></div>`;
+  } else box.innerHTML='';
+}
+
+/* --------- PUANLAMA MOTORU --------- */
+function computeEl(){
+  const f = elForm;
+  const res = { deltas: G.names.map(()=>0), lines: [], events: [], kafa:false, valid:false, errmsg:'' };
+  if(f.finisher===null){ res.errmsg='Eli bitireni seç.'; return res; }
+  const others = Object.entries(f.others);
+  for(const [j,o] of others){ if(!o.durum){ res.errmsg = G.names[j]+' için durum seç.'; return res; } }
+  const kafa = f.finisher>=0 && others.length>0 && others.every(([j,o])=>o.durum==='acamadi');
+  res.kafa = kafa;
+  document.getElementById('kafa-note').style.display = kafa?'block':'none';
+
+  if(f.finisher>=0){
+    const finName = G.names[f.finisher];
+    // Bitiren puanı
+    let fin = -(SET.bitmeBonus * (f.cift?SET.ciftBitisCarpan:1) * (f.okey?SET.okeyBitisCarpan:1));
+    let finTxt = `${finName} bitirdi`;
+    if(f.okey) finTxt += ' (okey atarak)';
+    if(f.cift) finTxt += ' (çiftten)';
+    if(kafa && SET.rekorAktif){ fin -= SET.rekorBonus; finTxt += ' — KAFA! rekor bonusu dahil'; }
+    else if(kafa) finTxt += ' — KAFA!';
+    res.deltas[f.finisher] += fin;
+    res.lines.push({name:finName, v:fin});
+    res.events.push(`✅ El ${G.hands.length+1}: ${finTxt} (${fin})`);
+  } else {
+    res.events.push(`⏸️ El ${G.hands.length+1}: biten olmadı — puanlar normal işlendi`);
+  }
+
+  // Diğerleri
+  for(const [js,o] of others){
+    const j = Number(js);
+    let base = o.durum==='acamadi' ? SET.acmayanCeza : o.kalan * SET.acanCarpan;
+    let mult = (f.cift?SET.ciftBitisCarpan:1) * (f.okey?SET.okeyBitisCarpan:1) * (kafa?SET.kafaCarpan:1);
+    if(o.ciftGid) mult *= SET.ciftGidenCarpan; // çifte gidenin cezası her durumda katlanır
+    const ceza = Math.round(base*mult);
+    res.deltas[j] += ceza;
+    let d = o.durum==='acamadi' ? 'açamadı' : (o.durum==='cift'?'çift açtı':'seri açtı');
+    if(o.durum!=='acamadi') d += `, elde ${o.kalan}`;
+    if(o.ciftGid && o.durum==='acamadi') d += ', çifte gidiyordu';
+    res.lines.push({name:G.names[j], v:ceza, d});
+  }
+
+  // Olaylar: el sürerken yazılan hızlı cezalar + modalda eklenenler
+  for(const o of [...(G.pendingOlaylar||[]), ...f.olaylar]){
+    if(o.del) continue;
+    if(o.type==='kaptirma' && !o.tas){ res.errmsg='Kaptırılan taşın değerini gir.'; return res; }
+    const od = olayDelta(o);
+    if(!od) continue;
+    res.deltas[o.pid] += od.v;
+    res.events.push(od.ev(G.names[o.pid]));
+    res.lines.push({name:G.names[o.pid], v:od.v, d:od.label});
+  }
+  res.valid = true;
+  return res;
+}
+
+/* Tek bir olayın puanını hesaplar (hem hızlı ceza hem el sonu için) */
+function olayDelta(o){
+  if(o.type==='islek') return {v:SET.islekCeza, label:'işlek taş', ev:n=>`⚠️ ${n} işlek taş attı (+${SET.islekCeza})`};
+  if(o.type==='okeykap') return {v:SET.okeyKaptirmaCeza, label:'okey kaptırdı', ev:n=>`🃏 ${n} okey kaptırdı (+${SET.okeyKaptirmaCeza})`};
+  if(o.type==='rcift') return SET.rekorAktif ? {v:-SET.rekorBonus, label:'çift rekoru', ev:n=>`🏅 ${n} ÇİFT REKORU açtı (−${SET.rekorBonus})`} : null;
+  if(o.type==='rseri') return SET.rekorAktif ? {v:-SET.rekorBonus, label:'seri rekoru', ev:n=>`🏅 ${n} SERİ REKORU (${SET.rekorSeri} yan 1) açtı (−${SET.rekorBonus})`} : null;
+  if(o.type==='kaptirma'){
+    const c = (o.atanCift && o.alanCift) ? SET.kapCiftCift : (o.alanCift ? SET.kapCift : SET.kapSeri);
+    return {v:o.tas*c, label:`taş kaptırdı ${o.tas}×${c}`, ev:n=>`🎯 ${n} taş kaptırdı: ${o.tas} × ${c} = +${o.tas*c}`};
+  }
+  return null;
+}
+
+/* ---- Hızlı ceza (el sürerken) ---- */
+let qForm = null;
+function openOlayModal(){
+  if(!G) return;
+  qForm = {pid:null, type:null, tas:0, alanCift:false, atanCift:false};
+  document.getElementById('q-player').innerHTML = G.names.map((n,i)=>`<div class="chip" id="qp-${i}" onclick="pickQP(${i})">${n}</div>`).join('');
+  document.getElementById('q-type').innerHTML = OLAY_TYPES().map(o=>`<div class="chip small" id="qt-${o.v}" onclick="pickQT('${o.v}')">${o.l}</div>`).join('');
+  document.getElementById('q-extra').innerHTML='';
+  document.getElementById('q-err').style.display='none';
+  updateQ();
+  openModal('modal-olay');
+}
+function pickQP(i){
+  qForm.pid=i;
+  G.names.forEach((_,j)=>document.getElementById('qp-'+j).classList.toggle('sel', j===i));
+  updateQ();
+}
+function pickQT(t){
+  qForm.type=t;
+  OLAY_TYPES().forEach(o=>{ const el=document.getElementById('qt-'+o.v); if(el) el.classList.toggle('sel', o.v===t); });
+  const ex = document.getElementById('q-extra');
+  if(t==='kaptirma'){
+    ex.innerHTML = `<label class="fld">Atılan taşın değeri</label>
+      <input type="number" min="1" max="13" inputmode="numeric" placeholder="örn. 5" oninput="qForm.tas=Number(this.value)||0;updateQ()">
+      <div class="checkline"><input type="checkbox" id="q-ac" onchange="qForm.alanCift=this.checked;updateQ()"><label for="q-ac">Alan kişi ÇİFT açtı</label></div>
+      <div class="checkline"><input type="checkbox" id="q-at" onchange="qForm.atanCift=this.checked;updateQ()"><label for="q-at">Atan kişi çifte gidiyordu</label></div>`;
+  } else ex.innerHTML='';
+  updateQ();
+}
+function updateQ(){
+  const pv = document.getElementById('q-preview');
+  if(qForm.pid===null || !qForm.type){ pv.innerHTML='<span class="hint">Oyuncuyu ve olayı seç.</span>'; return; }
+  if(qForm.type==='kaptirma' && !qForm.tas){ pv.innerHTML='<span class="hint">Taş değerini gir.</span>'; return; }
+  const od = olayDelta(qForm);
+  pv.innerHTML = od ? `${G.names[qForm.pid]}: <b class="${od.v<0?'neg':'pos'}">${od.v>0?'+':''}${od.v}</b> — ${od.label}` : '<span class="hint">Bu olay ayarlardan kapalı.</span>';
+}
+function saveQuickOlay(){
+  const err = document.getElementById('q-err');
+  if(qForm.pid===null || !qForm.type){ err.textContent='Oyuncu ve olay türü seç.'; err.style.display='block'; return; }
+  if(qForm.type==='kaptirma' && !qForm.tas){ err.textContent='Taş değerini gir.'; err.style.display='block'; return; }
+  if(!olayDelta(qForm)){ err.textContent='Bu olay ayarlardan kapalı.'; err.style.display='block'; return; }
+  (G.pendingOlaylar = G.pendingOlaylar || []).push(Object.assign({}, qForm));
+  saveGame(); renderGame(); closeModal('modal-olay');
+}
+function removePending(i){
+  G.pendingOlaylar.splice(i,1);
+  saveGame(); renderGame();
+}
+
+function updatePreview(){
+  if(!elForm) return;
+  const r = computeEl();
+  const pv = document.getElementById('el-preview');
+  if(!r.valid && r.errmsg){ pv.innerHTML = `<span class="hint">${r.errmsg}</span>`; return; }
+  // oyuncu bazında topla
+  const agg = {};
+  r.lines.forEach(l=>{ agg[l.name]=(agg[l.name]||0)+l.v; });
+  pv.innerHTML = '<b>Bu elin puanları:</b><br>' + Object.entries(agg).map(([n,v])=>
+    `${n}: <b class="${v<0?'neg':'pos'}">${v>0?'+':''}${v}</b>`).join(' · ');
+}
+
+function saveEl(){
+  const r = computeEl();
+  const err = document.getElementById('el-err');
+  if(!r.valid){ err.textContent=r.errmsg; err.style.display='block'; return; }
+  // sütun deltaları
+  const colDeltas = G.cols.map(c=>c.members.reduce((s,m)=>s+r.deltas[m],0));
+  G.hands.push({ deltas:r.deltas, colDeltas, finisher:elForm.finisher, kafa:r.kafa, okey:elForm.okey, cift:elForm.cift });
+  G.events.push(...r.events);
+  // istatistik delta
+  const sd = G.statDelta;
+  if(elForm.finisher>=0){
+    const finN = G.names[elForm.finisher];
+    sd[finN].bit++;
+    if(r.kafa) sd[finN].kafa++;
+  }
+  for(const o of [...(G.pendingOlaylar||[]), ...elForm.olaylar]){
+    if(o.del) continue;
+    if(o.type==='rcift') sd[G.names[o.pid]].rcift++;
+    if(o.type==='rseri') sd[G.names[o.pid]].rseri++;
+  }
+  G.pendingOlaylar = [];
+  G.names.forEach((n,i)=>{
+    if(sd[n].best===null || r.deltas[i]<sd[n].best) sd[n].best = r.deltas[i];
+  });
+  closeModal('modal-el');
+  saveGame(); renderGame();
+  if(G.hands.length>=G.elSayisi) endGame();
+}
+
+/* ================= OYUN SONU ================= */
+function endGame(){
+  G.done = true;
+  const totals = colTotals(G);
+  const min = Math.min(...totals);
+  const winners = G.cols.filter((c,i)=>totals[i]===min);
+  const winNames = winners.flatMap(c=>c.members.map(m=>G.names[m]));
+  // kalıcı istatistikleri işle (yerel + bulut kuyruğu)
+  const deltas = G.names.map(n=>Object.assign({n, oyun:1, gal:winNames.includes(n)?1:0}, G.statDelta[n]));
+  const reg = getReg();
+  applyDeltas(reg, deltas);
+  setReg(reg);
+  const pend = store.get('yb_pending', []);
+  pend.push(...deltas);
+  store.set('yb_pending', pend);
+  cloudSync();
+  document.getElementById('final-title').textContent = `Kazanan: ${winners.map(c=>c.name).join(' & ')} 🏆`;
+  document.getElementById('final-body').innerHTML =
+    `<div class="totals">${G.cols.map((c,i)=>`<div class="total-card ${totals[i]===min?'leader':''}"><div class="tname">${c.name}</div><div class="tscore">${totals[i]}</div></div>`).join('')}</div>
+     <p class="hint">En düşük puan kazanır. Oyuncu istatistikleri güncellendi.</p>`;
+  pushLive();
+  openModal('modal-final');
+}
+function finishAndHome(){
+  closeModal('modal-final');
+  stopLivePush(); store.del('yb_active'); G=null;
+  boot(); renderStats(); show('scr-stats');
+}
+
+/* ================= BULUT SENKRON ================= */
+function applyDeltas(players, ds){
+  for(const d of ds){
+    const p = ensurePlayer(players, d.n);
+    p.oyun+=d.oyun||0; p.gal+=d.gal||0; p.bit+=d.bit||0; p.kafa+=d.kafa||0;
+    p.rcift+=d.rcift||0; p.rseri+=d.rseri||0;
+    if(d.best!==undefined && d.best!==null && (p.best===null || d.best<p.best)) p.best=d.best;
+  }
+}
+function cloudId(){ return store.get('yb_cloud', null); }
+let syncBusy = false;
+async function cloudSync(silent){
+  const id = cloudId();
+  if(!id || syncBusy) return;
+  syncBusy = true;
+  setCloudStatus('☁️ Eşitleniyor…');
+  try{
+    const r = await fetch(BLOB_API+'/'+id, {cache:'no-store'});
+    if(!r.ok) throw new Error();
+    const d = await r.json();
+    const cloud = (d && d.players) ? d.players : {};
+    // bekleyen oyun sonuçlarını buluta işle
+    applyDeltas(cloud, store.get('yb_pending', []));
+    // yalnızca yerelde olan oyuncuları buluta taşı
+    const local = getReg();
+    for(const n in local) if(!cloud[n]) cloud[n]=local[n];
+    const w = await fetch(BLOB_API+'/'+id, {method:'PUT', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({type:'yb-stats', players:cloud, updated:Date.now()})});
+    if(!w.ok) throw new Error();
+    setReg(cloud);
+    store.set('yb_pending', []);
+    store.set('yb_lastsync', Date.now());
+    setCloudStatus('☁️ Eşitlendi ✔ '+new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}));
+    if(document.getElementById('scr-stats').classList.contains('active')) renderStatsTables();
+  }catch(e){
+    setCloudStatus('☁️ Çevrimdışı — sonuçlar telefonda bekliyor, internet gelince eşitlenecek.');
+    if(!silent) console.warn('cloud sync fail', e);
+  }
+  syncBusy = false;
+}
+function setCloudStatus(t){
+  const el = document.getElementById('cloud-status');
+  if(el) el.textContent = t;
+}
+async function cloudCreate(){
+  try{
+    const r = await fetch(BLOB_API, {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({type:'yb-stats', players:getReg(), updated:Date.now()})});
+    const loc = r.headers.get('Location') || r.headers.get('location');
+    if(!loc) throw new Error();
+    store.set('yb_cloud', loc.split('/').pop());
+    store.set('yb_pending', []);
+    store.set('yb_lastsync', Date.now());
+    renderCloud();
+    alert('Bulut kaydı oluşturuldu ✔ Kodu arkadaşlarınla paylaşırsan onlar da aynı istatistiklere bağlanabilir.');
+  }catch(e){ alert('Bulut kaydı oluşturulamadı — internet bağlantını kontrol et.'); }
+}
+async function cloudConnect(){
+  const code = (document.getElementById('cloud-code-in').value||'').trim().split('/').pop();
+  if(!code){ alert('Kod gir.'); return; }
+  try{
+    const r = await fetch(BLOB_API+'/'+code, {cache:'no-store'});
+    if(!r.ok) throw new Error();
+    const d = await r.json();
+    if(!d || d.type!=='yb-stats') throw new Error();
+    store.set('yb_cloud', code);
+    await cloudSync(true);
+    renderCloud(); renderStatsTables();
+    alert('Bulut istatistiklerine bağlanıldı ✔');
+  }catch(e){ alert('Bağlanılamadı — kodu kontrol et.'); }
+}
+function cloudDisconnect(){
+  if(!confirm('Bulut bağlantısı kesilsin mi? (Veriler telefonda kalır, buluttaki kayıt silinmez)')) return;
+  store.del('yb_cloud'); renderCloud();
+}
+function cloudShareCode(){
+  const id = cloudId(); if(!id) return;
+  const t = '🎴 101 Okey Yazboz — istatistik bulut kodu:\n'+id+'\n(Uygulamada İstatistikler → Bulut → "Koda bağlan" kısmına yapıştır)';
+  if(navigator.share) navigator.share({text:t}).catch(()=>{});
+  else { navigator.clipboard && navigator.clipboard.writeText(t); alert('Kod panoya kopyalandı.'); }
+}
+function renderCloud(){
+  const c = document.getElementById('cloud-card');
+  const id = cloudId();
+  const pend = store.get('yb_pending', []).length;
+  if(id){
+    c.innerHTML = `<h3>☁️ Bulut Senkron — Açık</h3>
+      <p class="hint" id="cloud-status">${pend? '⏳ '+pend+' bekleyen sonuç var':'☁️ Bağlı'}</p>
+      <div class="codebox">${id}</div>
+      <div class="row">
+        <button class="btn btn-tile btn-sm" onclick="cloudShareCode()">📤 Kodu Paylaş</button>
+        <button class="btn btn-tile btn-sm" onclick="cloudSync()">🔄 Şimdi Eşitle</button>
+        <button class="btn btn-danger btn-sm" onclick="cloudDisconnect()">Kes</button>
+      </div>
+      <p class="hint">Oyun bittiğinde sonuçlar otomatik buluta yazılır. Aynı koda bağlanan herkes aynı skorboardu görür.</p>`;
+  } else {
+    c.innerHTML = `<h3>☁️ Bulut Senkron — Kapalı</h3>
+      <p class="hint">İstatistikler şu an sadece bu telefonda. Buluta taşırsan telefon değişse de kaybolmaz ve arkadaşların da aynı skorboarda bağlanabilir.</p>
+      <button class="btn btn-green btn-sm" onclick="cloudCreate()">☁️ Bulut Kaydı Oluştur</button>
+      <label class="fld" style="margin-top:10px">Ya da mevcut koda bağlan:</label>
+      <input type="text" id="cloud-code-in" placeholder="Arkadaşının paylaştığı kod">
+      <button class="btn btn-tile btn-sm" style="margin-top:8px" onclick="cloudConnect()">Bağlan</button>`;
+  }
+}
+
+/* ================= İSTATİSTİK ================= */
+function renderStats(){
+  renderCloud();
+  renderStatsTables();
+  cloudSync(true);
+}
+function renderStatsTables(){
+  const reg = getReg();
+  const names = Object.keys(reg);
+  const tb = document.getElementById('stat-table');
+  if(!names.length){
+    tb.innerHTML='<tr><td class="hint" style="text-align:left">Henüz istatistik yok — ilk oyunu bitirince burası dolacak.</td></tr>';
+    document.getElementById('enler').innerHTML='<span class="hint">Henüz veri yok.</span>';
+    return;
+  }
+  names.sort((a,b)=>reg[b].gal-reg[a].gal || reg[b].bit-reg[a].bit);
+  tb.innerHTML = '<tr><th>Oyuncu</th><th>G</th><th>W</th><th>B</th><th>K</th><th>R</th><th>S</th><th>En iyi</th></tr>' +
+    names.map(n=>{ const p=reg[n]; return `<tr><td>${n}</td><td>${p.oyun}</td><td>${p.gal}</td><td>${p.bit}</td><td>${p.kafa}</td><td>${p.rcift}</td><td>${p.rseri}</td><td>${p.best===null?'—':p.best}</td></tr>`; }).join('');
+  // enler
+  const en = (key,label,emoji,minMode)=>{
+    let bestVal=null, holders=[];
+    names.forEach(n=>{
+      const v = reg[n][key];
+      if(v===null || (!minMode && v<=0)) return;
+      if(bestVal===null || (minMode ? v<bestVal : v>bestVal)){ bestVal=v; holders=[n]; }
+      else if(v===bestVal) holders.push(n);
+    });
+    if(bestVal===null) return '';
+    return `<div class="en-card"><div class="et">${emoji} ${label}</div><div class="en">${holders.join(', ')}</div><div class="ev">${bestVal}</div></div>`;
+  };
+  document.getElementById('enler').innerHTML =
+    en('gal','En çok kazanan','🏆') + en('bit','En çok bitiren','✅') +
+    en('kafa','En çok kafa atan','🗣️') + en('rcift','En çok çift rekoru','🏅') +
+    en('rseri','En çok seri rekoru','📏') + en('best','En iyi tek el','⭐',true) || '<span class="hint">Henüz veri yok.</span>';
+}
+function exportData(){
+  document.getElementById('databox').value = JSON.stringify({players:getReg(), settings:SET});
+}
+function importData(){
+  try{
+    const d = JSON.parse(document.getElementById('databox').value);
+    if(d.players) setReg(d.players);
+    if(d.settings){ SET=Object.assign({},DEF_SET,d.settings); saveSet(); }
+    renderStats(); alert('Veri içe aktarıldı ✔');
+  }catch(e){ alert('Geçersiz veri.'); }
+}
+function wipeStats(){
+  if(!confirm('Tüm oyuncu istatistikleri silinsin mi?')) return;
+  setReg({}); store.set('yb_pending', []);
+  const id = cloudId();
+  if(id && confirm('Buluttaki ortak kayıt da sıfırlansın mı?')){
+    fetch(BLOB_API+'/'+id, {method:'PUT', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({type:'yb-stats', players:{}, updated:Date.now()})}).catch(()=>{});
+  }
+  renderStats();
+}
+
+/* ================= PAYLAŞIM / QR / CANLI ================= */
+function snapshotText(){
+  const totals = colTotals(G);
+  let t = `🎴 101 OKEY YAZBOZ\nEl ${G.hands.length}/${G.elSayisi}\n`;
+  G.cols.forEach((c,i)=>{ t += `${c.name}: ${totals[i]}\n`; });
+  if(G.done){ const min=Math.min(...totals); t += `🏆 Kazanan: ${G.cols.filter((c,i)=>totals[i]===min).map(c=>c.name).join(' & ')}\n`; }
+  return t;
+}
+function shareText(){
+  const t = snapshotText() + (G.room ? `\n📡 Canlı izleme kodu:\n${G.room}` : '');
+  if(navigator.share) navigator.share({text:t}).catch(()=>{});
+  else { navigator.clipboard && navigator.clipboard.writeText(t); alert('Skor panoya kopyalandı — WhatsApp\'a yapıştırabilirsin.'); }
+}
+
+let qrLibLoading = false;
+function withQRLib(cb){
+  if(window.QRCode) return cb(true);
+  if(qrLibLoading) return;
+  qrLibLoading = true;
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+  s.onload = ()=>cb(true);
+  s.onerror = ()=>{ qrLibLoading=false; cb(false); };
+  document.head.appendChild(s);
+}
+function openQR(){
+  const content = G.room || snapshotText();
+  document.getElementById('qr-title').textContent = G.room ? '🔳 Canlı Oda Kodu' : '🔳 Anlık Skor';
+  document.getElementById('qr-hint').textContent = G.room
+    ? 'İzleyiciler bu kodu uygulamadaki "İzleyici Olarak Katıl" ekranına girsin (QR okutup kodu kopyalayabilirler).'
+    : 'Bu QR anlık skoru metin olarak taşır. Canlı takip için "Canlı Oda" başlat.';
+  document.getElementById('qr-code-text').textContent = content;
+  const box = document.getElementById('qrbox');
+  box.innerHTML='';
+  withQRLib(ok=>{
+    if(ok) new QRCode(box, {text:content, width:200, height:200});
+    else box.innerHTML='<span class="hint">QR üretilemedi (internet gerekli) — alttaki kodu paylaşabilirsin.</span>';
+  });
+  openModal('modal-qr');
+}
+
+/* canlı oda: jsonblob.com ücretsiz servis (internet gerektirir) */
+const BLOB_API = 'https://jsonblob.com/api/jsonBlob';
+let pushTimer = null;
+async function toggleLive(){
+  if(!G) return;
+  if(G.room){ openQR(); return; }
+  try{
+    const r = await fetch(BLOB_API, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(liveSnapshot())});
+    const loc = r.headers.get('Location') || r.headers.get('location');
+    if(!loc) throw new Error('no location');
+    G.room = loc.split('/').pop();
+    saveGame(); renderGame(); openQR();
+  }catch(e){
+    alert('Canlı oda açılamadı (internet bağlantısı gerekli). Skoru "Paylaş" ile gönderebilirsin.');
+  }
+}
+function liveSnapshot(){
+  return { cols:G.cols.map(c=>c.name), hands:G.hands.map(h=>h.colDeltas), el:G.hands.length,
+           elSayisi:G.elSayisi, done:G.done, ts: Date.now() };
+}
+function pushLive(){
+  if(!G || !G.room) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(()=>{
+    fetch(BLOB_API+'/'+G.room, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(liveSnapshot())}).catch(()=>{});
+  }, 400);
+}
+function stopLivePush(){ clearTimeout(pushTimer); }
+
+/* izleyici */
+let viewerTimer = null;
+function joinRoom(){
+  const code = (document.getElementById('viewer-code').value||'').trim().split('/').pop();
+  const err = document.getElementById('viewer-err');
+  err.style.display='none';
+  if(!code){ err.textContent='Kod gir.'; err.style.display='block'; return; }
+  const poll = async ()=>{
+    try{
+      const r = await fetch(BLOB_API+'/'+code, {cache:'no-store'});
+      if(!r.ok) throw new Error();
+      const d = await r.json();
+      renderViewer(d);
+      document.getElementById('viewer-join').style.display='none';
+      document.getElementById('viewer-board').style.display='block';
+    }catch(e){
+      if(document.getElementById('viewer-board').style.display==='none'){
+        err.textContent='Odaya bağlanılamadı — kodu kontrol et.'; err.style.display='block';
+        clearInterval(viewerTimer); viewerTimer=null;
+      }
+    }
+  };
+  clearInterval(viewerTimer);
+  viewerTimer = setInterval(poll, 4000);
+  poll();
+}
+function renderViewer(d){
+  const totals = d.cols.map((_,i)=>d.hands.reduce((s,h)=>s+h[i],0));
+  const min = Math.min(...totals);
+  document.getElementById('v-totals').innerHTML = d.cols.map((c,i)=>
+    `<div class="total-card ${totals[i]===min && d.hands.length?'leader':''}"><div class="tname">${c}</div><div class="tscore">${totals[i]}</div></div>`).join('');
+  let h = '<tr><th>El</th>'+d.cols.map(c=>`<th>${c}</th>`).join('')+'</tr>';
+  const run = d.cols.map(()=>0);
+  d.hands.forEach((hd,hi)=>{
+    h += `<tr><td>${hi+1}</td>`+hd.map((v,ci)=>{run[ci]+=v;return `<td><span class="d ${v<0?'neg':''}">${v>0?'+':''}${v}</span><br><span class="c">${run[ci]}</span></td>`;}).join('')+'</tr>';
+  });
+  h += '<tr class="totrow"><td>Σ</td>'+totals.map(t=>`<td>${t}</td>`).join('')+'</tr>';
+  document.getElementById('v-yazboz').innerHTML = h;
+  document.getElementById('viewer-updated').textContent =
+    `El ${d.el}/${d.elSayisi}` + (d.done?' — Oyun bitti 🏁':'');
+}
+function stopViewer(){
+  clearInterval(viewerTimer); viewerTimer=null;
+  document.getElementById('viewer-join').style.display='block';
+  document.getElementById('viewer-board').style.display='none';
+}
+
+/* ================= BAŞLANGIÇ ================= */
+function boot(){
+  const g = store.get('yb_active', null);
+  document.getElementById('btn-devam').style.display = (g && !g.done) ? 'block' : 'none';
+}
+boot();
+show('scr-home');
+</script>
+</body>
+</html>
