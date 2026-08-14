@@ -243,6 +243,16 @@ table.yazboz td.dcell{padding:4px 3px;}
 table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line-height:1.25;}
 ::-webkit-scrollbar{height:5px; width:5px;}
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25); border-radius:99px;}
+/* güncelleme çubuğu */
+#update-bar{
+  position:fixed; left:12px; right:12px; bottom:calc(14px + env(safe-area-inset-bottom));
+  z-index:99; display:none; align-items:center; gap:10px;
+  background:rgba(14,52,76,.92); border:1px solid var(--cyan); border-radius:16px;
+  padding:12px 14px; box-shadow:0 10px 30px rgba(2,20,35,.6);
+  backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur);
+}
+#update-bar span{flex:1; font-size:13.5px; font-weight:700; color:var(--txt);}
+#update-bar button{flex:none; margin:0; width:auto; padding:9px 16px; font-size:13.5px;}
 </style>
 </head>
 <body>
@@ -254,7 +264,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div class="mini-tile t-yellow"><span>☺</span></div>
   </div>
   <h1>YAZBOZ</h1>
-  <div class="sub">masa oyunları · v4.1</div>
+  <div class="sub" id="ver-sub">masa oyunları · v4.2</div>
 </header>
 <main>
 
@@ -454,6 +464,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 <section id="scr-settings" class="screen">
   <button class="back" onclick="show('scr-home')">← Geri</button>
   <div class="card" id="settings-card"></div>
+  <button class="btn btn-green" onclick="hardReload()">🔄 Önbelleği Yenile / Güncellemeyi Al</button>
   <button class="btn btn-outline" onclick="resetSettings()">Varsayılan Kurallara Dön</button>
 </section>
 
@@ -478,6 +489,12 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 </section>
 
 </main>
+
+<!-- GÜNCELLEME ÇUBUĞU -->
+<div id="update-bar">
+  <span id="update-txt">🔄 Yeni sürüm hazır!</span>
+  <button class="btn btn-primary" onclick="hardReload()">Güncelle</button>
+</div>
 
 <!-- EL GİRİŞ MODALI -->
 <div class="modal-bg" id="modal-el">
@@ -561,6 +578,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 </div>
 
 <script>
+const APP_VER = '4.2';
 /* ================= DEPOLAMA ================= */
 const store = {
   m:{},
@@ -2429,8 +2447,27 @@ function boot(){
   document.getElementById('btn-devam-defter').style.display = (dg && !dg.done) ? 'block' : 'none';
   renderHomeGames();
 }
+/* ---- güncelleme sistemi: iPhone önbelleği yenmek için ---- */
+function hardReload(){
+  // benzersiz adresle taze kopya zorlanır (önbellek devre dışı kalır)
+  location.replace(location.pathname + '?r=' + Date.now());
+}
+async function checkUpdate(){
+  if(!location.protocol.startsWith('http')) return;
+  try{
+    const r = await fetch(location.pathname + '?vchk=' + Date.now(), {cache:'no-store'});
+    const t = await r.text();
+    const m = t.match(/APP_VER = '([\d.]+)'/);
+    if(m && m[1] !== APP_VER){
+      document.getElementById('update-txt').textContent = `🔄 Yeni sürüm hazır: v${m[1]} (sende v${APP_VER})`;
+      document.getElementById('update-bar').style.display = 'flex';
+    }
+  }catch(e){}
+}
+document.getElementById('ver-sub').textContent = 'masa oyunları · v' + APP_VER;
 boot();
 show('scr-home');
+checkUpdate();
 // izleyici linkine sunucu bilgisini de göm (linki açan telefon ayarsız da bağlanabilsin)
 function viewerCfgParams(){
   if(!sbReady() || YB_DEFAULTS.sbUrl) return ''; // varsayılanlar gömülüyse gerek yok
@@ -2440,6 +2477,8 @@ function viewerCfgParams(){
 (function(){
   try{
     const q = new URLSearchParams(location.search);
+    // güncelleme yenilemesinden gelen ?r= parametresini adresten temizle
+    if(q.get('r') && !q.get('izle') && !q.get('masa')) history.replaceState(null,'',location.pathname);
     const izle = q.get('izle');
     // linkte sunucu bilgisi varsa ve bu telefonda ayar yoksa kaydet
     if(q.get('s') && !SET.sbUrl){ SET.sbUrl=q.get('s'); SET.sbKey=q.get('k')||''; saveSet(); }
