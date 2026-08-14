@@ -649,7 +649,7 @@ function renderGame(){
   document.getElementById('btn-el').style.display = G.hands.length>=G.elSayisi ? 'none':'block';
   document.getElementById('btn-live').textContent = G.room ? '📡 Oda Açık' : '📡 Canlı Oda';
   const li = document.getElementById('live-info');
-  if(G.room){ li.style.display='block'; li.textContent = 'Canlı oda açık — QR butonundan kodu paylaş.'; }
+  if(G.room){ li.style.display='block'; li.textContent = 'Canlı oda açık — QR butonundan kodu paylaş.'; if(!heartbeatT) startHeartbeat(); }
   else li.style.display='none';
   // bekleyen (el içi) cezalar
   const po = G.pendingOlaylar || [];
@@ -1008,18 +1008,21 @@ async function cloudSync(silent){
   syncBusy = true;
   setCloudStatus('☁️ Eşitleniyor…');
   try{
-    const r = await fetch(BLOB_API+'/'+id, {cache:'no-store'});
-    if(!r.ok) throw new Error();
-    const d = await r.json();
+    let d = null;
+    try{ d = await NET.pull(id); }
+    catch(e){
+      // oda bulunamadıysa (süre aşımı/bozulma) yereldeki veriyle yeniden kur; gerçek bağlantı hatasıysa çevrimdışına düş
+      if(!(e && /bulunamadı|bozuk/.test(e.message||''))) throw e;
+    }
     const cloud = (d && d.players) ? d.players : {};
+    // kendini onarma: yereldeki kayıt daha ilerideyse (sabotaj/veri kaybı) yerel kazanır
+    const local = getReg();
+    for(const n in local){
+      if(!cloud[n] || (cloud[n].oyun||0) < (local[n].oyun||0)) cloud[n] = local[n];
+    }
     // bekleyen oyun sonuçlarını buluta işle
     applyDeltas(cloud, store.get('yb_pending', []));
-    // yalnızca yerelde olan oyuncuları buluta taşı
-    const local = getReg();
-    for(const n in local) if(!cloud[n]) cloud[n]=local[n];
-    const w = await fetch(BLOB_API+'/'+id, {method:'PUT', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({type:'yb-stats', players:cloud, updated:Date.now()})});
-    if(!w.ok) throw new Error();
+    await NET.push(id, {type:'yb-stats', players:cloud, updated:Date.now()});
     setReg(cloud);
     store.set('yb_pending', []);
     store.set('yb_lastsync', Date.now());
@@ -1037,25 +1040,20 @@ function setCloudStatus(t){
 }
 async function cloudCreate(){
   try{
-    const r = await fetch(BLOB_API, {method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({type:'yb-stats', players:getReg(), updated:Date.now()})});
-    const loc = r.headers.get('Location') || r.headers.get('location');
-    if(!loc) throw new Error();
-    store.set('yb_cloud', loc.split('/').pop());
+    const code = await NET.createRoom({type:'yb-stats', players:getReg(), updated:Date.now()}, true);
+    store.set('yb_cloud', code);
     store.set('yb_pending', []);
     store.set('yb_lastsync', Date.now());
     renderCloud();
     alert('Bulut kaydı oluşturuldu ✔ Kodu arkadaşlarınla paylaşırsan onlar da aynı istatistiklere bağlanabilir.');
-  }catch(e){ alert('Bulut kaydı oluşturulamadı — internet bağlantını kontrol et.'); }
+  }catch(e){ alert('Bulut kaydı şu an oluşturulamadı — servis yanıt vermedi (detay: '+(e&&e.message||e)+'). Daha sonra tekrar dene.'); }
 }
 async function cloudConnect(){
-  const code = (document.getElementById('cloud-code-in').value||'').trim().split('/').pop();
+  const code = NET.normalize(document.getElementById('cloud-code-in').value);
   if(!code){ alert('Kod gir.'); return; }
   try{
-    const r = await fetch(BLOB_API+'/'+code, {cache:'no-store'});
-    if(!r.ok) throw new Error();
-    const d = await r.json();
-    if(!d || d.type!=='yb-stats') throw new Error();
+    const d = await NET.pull(code);
+    if(!d || d.type!=='yb-stats') throw new Error('bu kod bir istatistik kaydı değil');
     store.set('yb_cloud', code);
     await cloudSync(true);
     renderCloud(); renderStatsTables();
@@ -1147,8 +1145,7 @@ function wipeStats(){
   setReg({}); store.set('yb_pending', []);
   const id = cloudId();
   if(id && confirm('Buluttaki ortak kayıt da sıfırlansın mı?')){
-    fetch(BLOB_API+'/'+id, {method:'PUT', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({type:'yb-stats', players:{}, updated:Date.now()})}).catch(()=>{});
+    NET.push(id, {type:'yb-stats', players:{}, updated:Date.now()}).catch(()=>{});
   }
   renderStats();
 }
@@ -1167,47 +1164,138 @@ function shareText(){
   else { navigator.clipboard && navigator.clipboard.writeText(t); alert('Skor panoya kopyalandı — WhatsApp\'a yapıştırabilirsin.'); }
 }
 
-let qrLibLoading = false;
+let qrCbs = [], qrLibState = 'idle'; // idle | loading | ready
+const QR_CDNS = [
+  'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
+  'https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@master/qrcode.min.js'
+];
 function withQRLib(cb){
-  if(window.QRCode) return cb(true);
-  if(qrLibLoading) return;
-  qrLibLoading = true;
-  const s = document.createElement('script');
-  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
-  s.onload = ()=>cb(true);
-  s.onerror = ()=>{ qrLibLoading=false; cb(false); };
-  document.head.appendChild(s);
+  if(window.QRCode || qrLibState==='ready') return cb(true);
+  qrCbs.push(cb);
+  if(qrLibState==='loading') return;
+  qrLibState='loading';
+  const tryLoad = (i)=>{
+    if(i>=QR_CDNS.length){ qrLibState='idle'; qrCbs.splice(0).forEach(f=>f(false)); return; }
+    const s = document.createElement('script');
+    s.src = QR_CDNS[i];
+    s.onload = ()=>{ qrLibState='ready'; qrCbs.splice(0).forEach(f=>f(true)); };
+    s.onerror = ()=>tryLoad(i+1);
+    document.head.appendChild(s);
+  };
+  tryLoad(0);
 }
 function openQR(){
-  const content = G.room || snapshotText();
+  // QR içeriği: emoji vb. özel karakterler QR kütüphanesini bozduğu için temizlenir
+  const content = G.room || snapshotText().replace(/[^\x20-\x7EğüşöçıİĞÜŞÖÇ\n:.,&()\/-]/g,'').trim();
   document.getElementById('qr-title').textContent = G.room ? '🔳 Canlı Oda Kodu' : '🔳 Anlık Skor';
   document.getElementById('qr-hint').textContent = G.room
     ? 'İzleyiciler bu kodu uygulamadaki "İzleyici Olarak Katıl" ekranına girsin (QR okutup kodu kopyalayabilirler).'
     : 'Bu QR anlık skoru metin olarak taşır. Canlı takip için "Canlı Oda" başlat.';
-  document.getElementById('qr-code-text').textContent = content;
+  document.getElementById('qr-code-text').textContent = G.room || snapshotText();
   const box = document.getElementById('qrbox');
   box.innerHTML='';
   withQRLib(ok=>{
-    if(ok) new QRCode(box, {text:content, width:200, height:200});
-    else box.innerHTML='<span class="hint">QR üretilemedi (internet gerekli) — alttaki kodu paylaşabilirsin.</span>';
+    try{
+      if(!ok) throw new Error();
+      new QRCode(box, {text:content, width:200, height:200, correctLevel: QRCode.CorrectLevel.M});
+    }catch(e){
+      // son çare: QR'ı hazır görsel servisinden çek
+      box.innerHTML = `<div><img width="200" height="200" alt="QR"
+        src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(content)}"
+        onerror="this.parentElement.innerHTML='<span class=hint>QR üretilemedi — alttaki kodu kopyalayıp paylaşabilirsin.</span>'"></div>`;
+    }
   });
   openModal('modal-qr');
 }
 
-/* canlı oda: jsonblob.com ücretsiz servis (internet gerektirir) */
+/* canlı veri servisi: dweet.io birincil, jsonblob.com yedek (internet gerektirir) */
 const BLOB_API = 'https://jsonblob.com/api/jsonBlob';
-let pushTimer = null;
+const DWEET = 'https://dweet.io';
+function randCode(){
+  const A='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s='';
+  for(let i=0;i<6;i++) s+=A[Math.floor(Math.random()*A.length)];
+  return s;
+}
+/* JSONP: CORS engeline hiç takılmadan veri alışverişi (script tag üzerinden) */
+function jsonp(url, timeoutMs){
+  return new Promise((resolve, reject)=>{
+    const cb = '__yb' + Math.floor(Math.random()*1e9);
+    const s = document.createElement('script');
+    const to = setTimeout(()=>{ cleanup(); reject(new Error('zaman aşımı')); }, timeoutMs||9000);
+    function cleanup(){ clearTimeout(to); try{ delete window[cb]; }catch(e){} s.remove(); }
+    window[cb] = d=>{ cleanup(); resolve(d); };
+    s.src = url + (url.includes('?')?'&':'?') + 'callback=' + cb;
+    s.onerror = ()=>{ cleanup(); reject(new Error('bağlantı hatası')); };
+    document.head.appendChild(s);
+  });
+}
+const NET = {
+  normalize(c){
+    c=(c||'').trim().split('/').pop();
+    if(/^d-/i.test(c)) return 'D-'+c.slice(2).toUpperCase();
+    if(/^j-/i.test(c)) return 'J-'+c.slice(2);
+    return c; // eski uuid kodları → jsonblob
+  },
+  async createRoom(data, preferBlob){
+    let lastErr = null;
+    const tryDweet = async ()=>{
+      const code = 'D-'+randCode();
+      await NET.push(code, data);
+      return code;
+    };
+    const tryBlob = async ()=>{
+      const r = await fetch(BLOB_API, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+      if(!r.ok) throw new Error('jsonblob '+r.status);
+      const loc = r.headers.get('Location') || r.headers.get('location');
+      if(!loc) throw new Error('jsonblob kod okunamadı');
+      return 'J-'+loc.split('/').pop();
+    };
+    for(const fn of (preferBlob ? [tryBlob, tryDweet] : [tryDweet, tryBlob])){
+      try{ return await fn(); }catch(e){ lastErr=e; }
+    }
+    throw lastErr || new Error('servis yanıt vermedi');
+  },
+  async push(code, data){
+    if(code.startsWith('D-')){
+      const j = await jsonp(DWEET+'/dweet/for/yb-'+code.slice(2)+'?d='+encodeURIComponent(JSON.stringify(data)));
+      if(!j || j.this!=='succeeded') throw new Error('dweet kabul etmedi');
+    } else {
+      const id = code.startsWith('J-') ? code.slice(2) : code;
+      const r = await fetch(BLOB_API+'/'+id, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+      if(!r.ok) throw new Error('jsonblob '+r.status);
+    }
+  },
+  async pull(code){
+    if(code.startsWith('D-')){
+      const j = await jsonp(DWEET+'/get/latest/dweet/for/yb-'+code.slice(2));
+      if(!j || j.this!=='succeeded' || !j.with || !j.with[0]) throw new Error('oda bulunamadı');
+      const c = j.with[0].content;
+      if(c && typeof c.d==='string'){ try{ return JSON.parse(c.d); }catch(e){ throw new Error('veri bozuk'); } }
+      return c;
+    } else {
+      const id = code.startsWith('J-') ? code.slice(2) : code;
+      const r = await fetch(BLOB_API+'/'+id, {cache:'no-store'});
+      if(!r.ok) throw new Error('oda bulunamadı');
+      return r.json();
+    }
+  }
+};
+let pushTimer = null, heartbeatT = null;
+/* Sabotaj/koparma koruması: yazboz sahibi telefon tek doğru kaynaktır.
+   12 sn'de bir güncel skoru yeniden yayınlar — oda dışarıdan bozulsa bile saniyeler içinde düzelir. */
+function startHeartbeat(){
+  clearInterval(heartbeatT);
+  heartbeatT = setInterval(()=>{ if(G && G.room) NET.push(G.room, liveSnapshot()).catch(()=>{}); }, 12000);
+}
 async function toggleLive(){
   if(!G) return;
   if(G.room){ openQR(); return; }
   try{
-    const r = await fetch(BLOB_API, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(liveSnapshot())});
-    const loc = r.headers.get('Location') || r.headers.get('location');
-    if(!loc) throw new Error('no location');
-    G.room = loc.split('/').pop();
+    G.room = await NET.createRoom(liveSnapshot());
+    startHeartbeat();
     saveGame(); renderGame(); openQR();
   }catch(e){
-    alert('Canlı oda açılamadı (internet bağlantısı gerekli). Skoru "Paylaş" ile gönderebilirsin.');
+    alert('Canlı oda şu an açılamadı — skor servisi yanıt vermedi (detay: '+(e&&e.message||e)+'). Skoru "Paylaş" butonuyla gönderebilirsin, birazdan tekrar denemek de mümkün.');
   }
 }
 function liveSnapshot(){
@@ -1218,23 +1306,25 @@ function pushLive(){
   if(!G || !G.room) return;
   clearTimeout(pushTimer);
   pushTimer = setTimeout(()=>{
-    fetch(BLOB_API+'/'+G.room, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(liveSnapshot())}).catch(()=>{});
+    NET.push(G.room, liveSnapshot()).catch(()=>{});
   }, 400);
 }
-function stopLivePush(){ clearTimeout(pushTimer); }
+function stopLivePush(){ clearTimeout(pushTimer); clearInterval(heartbeatT); heartbeatT=null; }
 
 /* izleyici */
-let viewerTimer = null;
+let viewerTimer = null, viewerLastTs = 0;
 function joinRoom(){
-  const code = (document.getElementById('viewer-code').value||'').trim().split('/').pop();
+  const code = NET.normalize(document.getElementById('viewer-code').value);
   const err = document.getElementById('viewer-err');
   err.style.display='none';
   if(!code){ err.textContent='Kod gir.'; err.style.display='block'; return; }
+  viewerLastTs = 0;
   const poll = async ()=>{
     try{
-      const r = await fetch(BLOB_API+'/'+code, {cache:'no-store'});
-      if(!r.ok) throw new Error();
-      const d = await r.json();
+      const d = await NET.pull(code);
+      if(!d || !Array.isArray(d.hands) || !Array.isArray(d.cols)) return; // bozuk/yabancı veri: yoksay
+      if(d.ts && d.ts < viewerLastTs) return; // eski veri: yoksay (sabotaj/gecikme koruması)
+      if(d.ts) viewerLastTs = d.ts;
       renderViewer(d);
       document.getElementById('viewer-join').style.display='none';
       document.getElementById('viewer-board').style.display='block';
