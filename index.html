@@ -246,7 +246,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div class="mini-tile t-yellow"><span>☺</span></div>
   </div>
   <h1>YAZBOZ</h1>
-  <div class="sub">masa oyunları · v3.1</div>
+  <div class="sub">masa oyunları · v3.3</div>
 </header>
 <main>
 
@@ -459,6 +459,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
         <div class="chip sel" id="bt-duz" onclick="setBitis('duz')">Düz (−200)</div>
         <div class="chip" id="bt-okey" onclick="setBitis('okey')">Okey atarak (×2)</div>
         <div class="chip" id="bt-cift" onclick="setBitis('cift')">Çiftten (×2)</div>
+        <div class="chip" id="bt-kafa" onclick="setBitis('kafa')">💥 Kafa — elden (rakip ×2)</div>
       </div>
       <div class="chips" id="rekor-chips"></div>
       <div id="rekor-extra"></div>
@@ -803,8 +804,14 @@ function renderGame(){
   const totals = colTotals(G);
   const min = Math.min(...totals), max = Math.max(...totals);
   const played = G.hands.length>0, fark = max-min;
+  // skor farkı yokken kulluk tahtı kariyer kulluğunundur 🚬 (1. elden itibaren görünür)
+  let kariyerKullukCol = -1;
+  if(!(played && fark>0) && G.cols.length>1){
+    const kn = kullukOf(getReg(), G.names);
+    if(kn) kariyerKullukCol = G.cols.findIndex(c=>c.members.some(m=>G.names[m]===kn));
+  }
   document.getElementById('totals').innerHTML = G.cols.map((c,i)=>`
-    <div class="total-card ${played && totals[i]===min? 'leader':''} ${played && G.cols.length>1 && fark>0 && totals[i]===max? 'loser':''}"
+    <div class="total-card ${played && totals[i]===min? 'leader':''} ${(played && G.cols.length>1 && fark>0 && totals[i]===max) || i===kariyerKullukCol ? 'loser':''}"
          style="border-top:3px solid ${COLC[i%COLC.length]}">
       <div class="tname" style="color:${COLC[i%COLC.length]}">${c.name}</div>
       <div class="tscore">${totals[i]}</div>
@@ -862,7 +869,7 @@ function yazbozHTML(g, totals){
 let elForm = null;
 
 function openElModal(){
-  elForm = { finisher:null, okey:false, cift:false, rcift:false, rseri:false, rseriPuan:0, rciftAdet:0, others:{}, olaylar:[] };
+  elForm = { finisher:null, okey:false, cift:false, kafa:false, kafaTouched:false, rcift:false, rseri:false, rseriPuan:0, rciftAdet:0, others:{}, olaylar:[] };
   setBitisChips();
   document.getElementById('rekor-extra').innerHTML='';
   const kn = document.getElementById('kafa-note'); kn.style.display='none'; kn.dataset.on='';
@@ -883,16 +890,18 @@ function openElModal(){
 }
 
 function setBitis(t){
-  if(t==='duz'){ elForm.okey=false; elForm.cift=false; }
+  if(t==='duz'){ elForm.okey=false; elForm.cift=false; elForm.kafa=false; elForm.kafaTouched=true; }
   else if(t==='okey') elForm.okey=!elForm.okey;
-  else if(t==='cift') elForm.cift=!elForm.cift;
+  else if(t==='cift'){ elForm.cift=!elForm.cift; if(elForm.cift) elForm.kafa=false; } // çiftten kafa olmaz
+  else if(t==='kafa'){ elForm.kafa=!elForm.kafa; elForm.kafaTouched=true; if(elForm.kafa) elForm.cift=false; }
   setBitisChips();
   updatePreview();
 }
 function setBitisChips(){
-  document.getElementById('bt-duz').classList.toggle('sel', !elForm.okey && !elForm.cift);
+  document.getElementById('bt-duz').classList.toggle('sel', !elForm.okey && !elForm.cift && !elForm.kafa);
   document.getElementById('bt-okey').classList.toggle('sel', elForm.okey);
   document.getElementById('bt-cift').classList.toggle('sel', elForm.cift);
+  const bk = document.getElementById('bt-kafa'); if(bk) bk.classList.toggle('sel', !!elForm.kafa);
 }
 function toggleFinRekor(k){
   elForm[k] = !elForm[k];
@@ -941,7 +950,7 @@ function pickFinisher(i){
   document.getElementById('fin-none').classList.toggle('sel', i===-1);
   // biten yoksa bitiş şekli sorulmaz, herkesin puanı düz işlenir
   if(i===-1){
-    elForm.okey=false; elForm.cift=false; elForm.rcift=false; elForm.rseri=false;
+    elForm.okey=false; elForm.cift=false; elForm.kafa=false; elForm.rcift=false; elForm.rseri=false;
     setBitisChips();
     ['bt-rcift','bt-rseri'].forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.remove('sel'); });
   }
@@ -1049,7 +1058,10 @@ function computeEl(){
   const others = Object.entries(f.others);
   for(const [j,o] of others){ if(!o.durum){ res.errmsg = G.names[j]+' için durum seç.'; return res; } }
   // çiftten bitişte kafa olmaz (çifte giden zaten açık oynar)
-  const kafa = f.finisher>=0 && !f.cift && others.length>0 && others.every(([j,o])=>o.durum==='acamadi');
+  // kafa: elle seçilir; iki rakip de açamadıysa otomatik önerilir (değiştirilebilir)
+  const autoKafa = f.finisher>=0 && !f.cift && others.length>0 && others.every(([j,o])=>o.durum==='acamadi');
+  if(autoKafa && !f.kafaTouched && !f.kafa){ f.kafa = true; setBitisChips(); }
+  const kafa = !!f.kafa && f.finisher>=0 && !f.cift;
   res.kafa = kafa;
   updateKafaUI(kafa);
 
@@ -1467,6 +1479,29 @@ function renderCloud(){
   }
 }
 
+/* kulluk seçimi: en düşük galibiyet oranı; eşitse az bitiren; sonra ceza puanı yüksek; sonra çok oynayan */
+function kullukOf(reg, names){
+  let kulluk=null;
+  names.forEach(n=>{
+    const q=reg[n]; if(!q || !q.oyun) return;
+    if(!kulluk){ kulluk=n; return; }
+    const a=reg[kulluk];
+    const ra=a.gal/a.oyun, rq=q.gal/q.oyun;
+    let worse=false;
+    if(rq<ra) worse=true;
+    else if(rq===ra){
+      if((q.bit||0)<(a.bit||0)) worse=true;
+      else if((q.bit||0)===(a.bit||0)){
+        if((q.puan||0)>(a.puan||0)) worse=true;
+        else if((q.puan||0)===(a.puan||0) && q.oyun>a.oyun) worse=true;
+      }
+    }
+    if(worse) kulluk=n;
+  });
+  const withGames = names.filter(n=>reg[n] && reg[n].oyun>0);
+  return withGames.length>=2 ? kulluk : null;
+}
+
 /* Son oyunlar (Supabase masasına bağlıyken oyun geçmişi) */
 async function loadSonOyunlar(){
   const card = document.getElementById('games-card');
@@ -1507,19 +1542,14 @@ function renderStatsTables(){
   names.sort((a,b)=>reg[b].gal-reg[a].gal || reg[b].bit-reg[a].bit);
   // kral (en çok kazanan) ve kulluk 🚬 (en düşük galibiyet oranı; eşitlikte çok oynayan)
   const kral = names.length && reg[names[0]].gal>0 ? names[0] : null;
-  let kulluk=null, kr=Infinity;
-  names.forEach(n=>{
-    const p=reg[n]; if(!p.oyun) return;
-    const r=p.gal/p.oyun;
-    if(r<kr || (r===kr && kulluk && p.oyun>reg[kulluk].oyun)){ kr=r; kulluk=n; }
-  });
-  if(names.length<2) kulluk=null;
+  const kulluk = kullukOf(reg, names);
+  const kr = kulluk ? reg[kulluk].gal/reg[kulluk].oyun : 0;
   const dec = n => n + (n===kral?' 👑':'') + (n===kulluk?' 🚬':'');
   tb.innerHTML = '<tr><th>Oyuncu</th><th>G</th><th>W</th><th>%</th><th>🔥</th><th>B</th><th>B%</th><th>K</th><th>Pes</th></tr>' +
     names.map(n=>{ const p=reg[n];
       const pct = p.oyun? Math.round(100*p.gal/p.oyun) : 0;
-      const bpct = p.els? Math.round(100*p.bit/p.els) : 0;
-      return `<tr><td>${dec(n)}</td><td>${p.oyun}</td><td>${p.gal}</td><td>%${pct}</td><td>${p.streakMax||0}</td><td>${p.bit}</td><td>%${bpct}</td><td>${p.kafa}</td><td>${p.pes||0}</td></tr>`; }).join('');
+      const bpct = p.els? '%'+Math.round(100*p.bit/p.els) : '—';
+      return `<tr><td>${dec(n)}</td><td>${p.oyun}</td><td>${p.gal}</td><td>%${pct}</td><td>${p.streakMax||0}</td><td>${p.bit}</td><td>${bpct}</td><td>${p.kafa}</td><td>${p.pes||0}</td></tr>`; }).join('');
   // detay tablosu
   document.getElementById('stat-table2').innerHTML =
     '<tr><th>Oyuncu</th><th>El</th><th>Ort</th><th>Okey</th><th>Çift</th><th>Açmz</th><th>İşlk</th><th>Kap</th><th>OKap</th><th>K.Yedi</th><th>R</th><th>S</th><th>Açl</th><th>Çft</th><th>En iyi</th><th>En kötü</th></tr>' +
@@ -2013,8 +2043,13 @@ function dUpdateTotals(){
   const played = D.rows.some(r=>r.v.some(x=>x!==null));
   const best = (D.dir==='high'? Math.max:Math.min)(...t);
   const worst = (D.dir==='high'? Math.min:Math.max)(...t);
+  let kariyerKullukCol = -1;
+  if(!(played && best!==worst) && D.cols.length>1){
+    const kn = kullukOf(getReg(), D.names);
+    if(kn) kariyerKullukCol = D.cols.findIndex(c=>c.members.some(m=>D.names[m]===kn));
+  }
   document.getElementById('d-totals').innerHTML = D.cols.map((c,i)=>`
-    <div class="total-card ${played && t[i]===best ? 'leader':''} ${played && D.cols.length>1 && best!==worst && t[i]===worst ? 'loser':''}"
+    <div class="total-card ${played && t[i]===best ? 'leader':''} ${(played && D.cols.length>1 && best!==worst && t[i]===worst) || i===kariyerKullukCol ? 'loser':''}"
          style="border-top:3px solid ${COLC[i%COLC.length]}">
       <div class="tname" style="color:${COLC[i%COLC.length]}">${c.name}</div>
       <div class="tscore">${t[i]}</div>
