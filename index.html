@@ -226,8 +226,16 @@ table.yazboz tr.totrow td{font-weight:900; background:rgba(127,208,221,.13); fon
 textarea{width:100%; min-height:90px; border-radius:14px; border:1px solid var(--stroke); font-size:12px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; padding:10px; background:rgba(255,255,255,.08); color:var(--txt);}
 .confetti{font-size:40px; text-align:center; margin:6px 0;}
 /* ana sayfa oyun vitrini */
-.home-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0;}
+.home-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:12px 0;}
 .game-btn{margin:0; padding:15px 8px; font-size:13.5px; line-height:1.3;}
+.hero-btn{padding:18px 14px; text-align:center;}
+.hero-btn .game-title{display:block; font-size:17px; font-weight:800; letter-spacing:.5px;}
+.hero-btn .game-sub{display:block; font-size:11.5px; font-weight:600; opacity:.8; margin-top:4px; letter-spacing:.3px;}
+.am-btn{
+  background:linear-gradient(135deg,#6cc7b5 0%,#54a8a0 55%,#4f86bd 100%);
+  color:#0a2822; border:none;
+  box-shadow:0 6px 18px rgba(90,170,160,.28), inset 0 1px 0 rgba(255,255,255,.35);
+}
 /* defter tablosu girişleri */
 input.dfin{width:56px; min-width:56px; padding:8px 4px; text-align:center; font-size:15px; border-radius:9px; max-width:none;}
 input.dfm{width:58px; min-width:58px; padding:8px 4px; text-align:center; font-size:12px; border-radius:9px;}
@@ -246,7 +254,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div class="mini-tile t-yellow"><span>☺</span></div>
   </div>
   <h1>YAZBOZ</h1>
-  <div class="sub">masa oyunları · v3.7</div>
+  <div class="sub">masa oyunları · v3.9</div>
 </header>
 <main>
 
@@ -256,7 +264,8 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   <button class="btn btn-green" id="btn-devam-defter" style="display:none" onclick="resumeDefter()">▶️ Devam Eden Defter</button>
   <div class="home-grid" id="home-games"></div>
   <button class="btn btn-tile" onclick="show('scr-viewer')">📡 İzleyici Olarak Katıl</button>
-  <button class="btn btn-tile" onclick="renderStats();show('scr-stats')">🏆 İstatistikler</button>
+  <button class="btn btn-tile" onclick="renderStats();show('scr-stats')">🏆 İstatistikler — 101 Okey</button>
+  <button class="btn btn-tile" onclick="renderAmStats();show('scr-am-stats')">🃏 İstatistikler — Amerikano</button>
   <button class="btn btn-outline" onclick="renderSettings();show('scr-settings')">⚙️ Kurallar & Ayarlar</button>
   <p class="hint center">İpucu: Bu sayfayı tarayıcında açıp "Ana Ekrana Ekle" dersen uygulama gibi kullanabilirsin.</p>
 </section>
@@ -315,7 +324,8 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   </div>
   <div class="row">
     <button class="btn btn-tile btn-sm" onclick="shareText()">📤 Paylaş</button>
-    <button class="btn btn-tile btn-sm" id="btn-live" onclick="toggleLive()">🔳 QR — Canlı İzleme</button>
+    <button class="btn btn-tile btn-sm" id="btn-live" onclick="toggleLive()">🔳 QR — Canlı</button>
+    <button class="btn btn-tile btn-sm" onclick="renderStats();show('scr-stats')">📊 İstatistik</button>
   </div>
   <div id="live-info" class="hint center" style="color:var(--cyan); display:none"></div>
   <div class="card">
@@ -363,6 +373,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   </div>
   <div class="err" id="dg-err"></div>
   <button class="btn btn-primary" onclick="startDefter()">Defteri Aç ✍️</button>
+  <button class="btn btn-outline btn-sm" onclick="renderAmStats();show('scr-am-stats')">📊 Amerikano İstatistikleri</button>
 </section>
 
 <!-- DEFTER OYUN -->
@@ -381,6 +392,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   <div class="row">
     <button class="btn btn-tile btn-sm" onclick="dShare()">📤 Paylaş</button>
     <button class="btn btn-tile btn-sm" id="d-btn-live" onclick="toggleLiveD()">📡 Canlı Oda</button>
+    <button class="btn btn-tile btn-sm" onclick="renderAmStats();show('scr-am-stats')">📊 İstatistik</button>
   </div>
   <button class="btn btn-primary" onclick="bitirDefter()">🏁 Oyunu Bitir — Kazananı Yaz</button>
   <button class="btn btn-danger btn-sm" onclick="abortDefter()">Defteri İptal Et</button>
@@ -390,11 +402,11 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 <section id="scr-stats" class="screen">
   <button class="back" onclick="show('scr-home')">← Geri</button>
   <div class="card">
-    <h3>🏆 Skorboard — Enler</h3>
+    <h3>🏆 101 Okey — Enler</h3>
     <div class="enler" id="enler"></div>
   </div>
   <div class="card">
-    <h3>Genel Skorboard</h3>
+    <h3>101 Okey Skorboard</h3>
     <div style="overflow-x:auto"><table class="stat-table" id="stat-table"></table></div>
     <p class="hint">G: oyun · W: galibiyet · %: kazanma oranı · 🔥: en uzun galibiyet serisi · B: el bitirme · B%: bitirme oranı (bit/el) · K: kafa · Pes · 👑 kral · 🚬 kulluk</p>
   </div>
@@ -413,6 +425,20 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
       <button class="btn btn-danger btn-sm" onclick="wipeStats()">Sıfırla</button>
     </div>
     <textarea id="databox" placeholder="Dışa aktarınca veri burada görünür; içe aktarmak için buraya yapıştır."></textarea>
+  </div>
+</section>
+
+<!-- AMERİKANO İSTATİSTİK -->
+<section id="scr-am-stats" class="screen">
+  <button class="back" onclick="goHome()">← Geri</button>
+  <div class="card">
+    <h3>🃏 Amerikano — Enler</h3>
+    <div class="enler" id="am-enler"></div>
+  </div>
+  <div class="card">
+    <h3>Amerikano Skorboard</h3>
+    <div style="overflow-x:auto"><table class="stat-table" id="am-table"></table></div>
+    <p class="hint">G: oyun · W: galibiyet · %: kazanma oranı · 🔥: en uzun seri · Ort: ortalama oyun puanı · En iyi / En kötü: tek oyun toplamları (düşük iyi) · 👑 kral · 🚬 kulluk</p>
   </div>
 </section>
 
@@ -659,7 +685,7 @@ const escq = n => n.replace(/'/g,"\\'");
 let delMode = false;
 function goSetup(){
   const reg = getReg();
-  SU.pool = Object.keys(reg).sort((a,b)=>reg[b].oyun-reg[a].oyun).slice(0,30);
+  SU.pool = Object.keys(reg).filter(n=>!n.startsWith(AM)).sort((a,b)=>reg[b].oyun-reg[a].oyun).slice(0,30);
   SU.seats = [null,null,null,null];
   delMode = false;
   renderSU();
@@ -1538,10 +1564,48 @@ function kullukOf(reg, names){
   return withGames.length>=2 ? kulluk : null;
 }
 
+/* Amerikano istatistik sayfası (ayrı havuz: am: öneki) */
+function renderAmStats(){
+  const reg = getReg();
+  const keys = Object.keys(reg).filter(n=>n.startsWith(AM));
+  const tb = document.getElementById('am-table');
+  const enBox = document.getElementById('am-enler');
+  if(!keys.length){
+    tb.innerHTML='<tr><td class="hint" style="text-align:left;padding:10px">Henüz Amerikano oyunu kaydedilmedi — ilk oyunu bitirince burası dolacak.</td></tr>';
+    enBox.innerHTML='<span class="hint">Henüz veri yok.</span>';
+    return;
+  }
+  keys.forEach(k=>ensurePlayer(reg,k));
+  keys.sort((a,b)=>reg[b].gal-reg[a].gal || (reg[a].puan||0)-(reg[b].puan||0));
+  const disp = k => k.slice(AM.length);
+  const kral = reg[keys[0]].gal>0 ? keys[0] : null;
+  const kulluk = kullukOf(reg, keys);
+  const dec = k => disp(k) + (k===kral?' 👑':'') + (k===kulluk?' 🚬':'');
+  tb.innerHTML = '<tr><th>Oyuncu</th><th>G</th><th>W</th><th>%</th><th>🔥</th><th>Ort</th><th>En iyi</th><th>En kötü</th></tr>' +
+    keys.map(k=>{ const p=reg[k];
+      const pct = p.oyun? Math.round(100*p.gal/p.oyun):0;
+      const ort = p.oyun? Math.round((p.puan||0)/p.oyun):null;
+      return `<tr><td>${dec(k)}</td><td>${p.oyun}</td><td>${p.gal}</td><td>%${pct}</td><td>${p.streakMax||0}</td><td>${ort===null?'—':ort}</td><td>${p.best===null?'—':p.best}</td><td>${p.worst==null?'—':p.worst}</td></tr>`; }).join('');
+  const en = (key,label,emoji,minMode)=>{
+    let bestVal=null, holders=[];
+    keys.forEach(k=>{ const v=reg[k][key];
+      if(v===null||v===undefined||(!minMode && v<=0)) return;
+      if(bestVal===null||(minMode? v<bestVal : v>bestVal)){bestVal=v;holders=[disp(k)];}
+      else if(v===bestVal) holders.push(disp(k)); });
+    if(bestVal===null) return '';
+    return `<div class="en-card"><div class="et">${emoji} ${label}</div><div class="en">${holders.join(', ')}</div><div class="ev">${bestVal}</div></div>`;
+  };
+  const kullukCard = kulluk
+    ? `<div class="en-card" style="border-color:rgba(232,138,155,.4)"><div class="et">🚬 Masanın Kulluğu</div><div class="en">${disp(kulluk)}</div><div class="ev">%${Math.round(100*reg[kulluk].gal/reg[kulluk].oyun)} galibiyet</div></div>` : '';
+  enBox.innerHTML = (en('gal','En çok kazanan','🏆') + kullukCard +
+    en('streakMax','En uzun galibiyet serisi','🔥') +
+    en('best','En iyi oyun (düşük)','⭐',true) + en('worst','En kötü oyun','🥴')) || '<span class="hint">Henüz veri yok.</span>';
+}
+
 /* Detaylı istatistik sayfası: oyuncu kartları */
 function renderDetay(){
   const reg = getReg();
-  const names = Object.keys(reg).sort((a,b)=>reg[b].gal-reg[a].gal || reg[b].bit-reg[a].bit);
+  const names = Object.keys(reg).filter(n=>!n.startsWith(AM)).sort((a,b)=>reg[b].gal-reg[a].gal || reg[b].bit-reg[a].bit);
   const box = document.getElementById('detay-cards');
   if(!names.length){ box.innerHTML='<div class="card"><p class="hint">Henüz veri yok.</p></div>'; return; }
   const mini=(l,v)=>`<div class="en-card"><div class="et">${l}</div><div class="ev">${v}</div></div>`;
@@ -1638,7 +1702,7 @@ function renderStats(){
 }
 function renderStatsTables(){
   const reg = getReg();
-  const names = Object.keys(reg);
+  const names = Object.keys(reg).filter(n=>!n.startsWith(AM));
   const tb = document.getElementById('stat-table');
   if(!names.length){
     tb.innerHTML='<tr><td class="hint" style="text-align:left">Henüz istatistik yok — ilk oyunu bitirince burası dolacak.</td></tr>';
@@ -2022,25 +2086,21 @@ function stopViewer(){
 const DEF_GAMES = {
   amerikano: {name:'AMERİKANO (KÜT)', minP:2, maxP:5, els:12, dir:'low', esli:false, meta:[],
     sart:['Üçlü Küt (10-10-10)','Üçlü Seri (7-8-9)','Üçlü Seri + Üçlü Küt (7-8-9 + 10-10-10)','2× Üçlü Küt (10-10-10 + 5-5-5)','2× Üçlü Seri (7-8-9 + 6-7-8)','Dörtlü Küt (10-10-10-10)','Dörtlü Seri (6-7-8-9)','Dörtlü Küt + Dörtlü Seri (3-3-3-3 + 5-6-7-8)','2× Dörtlü Küt (8-8-8-8 + 5-5-5-5)','2× Dörtlü Seri (4-5-6-7 + 5-6-7-8)','Beşli Seri (4-5-6-7-8)','ELDEN BİTME — FİNAL'],
-    note:'Küt: aynı sayı (farklı renk) • Seri: aynı renk ardışık • BİTEN −200 yazar • AÇAMAYAN +200 yer • Açanlar eldeki kartların toplamını yazar (Joker 25 • As 11 • Figür ve 10\'lar 10 • 2–9 sayı değeri) • Düşük toplam kazanır.'},
-  normalokey:{name:'NORMAL OKEY', minP:4, maxP:4, els:10, dir:'low', esli:false, meta:[],
-    note:'Düşük puan kazanır. Çifte/okey bitişleri puana yansıtın.'},
-  batakihale:{name:'BATAK — İHALE', minP:4, maxP:4, els:10, dir:'high', esli:true, meta:['İhale','Koz'],
-    note:'Yüksek puan kazanır. İhaleyi alamayan eksi yazar.'},
-  batakkoz:  {name:'BATAK — KOZ MAÇA', minP:4, maxP:4, els:10, dir:'high', esli:true, meta:['Koz'],
-    note:'Koz maçadır. Yüksek puan kazanır.'},
-  batak3:    {name:'BATAK — 3 KİŞİ', minP:3, maxP:3, els:10, dir:'high', esli:false, meta:['İhale','Koz'],
-    note:'Yüksek puan kazanır.'},
-  pisti:     {name:'PİŞTİ', minP:2, maxP:4, els:12, dir:'high', esli:false, meta:[],
-    note:'Pişti 10 • As 1 • Karo 10 3 • En çok kâğıt 3 — yüksek puan kazanır.'}
+    note:'Küt: aynı sayı (farklı renk) • Seri: aynı renk ardışık • BİTEN −200 yazar • AÇAMAYAN +200 yer • Açanlar eldeki kartların toplamını yazar (Joker 25 • As 11 • Figür ve 10\'lar 10 • 2–9 sayı değeri) • Düşük toplam kazanır.'}
 };
+const AM = 'am:'; // Amerikano istatistikleri ayrı havuzda tutulur (101 ile karışmaz)
 let D = null;
-let DSU = {game:'batakihale', esli:false, els:10, sel:[], pool:[]};
+let DSU = {game:'amerikano', esli:false, els:12, sel:[], pool:[]};
 
 function goDefterSetup(game){
   if(game && DEF_GAMES[game]){ DSU.game = game; DSU.els = DEF_GAMES[game].els; if(!DEF_GAMES[game].esli) DSU.esli=false; }
   const reg = getReg();
-  DSU.pool = Object.keys(reg).sort((a,b)=>reg[b].oyun-reg[a].oyun).slice(0,30);
+  // havuz: hem 101 hem amerikano oyuncuları (isimler ortak, tekrarsız)
+  const seen = new Set();
+  DSU.pool = Object.keys(reg).sort((a,b)=>reg[b].oyun-reg[a].oyun)
+    .map(n=>n.startsWith(AM)?n.slice(AM.length):n)
+    .filter(n=>{ if(seen.has(n.toLowerCase())) return false; seen.add(n.toLowerCase()); return true; })
+    .slice(0,30);
   DSU.sel = []; DSU.esli = false;
   DSU.els = DEF_GAMES[DSU.game].els;
   renderDefterSetup(true);
@@ -2148,7 +2208,7 @@ function dUpdateTotals(){
   let kn = null, knCol = -1;
   if(D.cols.length>1){
     if(played && best!==worst) knCol = t.indexOf(worst);
-    else kn = kullukOf(getReg(), D.names);
+    else { const k = kullukOf(getReg(), D.names.map(n=>AM+n)); kn = k ? k.slice(AM.length) : null; }
   }
   const colDisp = (c,i) => {
     const base = c.members.map(m=> D.names[m]===kn ? D.names[m]+' 🚬' : D.names[m]).join(' & ');
@@ -2226,7 +2286,12 @@ function bitirDefter(){
   if(!confirm(`Kazanan: ${winCols.map(c=>c.name).join(' & ')} (${best}). Defter kapatılsın mı?`)) return;
   D.done = true;
   const reg = getReg();
-  const deltas = D.names.map(n=>({n, oyun:1, gal:winNames.includes(n)?1:0, bit:0, kafa:0, rcift:0, rseri:0, best:null, srmax:0, crmax:0, pes:0}));
+  // Amerikano istatistikleri ayrı havuza (am: öneki) — oyun toplamı da kariyer verisi olarak işlenir
+  const deltas = D.names.map((n,i)=>{
+    const ci = D.cols.findIndex(c=>c.members.includes(i));
+    const myTotal = ci>=0 ? t[ci] : 0;
+    return {n: AM+n, oyun:1, gal:winNames.includes(n)?1:0, puan:myTotal, best:myTotal, worst:myTotal};
+  });
   applyDeltas(reg, deltas); setReg(reg);
   const pend = store.get('yb_pending', []);
   pend.push({deltas, ozet:{ ts:Date.now(), mode:D.gname, el:D.rows.filter(r=>r.v.some(x=>x!==null)).length,
@@ -2268,12 +2333,17 @@ function showRoomQR(room){
 }
 
 /* ================= BAŞLANGIÇ ================= */
-const GAME_ICONS = {amerikano:'🃏', normalokey:'🀄', batakihale:'♠️', batakkoz:'♠️', batak3:'♠️', pisti:'🎯'};
+const GAME_ICONS = {amerikano:'🃏'};
 function renderHomeGames(){
   document.getElementById('home-games').innerHTML =
-    `<button class="btn btn-primary game-btn" style="grid-column:1/-1" onclick="goSetup()">🎴 101 OKEY</button>` +
-    Object.entries(DEF_GAMES).map(([k,v])=>
-      `<button class="btn btn-tile game-btn" onclick="goDefterSetup('${k}')">${GAME_ICONS[k]||'🃏'} ${v.name}</button>`).join('');
+    `<button class="btn btn-primary game-btn hero-btn" style="grid-column:1/-1" onclick="goSetup()">
+       <span class="game-title">🎴 101 OKEY</span>
+       <span class="game-sub">Otomatik hesaplı akıllı yazboz · eşli / tekli</span>
+     </button>
+     <button class="btn game-btn hero-btn am-btn" style="grid-column:1/-1" onclick="goDefterSetup('amerikano')">
+       <span class="game-title">🃏 AMERİKANO (KÜT)</span>
+       <span class="game-sub">12 elli açılış defteri · 2–5 oyuncu</span>
+     </button>`;
 }
 function boot(){
   const g = store.get('yb_active', null);
