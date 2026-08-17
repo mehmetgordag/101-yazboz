@@ -264,7 +264,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div class="mini-tile t-yellow"><span>☺</span></div>
   </div>
   <h1>YAZBOZ</h1>
-  <div class="sub" id="ver-sub">masa oyunları · v4.3</div>
+  <div class="sub" id="ver-sub">101 okey yazboz · v4.4</div>
 </header>
 <main>
 
@@ -274,8 +274,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   <button class="btn btn-green" id="btn-devam-defter" style="display:none" onclick="resumeDefter()">▶️ Devam Eden Defter</button>
   <div class="home-grid" id="home-games"></div>
   <button class="btn btn-tile" onclick="show('scr-viewer')">📡 İzleyici Olarak Katıl</button>
-  <button class="btn btn-tile" onclick="renderStats();show('scr-stats')">🏆 İstatistikler — 101 Okey</button>
-  <button class="btn btn-tile" onclick="renderAmStats();show('scr-am-stats')">🃏 İstatistikler — Amerikano</button>
+  <button class="btn btn-tile" onclick="renderStats();show('scr-stats')">🏆 İstatistikler</button>
   <button class="btn btn-outline" onclick="renderSettings();show('scr-settings')">⚙️ Kurallar & Ayarlar</button>
   <p class="hint center">İpucu: Bu sayfayı tarayıcında açıp "Ana Ekrana Ekle" dersen uygulama gibi kullanabilirsin.</p>
 </section>
@@ -412,7 +411,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 <section id="scr-stats" class="screen">
   <button class="back" onclick="show('scr-home')">← Geri</button>
   <div class="card">
-    <h3>🏆 101 Okey — Enler</h3>
+    <h3>🏆 Skorboard — Enler</h3>
     <div class="enler" id="enler"></div>
   </div>
   <div class="card">
@@ -567,6 +566,17 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   </div>
 </div>
 
+<!-- SIRADAKİ TAŞI YAPAN ANONSU -->
+<div class="modal-bg" id="modal-dealer">
+  <div class="modal center">
+    <div style="font-size:44px" id="dealer-emoji">🎲</div>
+    <div style="color:var(--dim);font-weight:800;font-size:13px;letter-spacing:1px;margin-top:6px" id="dealer-el"></div>
+    <div style="color:var(--cyan);font-size:32px;font-weight:900;margin-top:4px" id="dealer-name"></div>
+    <p class="hint" id="dealer-note" style="display:none">🎩 Muhtar — yeni bir tetikleyene kadar taşları hep o yapar</p>
+    <button class="btn btn-primary" onclick="closeModal('modal-dealer')">Anons Edildi ✔</button>
+  </div>
+</div>
+
 <!-- FİNAL MODALI -->
 <div class="modal-bg" id="modal-final">
   <div class="modal center">
@@ -578,7 +588,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 </div>
 
 <script>
-const APP_VER = '4.3';
+const APP_VER = '4.5';
 /* ================= DEPOLAMA ================= */
 const store = {
   m:{},
@@ -591,10 +601,13 @@ const store = {
 const DEF_SET = {
   fbUrl:'', sbUrl:'', sbKey:'',
   rekorAktif:1, rekorCift:7, rekorSeri:50, rekorBonus:101,
-  islekCeza:101, okeyKaptirmaCeza:101,
+  islekCeza:101, okeyKaptirmaCeza:101, yanlisAcmaCeza:101,
   kapSeri:10, kapCift:20, kapCiftCift:40,
   acmayanCeza:200, acanCarpan:1, bitmeBonus:200,
-  ciftBitisCarpan:2, okeyBitisCarpan:2, ciftGidenCarpan:2, kafaCarpan:2
+  ciftBitisCarpan:2, okeyBitisCarpan:2, ciftGidenCarpan:2, kafaCarpan:2,
+  /* Muhtar 🎩: 0 kapalı · 1 sadece okey atınca · 2 okey VEYA elden (kafa) · 3 her bitişte.
+     Tetiklenince bitirenin ÖNCEKİ oyuncusu muhtar olur, yeni tetiğe kadar taşları hep o yapar. */
+  muhtarAktif:0
 };
 /* Site sahibi: buraya kendi Supabase bilgilerini yazarsa siteyi açan HER telefon
    otomatik bağlanır (Ayarlar'a bir şey girmeye gerek kalmaz). Anon anahtar halka açıktır. */
@@ -615,6 +628,10 @@ if(!SET.sbKey && YB_DEFAULTS.sbKey) SET.sbKey = YB_DEFAULTS.sbKey;
 function saveSet(){ store.set('yb_set', SET); }
 
 const SET_SCHEMA = [
+  {t:'h', l:'Masa Düzeni'},
+  {k:'muhtarAktif', l:'🎩 Muhtar sistemi', s:'Muhtar: bitirenin öncesindeki oyuncu, biri yeniden tetikleyene kadar her eli o taşı yapar. Kapalıyken sıra masa düzeninde normal döner.', tip:'ch', ch:[
+    {v:0, l:'Kapalı — normal sıra'}, {v:1, l:'Sadece okey atınca'}, {v:2, l:'Okey + elden (kafa)'}, {v:3, l:'Her bitişte'}
+  ]},
   {t:'h', l:'Rekor Kuralları'},
   {k:'rekorAktif', l:'Rekor kuralı aktif', s:'7+ çift veya seri (50 yan 1) açana bonus', tip:'sw'},
   {k:'rekorCift', l:'Rekor için çift sayısı', s:'Bu kadar ve üzeri çiftle açan rekor yapar'},
@@ -623,6 +640,7 @@ const SET_SCHEMA = [
   {t:'h', l:'El İçi Cezalar'},
   {k:'islekCeza', l:'İşlek taş atma cezası', s:'Yere işleyen taş atana yazılır'},
   {k:'okeyKaptirmaCeza', l:'Okey kaptırma cezası', s:'Yere açtığı okeyi kaptırana yazılır'},
+  {k:'yanlisAcmaCeza', l:'Yanlış açma cezası', s:'Elini yanlış sayıp açmaması gerekirken açana yazılır'},
   {k:'kapSeri', l:'Taş kaptırma çarpanı (seri açana)', s:'Atılan taş × bu çarpan'},
   {k:'kapCift', l:'Taş kaptırma çarpanı (çift açana)', s:'Atılan taş × bu çarpan'},
   {k:'kapCiftCift', l:'Taş kaptırma çarpanı (çifte giderken çift açana)', s:'Atan çifte giderken, alan çift açarsa'},
@@ -645,7 +663,13 @@ function renderSettings(){
   let h = '<h3>⚙️ Kurallar & Ayarlar</h3><p class="hint">Masanızın kurallarına göre her şeyi değiştirebilirsin. Değerler anında kaydedilir.</p>';
   for(const r of SET_SCHEMA){
     if(r.t==='h'){ h += `<h3 style="margin-top:14px">${r.l}</h3>`; continue; }
-    if(r.tip==='sw'){
+    if(r.tip==='ch'){
+      h += `<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,.12)">
+        <div class="sl" style="font-size:14px;font-weight:600">${r.l}<small style="display:block;color:var(--dim);font-weight:400;font-size:11.5px">${r.s}</small></div>
+        <div class="chips" style="margin-top:6px">${r.ch.map(o=>
+          `<div class="chip small ${(SET[r.k]||0)===o.v?'sel':''}" onclick="SET['${r.k}']=${o.v};saveSet();renderSettings()">${o.l}</div>`).join('')}</div>
+      </div>`;
+    } else if(r.tip==='sw'){
       h += `<div class="set-row"><div class="sl">${r.l}<small>${r.s}</small></div>
         <label class="switch"><input type="checkbox" ${SET[r.k]?'checked':''} onchange="SET['${r.k}']=this.checked?1:0;saveSet()"><span class="slider"></span></label></div>`;
     } else if(r.tip==='txt'){
@@ -668,7 +692,7 @@ function resetSettings(){
 function getReg(){ return store.get('yb_players', {}); }
 function setReg(r){ store.set('yb_players', r); }
 const PLAYER_DEFAULTS = {oyun:0, gal:0, bit:0, kafa:0, rcift:0, rseri:0, best:null, srmax:0, crmax:0, pes:0,
-  els:0, okeyBit:0, ciftBit:0, acamadi:0, islek:0, kap:0, kapPuan:0, okap:0, puan:0, worst:null, kafaYedi:0, streak:0, streakMax:0};
+  els:0, okeyBit:0, ciftBit:0, acamadi:0, islek:0, kap:0, kapPuan:0, okap:0, yanlisAc:0, puan:0, worst:null, kafaYedi:0, streak:0, streakMax:0};
 function ensurePlayer(reg, name){
   if(!reg[name]) reg[name] = Object.assign({}, PLAYER_DEFAULTS);
   else for(const k in PLAYER_DEFAULTS) if(reg[name][k]===undefined) reg[name][k]=PLAYER_DEFAULTS[k]; // eski sürüm kayıtlarını taşı
@@ -699,7 +723,7 @@ function pickEl(n){
 }
 
 /* --- koltuk sistemi: dokun-yerleştir --- */
-let SU = {pool:[], seats:[null,null,null,null]};
+let SU = {pool:[], seats:[null,null,null,null], dealer0:0};
 const escq = n => n.replace(/'/g,"\\'");
 
 let delMode = false;
@@ -707,6 +731,7 @@ function goSetup(){
   const reg = getReg();
   SU.pool = Object.keys(reg).filter(n=>!n.startsWith(AM)).sort((a,b)=>reg[b].oyun-reg[a].oyun).slice(0,30);
   SU.seats = [null,null,null,null];
+  SU.dealer0 = 0;
   delMode = false;
   renderSU();
   show('scr-setup');
@@ -784,19 +809,42 @@ function renderSU(){
         ? `<div class="chip small" style="border-color:var(--red);color:#ffb9c7" onclick="removePlayer('${escq(n)}')">${n} ✕</div>`
         : `<div class="chip small" onclick="seatName('${escq(n)}')">${n}</div>`).join('')
     : '<span class="hint">Havuz boş — yukarıdan yeni isim ekleyebilirsin.</span>';
-  const slot = (i,label)=> SU.seats[i]
-    ? `<div class="chip sel" style="display:block;text-align:center;margin:6px 0" onclick="unseat(${i})">${SU.seats[i]} <span style="opacity:.6">✕</span></div>`
-    : `<div class="chip" style="display:block;text-align:center;margin:6px 0;border-style:dashed;opacity:.55">${label}</div>`;
+  // Gerçek masa görünümü 🎴: sen altta (1. koltuk), eşin tam karşında; taş sırası saat tersine 1→2→3→4.
+  // Eşli oyunda karşılıklı koltuklar aynı takımdır: 1&3 (mavi) · 2&4 (turkuaz).
+  const esli = setupMode==='esli';
+  const tkc = i => esli ? (i%2===0 ? 'var(--blue)' : 'var(--teal)') : 'var(--cyan)';
+  const seatEl = (i,label)=>{
+    const col = tkc(i);
+    const inner = SU.seats[i]
+      ? `<div class="chip sel" style="border-color:${col}" onclick="unseat(${i})">${SU.seats[i]} <span style="opacity:.6">✕</span></div>`
+      : `<div class="chip" style="border-style:dashed;opacity:.6;border-color:${col};color:var(--dim)">boş</div>`;
+    return `<div style="display:flex;flex-direction:column;align-items:center;max-width:150px">${inner}
+      <div style="font-size:10.5px;font-weight:700;margin-top:3px;color:${esli?col:'var(--dim)'};text-align:center">${label}</div></div>`;
+  };
   const s = document.getElementById('seats');
-  if(setupMode==='esli'){
-    s.innerHTML = `<div class="row" style="margin-top:10px">
-      <div class="player-block" style="flex:1;margin:0"><div class="pname">1. Takım</div>${slot(0,'boş koltuk')}${slot(1,'boş koltuk')}</div>
-      <div class="player-block" style="flex:1;margin:0"><div class="pname">2. Takım</div>${slot(2,'boş koltuk')}${slot(3,'boş koltuk')}</div>
-    </div>`;
-  } else {
-    s.innerHTML = `<div class="player-block" style="margin-top:10px"><div class="pname">Masa</div>
-      ${slot(0,'1. oyuncu')}${slot(1,'2. oyuncu')}${slot(2,'3. oyuncu')}${slot(3,'4. oyuncu (opsiyonel)')}</div>`;
-  }
+  s.innerHTML = `<div style="background:var(--glass3);border:1px solid var(--stroke);border-radius:18px;padding:12px;margin-top:10px">
+    <div style="text-align:center;font-weight:800;color:var(--cyan)">Oturduğunuz gibi yerleştir</div>
+    <p class="hint" style="text-align:center;margin:4px 0 6px">${esli
+      ? "Yazboz'u yazan sen: 1. koltuk. Havuzdan dokun, masadaki sırayla dolsun. Eşler karşılıklı: 1&amp;3 bir takım, 2&amp;4 bir takım."
+      : "Yazboz'u yazan sen: 1. koltuk. Havuzdan dokun, masadaki sırayla dolsun."}</p>
+    <div style="display:flex;justify-content:center">${seatEl(2, esli?'3 · karşındaki eşin':'3. koltuk')}</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0">
+      ${seatEl(3, esli?'4. koltuk':'4. koltuk (ops.)')}
+      <div style="width:108px;height:84px;border-radius:16px;background:rgba(31,89,84,.55);border:1.5px solid rgba(127,208,221,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none">
+        <div style="font-size:20px">🎴</div>
+        <div style="font-size:10px;font-weight:800;letter-spacing:2px;color:var(--dim)">MASA</div>
+        <div style="font-size:9.5px;color:var(--dim);margin-top:1px">↺ taş sırası 1→2→3→4</div>
+      </div>
+      ${seatEl(1, '2. koltuk')}
+    </div>
+    <div style="display:flex;justify-content:center">${seatEl(0, "1 · SEN (yazboz'u yazan)")}</div>
+    <div style="margin-top:10px;border-top:1px solid var(--stroke);padding-top:8px">
+      <div style="font-weight:800;font-size:13.5px">🎲 İlk taşı kim yapıyor?</div>
+      <div class="chips">${[0,1,2,3].map(i=>
+        `<div class="chip small ${SU.dealer0===i?'sel':''}" onclick="SU.dealer0=${i};renderSU()">${SU.seats[i]||((i+1)+'. koltuk')}</div>`).join('')}</div>
+      <p class="hint" style="margin:4px 0 0">Sonraki ellerde sıra masa düzeninde döner${SET.muhtarAktif?'':' (Ayarlar\'dan 🎩 muhtar sistemini de açabilirsin)'}.</p>
+    </div>
+  </div>`;
 }
 
 /* ================= OYUN DURUMU ================= */
@@ -818,15 +866,17 @@ function startGame(){
   }
   let cols;
   if(setupMode==='esli'){
-    cols = [ {name:`${names[0]} & ${names[1]}`, members:[0,1]}, {name:`${names[2]} & ${names[3]}`, members:[2,3]} ];
+    // Eşler masada KARŞILIKLI oturur: 1&3 bir takım, 2&4 bir takım
+    cols = [ {name:`${names[0]} & ${names[2]}`, members:[0,2]}, {name:`${names[1]} & ${names[3]}`, members:[1,3]} ];
   } else {
     cols = names.map((n,i)=>({name:n, members:[i]}));
   }
   G = {
     mode:setupMode, elSayisi:setupEl, names, cols,
     hands:[], events:[], room:null, pendingOlaylar:[],
+    dealer0: (SU.dealer0>=0 && SU.dealer0<names.length) ? SU.dealer0 : 0, muhtar:null,
     statDelta: Object.fromEntries(names.map(n=>[n,{bit:0,kafa:0,rcift:0,rseri:0,best:null,srmax:0,crmax:0,pes:0,
-      els:0,okeyBit:0,ciftBit:0,acamadi:0,islek:0,kap:0,kapPuan:0,okap:0,puan:0,worst:null,kafaYedi:0}])),
+      els:0,okeyBit:0,ciftBit:0,acamadi:0,islek:0,kap:0,kapPuan:0,okap:0,yanlisAc:0,puan:0,worst:null,kafaYedi:0}])),
     done:false, startedAt: new Date().toISOString()
   };
   // isimleri kayda geç
@@ -847,10 +897,19 @@ function colTotals(g){
   return t;
 }
 
+/* Bu eli taşı yapan kişi: muhtar varsa hep o; yoksa ilk taş yapandan itibaren sırayla döner */
+function currentDealer(){
+  if(!G) return 0;
+  if(SET.muhtarAktif && G.muhtar!==null && G.muhtar!==undefined) return G.muhtar;
+  return ((G.dealer0||0) + G.hands.length) % G.names.length;
+}
+
 const COLC = ['#6da8d8','#6cc7b5','#d8a86d','#c58fd8'];
 function renderGame(){
   if(!G) return;
-  document.getElementById('el-counter').textContent = `El: ${Math.min(G.hands.length+1,G.elSayisi)} / ${G.elSayisi}`;
+  const isM = !!(SET.muhtarAktif && G.muhtar!==null && G.muhtar!==undefined);
+  document.getElementById('el-counter').innerHTML = `El: ${Math.min(G.hands.length+1,G.elSayisi)} / ${G.elSayisi}`
+    + (G.done ? '' : ` <span style="color:var(--cyan)">· ${isM?'🎩':'🎲'} ${G.names[currentDealer()]}</span>`);
   const totals = colTotals(G);
   const min = Math.min(...totals), max = Math.max(...totals);
   const played = G.hands.length>0, fark = max-min;
@@ -1066,7 +1125,8 @@ const OLAY_TYPES = () => {
   const t = [
     {v:'islek', l:`İşlek taş attı (+${SET.islekCeza})`},
     {v:'kaptirma', l:'Taş kaptırdı (attığı taşla rakip açtı)'},
-    {v:'okeykap', l:`Yere açtığı okeyi kaptırdı (+${SET.okeyKaptirmaCeza})`}
+    {v:'okeykap', l:`Yere açtığı okeyi kaptırdı (+${SET.okeyKaptirmaCeza})`},
+    {v:'yanlisac', l:`🙈 Yanlış açtı (+${SET.yanlisAcmaCeza})`}
   ];
   if(SET.rekorAktif){
     t.push({v:'rcift', l:`REKOR: ${SET.rekorCift}+ çift açtı (−${SET.rekorBonus})`});
@@ -1177,6 +1237,7 @@ function computeEl(){
 function olayDelta(o){
   if(o.type==='islek') return {v:SET.islekCeza, label:'işlek taş', ev:n=>`⚠️ ${n} işlek taş attı (+${SET.islekCeza})`};
   if(o.type==='okeykap') return {v:SET.okeyKaptirmaCeza, label:'okey kaptırdı', ev:n=>`🃏 ${n} okey kaptırdı (+${SET.okeyKaptirmaCeza})`};
+  if(o.type==='yanlisac') return {v:SET.yanlisAcmaCeza, label:'yanlış açtı', ev:n=>`🙈 ${n} yanlış açtı (+${SET.yanlisAcmaCeza})`};
   if(o.type==='rcift') return SET.rekorAktif ? {v:-SET.rekorBonus, label:'çift rekoru', ev:n=>`🏅 ${n} ÇİFT REKORU açtı (−${SET.rekorBonus})`} : null;
   if(o.type==='rseri') return SET.rekorAktif ? {v:-SET.rekorBonus, label:'seri rekoru', ev:n=>`🏅 ${n} SERİ REKORU (${SET.rekorSeri} yan 1) açtı (−${SET.rekorBonus})`} : null;
   if(o.type==='kaptirma'){
@@ -1261,9 +1322,15 @@ function saveEl(){
   // geri alma için anlık görüntü (son eli düzeltme özelliği)
   const sdPrev = JSON.parse(JSON.stringify(G.statDelta));
   const evPrev = G.events.length;
+  const muhtarPrev = (G.muhtar===undefined) ? null : G.muhtar;
+  const dealer = currentDealer();
   // sütun deltaları
   const colDeltas = G.cols.map(c=>c.members.reduce((s,m)=>s+r.deltas[m],0));
-  G.hands.push({ deltas:r.deltas, colDeltas, finisher:elForm.finisher, kafa:r.kafa, okey:elForm.okey, cift:elForm.cift, sdPrev, evPrev });
+  G.hands.push({ deltas:r.deltas, colDeltas, finisher:elForm.finisher, kafa:r.kafa, okey:elForm.okey, cift:elForm.cift, dealer, sdPrev, evPrev, muhtarPrev });
+  // Muhtar 🎩: seçilen moda göre bitirenin önündeki oyuncu muhtar olur
+  const mm = SET.muhtarAktif||0;
+  const tetik = elForm.finisher>=0 && ( (mm===1 && elForm.okey) || (mm===2 && (elForm.okey || r.kafa)) || (mm===3) );
+  if(tetik) G.muhtar = (elForm.finisher - 1 + G.names.length) % G.names.length;
   G.events.push(...r.events);
   // istatistik delta
   const sd = G.statDelta;
@@ -1296,6 +1363,7 @@ function saveEl(){
     if(o.type==='rseri'){ sd[sn].rseri++; if(o.val) sd[sn].srmax=Math.max(sd[sn].srmax||0, o.val); }
     if(o.type==='islek') sd[sn].islek=(sd[sn].islek||0)+1;
     if(o.type==='okeykap') sd[sn].okap=(sd[sn].okap||0)+1;
+    if(o.type==='yanlisac') sd[sn].yanlisAc=(sd[sn].yanlisAc||0)+1;
     if(o.type==='kaptirma'){ sd[sn].kap=(sd[sn].kap||0)+1; const od=olayDelta(o); if(od) sd[sn].kapPuan=(sd[sn].kapPuan||0)+od.v; }
   }
   G.pendingOlaylar = [];
@@ -1305,6 +1373,19 @@ function saveEl(){
   closeModal('modal-el');
   saveGame(); renderGame();
   if(G.hands.length>=G.elSayisi) endGame();
+  else showDealerPop();
+}
+
+/* El bitince anons: sıradaki taşı yapan kim? Yazboz'u tutan görür, masaya söyler */
+function showDealerPop(){
+  if(!G || G.done) return;
+  const d = currentDealer();
+  const isM = !!(SET.muhtarAktif && G.muhtar!==null && G.muhtar!==undefined);
+  document.getElementById('dealer-emoji').textContent = isM ? '🎩' : '🎲';
+  document.getElementById('dealer-el').textContent = `EL ${G.hands.length+1} — SIRADAKİ TAŞI YAPAN`;
+  document.getElementById('dealer-name').textContent = G.names[d];
+  document.getElementById('dealer-note').style.display = isM ? 'block' : 'none';
+  openModal('modal-dealer');
 }
 
 /* son eli geri al: puanlar ve istatistikler o elin öncesine döner, giriş ekranı açılır */
@@ -1316,6 +1397,7 @@ function undoLastEl(){
   G.hands.pop();
   G.statDelta = lastH.sdPrev;
   if(typeof lastH.evPrev==='number') G.events.length = lastH.evPrev;
+  if(lastH.muhtarPrev!==undefined) G.muhtar = lastH.muhtarPrev;
   saveGame(); renderGame();
   openElModal();
 }
@@ -1374,7 +1456,7 @@ function applyDeltas(players, ds){
     p.oyun+=d.oyun||0; p.gal+=d.gal||0; p.bit+=d.bit||0; p.kafa+=d.kafa||0;
     p.rcift+=d.rcift||0; p.rseri+=d.rseri||0; p.pes+=d.pes||0;
     p.els+=d.els||0; p.okeyBit+=d.okeyBit||0; p.ciftBit+=d.ciftBit||0; p.acamadi+=d.acamadi||0;
-    p.islek+=d.islek||0; p.kap+=d.kap||0; p.kapPuan+=d.kapPuan||0; p.okap+=d.okap||0;
+    p.islek+=d.islek||0; p.kap+=d.kap||0; p.kapPuan+=d.kapPuan||0; p.okap+=d.okap||0; p.yanlisAc+=d.yanlisAc||0;
     p.puan+=d.puan||0; p.kafaYedi+=d.kafaYedi||0;
     if(d.best!==undefined && d.best!==null && (p.best===null || d.best<p.best)) p.best=d.best;
     if(d.worst!==undefined && d.worst!==null && (p.worst===null || d.worst>p.worst)) p.worst=d.worst;
@@ -1646,6 +1728,7 @@ function renderDetay(){
       ${mini('🗣️ Kafa attı / 💥 yedi', p.kafa+' / '+(p.kafaYedi||0))}
       ${mini('🙈 Açamadığı el', p.acamadi||0)}
       ${mini('⚠️ İşlek taş', p.islek||0)}
+      ${mini('🤦 Yanlış açtı', p.yanlisAc||0)}
       ${mini('🎯 Taş kaptırma', p.kap? p.kap+' ('+p.kapPuan+' ceza)':'—')}
       ${mini('🫠 Okey kaptırdı', p.okap||0)}
       ${mini('🏅 Çift / 📏 Seri rekoru', p.rcift+' / '+p.rseri)}
@@ -1772,6 +1855,7 @@ function renderStatsTables(){
     avgCard + en('best','En iyi tek el','⭐',true) + en('worst','En kötü tek el','🥴') +
     en('kafaYedi','En çok kafa yiyen','💥') + en('acamadi','En çok açamayan','🙈') +
     en('islek','En çok işlek atan','⚠️') + en('kap','En çok taş kaptıran','🎯') +
+    en('yanlisAc','En çok yanlış açan','🤦') +
     en('okap','En çok okey kaptıran','🫠') + en('pes','En çok pes eden','🏳️')) || '<span class="hint">Henüz veri yok.</span>';
 }
 function exportData(){
@@ -2432,12 +2516,8 @@ const GAME_ICONS = {amerikano:'🃏'};
 function renderHomeGames(){
   document.getElementById('home-games').innerHTML =
     `<button class="btn btn-primary game-btn hero-btn" style="grid-column:1/-1" onclick="goSetup()">
-       <span class="game-title">🎴 101 OKEY</span>
+       <span class="game-title">🎴 YENİ OYUN</span>
        <span class="game-sub">Otomatik hesaplı akıllı yazboz · eşli / tekli</span>
-     </button>
-     <button class="btn game-btn hero-btn am-btn" style="grid-column:1/-1" onclick="goDefterSetup('amerikano')">
-       <span class="game-title">🃏 AMERİKANO (KÜT)</span>
-       <span class="game-sub">12 elli açılış defteri · 2–5 oyuncu</span>
      </button>`;
 }
 function boot(){
@@ -2464,7 +2544,7 @@ async function checkUpdate(){
     }
   }catch(e){}
 }
-document.getElementById('ver-sub').textContent = 'masa oyunları · v' + APP_VER;
+document.getElementById('ver-sub').textContent = '101 okey yazboz · v' + APP_VER;
 boot();
 show('scr-home');
 checkUpdate();
