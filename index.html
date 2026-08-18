@@ -25,6 +25,8 @@
   --grad-teal:linear-gradient(135deg,#6cc7b5,#4f9ec4);
   --shadow:0 8px 24px rgba(4,18,26,.35);
   --blur:blur(20px) saturate(1.35);
+  --m-tac:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z'/><path d='M5 21h14'/></svg>");
+  --m-kul:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M2.8 13.4h18.4v2.4a4.6 4.6 0 0 1-4.6 4.6H7.4a4.6 4.6 0 0 1-4.6-4.6z'/><line x1='7.6' y1='13.4' x2='7.6' y2='16'/><line x1='16.4' y1='13.4' x2='16.4' y2='16'/><line x1='9.6' y1='13.4' x2='17.8' y2='8.6'/><line x1='15' y1='10.2' x2='16.6' y2='11.6'/><path d='M19.6 6.6c1.2-1 1.2-2.4 0-3.4'/></svg>");
 }
 /* AÇIK TEMA — "defter kâğıdı": krem zemin, mürekkep mavisi yazı, aynı turkuaz kimlik */
 :root[data-tema="acik"]{
@@ -171,8 +173,9 @@ input[type=number]{max-width:120px;}
   background:var(--grad); -webkit-background-clip:text; background-clip:text;
   -webkit-text-fill-color:transparent; color:transparent;
 }
-.total-card.leader::after{content:"👑"; position:absolute; top:6px; right:8px; font-size:13px;}
-.total-card.loser::before{content:"🚬"; position:absolute; top:6px; left:8px; font-size:13px; opacity:.9;}
+.total-card.leader::after{content:""; position:absolute; top:6px; right:8px; width:13px; height:13px;
+  background:var(--yellow); -webkit-mask:var(--m-tac) center/contain no-repeat; mask:var(--m-tac) center/contain no-repeat;}
+.total-card.loser::before{content:""; position:absolute; top:6px; left:8px; width:13px; height:13px; background:var(--red); -webkit-mask:var(--m-kul) center/contain no-repeat; mask:var(--m-kul) center/contain no-repeat; opacity:.85;}
 .total-card .tsub{font-size:10px; color:var(--dim);}
 
 /* yazboz table */
@@ -224,7 +227,7 @@ table.yazboz tr.totrow td{font-weight:900; background:rgba(127,208,221,.13); fon
 .stat-table td{font-variant-numeric:tabular-nums;}
 .stat-table td:first-child,.stat-table th:first-child{text-align:left; padding-left:10px; font-weight:700;}
 .enler{display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:8px;}
-.ozet-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:10px 0;}
+.ozet-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:10px 0;}
 .ozet-kutu{background:var(--glass3); border:1px solid var(--stroke); border-radius:14px; padding:10px; text-align:center;}
 .ozet-kutu b{display:block; font-size:18px; font-weight:900;}
 .ozet-kutu span{font-size:10.5px; color:var(--dim); font-weight:700;}
@@ -244,6 +247,33 @@ table.yazboz tr.totrow td{font-weight:900; background:rgba(127,208,221,.13); fon
 .serit{display:inline-flex; gap:3px; align-items:center;}
 .serit i{width:7px; height:7px; border-radius:4px; display:block; border:1px solid var(--stroke2);}
 .serit i.w{background:var(--ok); border-color:var(--ok);}
+/* zar */
+.zar-alan{border-top:1px solid var(--stroke); margin-top:14px; padding-top:24px;}
+.zarlar{display:flex; gap:18px; justify-content:center; perspective:700px; margin-bottom:4px;}
+.zar-kap{display:flex; flex-direction:column; align-items:center;}
+.zar{width:58px; height:58px; border-radius:13px; background:var(--txt); padding:8px;
+  display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr);
+  box-shadow:0 6px 14px rgba(0,0,0,.22); transform-style:preserve-3d;}
+.zar i{width:9px; height:9px; border-radius:50%; background:var(--modal-bg); align-self:center; justify-self:center;}
+.zar-golge{width:40px; height:7px; border-radius:50%; background:#000; opacity:.3; margin-top:5px; filter:blur(1.5px);}
+/* yukarı fırla → dön → in → ufak sekme ile otur */
+.zar-kap.at .zar{animation:zarSavur .72s cubic-bezier(.22,.8,.28,1) both;}
+.zar-kap.at .zar-golge{animation:zarGolge .72s cubic-bezier(.22,.8,.28,1) both;}
+.zar-kap.at:nth-child(2) .zar,
+.zar-kap.at:nth-child(2) .zar-golge{animation-delay:.09s;}
+@keyframes zarSavur{
+  0%{transform:translateY(0) rotateX(0) rotateZ(0) scale(1);}
+  22%{transform:translateY(-38px) rotateX(280deg) rotateZ(190deg) scale(1.16);}
+  55%{transform:translateY(-6px) rotateX(560deg) rotateZ(400deg) scale(.97);}
+  72%{transform:translateY(-14px) rotateX(650deg) rotateZ(480deg) scale(1.05);}
+  100%{transform:translateY(0) rotateX(720deg) rotateZ(540deg) scale(1);}
+}
+@keyframes zarGolge{
+  0%{transform:scaleX(1); opacity:.3;}
+  22%{transform:scaleX(.5); opacity:.1;}
+  55%{transform:scaleX(.9); opacity:.24;}
+  100%{transform:scaleX(1); opacity:.3;}
+}
 .unvan{display:inline-block; background:rgba(127,208,221,.13); border:1px solid rgba(127,208,221,.35); color:var(--cyan);
   border-radius:999px; padding:2px 8px; font-size:10.5px; font-weight:800; margin:4px 4px 0 0;}
 .kutucuk{background:var(--glass3); border-radius:12px; padding:9px; margin-top:6px;}
@@ -251,7 +281,7 @@ table.yazboz tr.totrow td{font-weight:900; background:rgba(127,208,221,.13); fon
 .km{display:inline-block; border:1px solid var(--stroke); border-radius:999px; padding:2px 7px; font-size:10.5px; font-weight:700; margin:3px 3px 0 0;}
 .km.on{border-color:var(--stroke2); opacity:1;} .km.off{opacity:.25;}
 .en-card{background:var(--glass3); border-radius:16px; padding:11px; text-align:center; border:1px solid var(--stroke);}
-.en-card .et{font-size:11px; color:var(--dim); font-weight:700;}
+.en-card .et{font-size:10px; color:var(--dim); font-weight:800; letter-spacing:.3px; text-transform:uppercase;}
 .en-card .ev{font-size:16px; font-weight:900; margin-top:2px; font-variant-numeric:tabular-nums;}
 .en-card .en{font-size:12px; color:var(--cyan); font-weight:700;}
 
@@ -319,7 +349,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   </div>
   <button id="tema-btn" onclick="temaDegistir()" title="Tema" aria-label="Tema"></button>
   <h1>YAZBOZ</h1>
-  <div class="sub" id="ver-sub">101 okey yazboz · v4.6</div>
+  <div class="sub" id="ver-sub">101 okey yazboz · v4.8</div>
 </header>
 <main>
 
@@ -328,9 +358,9 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   <button class="btn btn-green" id="btn-devam" style="display:none" onclick="resumeGame()">▶️ Devam Eden 101 Oyunu</button>
   <button class="btn btn-green" id="btn-devam-defter" style="display:none" onclick="resumeDefter()">▶️ Devam Eden Defter</button>
   <div class="home-grid" id="home-games"></div>
-  <button class="btn btn-tile" onclick="show('scr-viewer')">📡 İzleyici Olarak Katıl</button>
-  <button class="btn btn-tile" onclick="renderStats();show('scr-stats')">🏆 İstatistikler</button>
-  <button class="btn btn-outline" onclick="renderSettings();show('scr-settings')">⚙️ Kurallar & Ayarlar</button>
+  <button class="btn btn-tile" onclick="show('scr-viewer')"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-goz"/></svg> İzleyici Olarak Katıl</button>
+  <button class="btn btn-tile" onclick="renderStats();show('scr-stats')"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-kupa"/></svg> İstatistikler</button>
+  <button class="btn btn-outline" onclick="renderSettings();show('scr-settings')"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-ayar"/></svg> Kurallar & Ayarlar</button>
   <p class="hint center">İpucu: Bu sayfayı tarayıcında açıp "Ana Ekrana Ekle" dersen uygulama gibi kullanabilirsin.</p>
 </section>
 
@@ -340,8 +370,8 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   <div class="card">
     <h3>Oyun Türü</h3>
     <div class="chips" id="mode-chips">
-      <div class="chip sel" data-mode="esli" onclick="pickMode('esli')">👥 Eşli (2'ye 2)</div>
-      <div class="chip" data-mode="tekli" onclick="pickMode('tekli')">👤 Herkes Kendine</div>
+      <div class="chip sel" data-mode="esli" onclick="pickMode('esli')"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-kisiler"/></svg> Eşli (2'ye 2)</div>
+      <div class="chip" data-mode="tekli" onclick="pickMode('tekli')">Herkes Kendine</div>
     </div>
     <h3 style="margin-top:12px">El Sayısı</h3>
     <div class="chips" id="el-chips">
@@ -361,13 +391,13 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div class="chips" id="pool-chips"></div>
     <div id="seats"></div>
     <div class="row" style="flex-wrap:wrap">
-      <button class="btn btn-outline btn-sm" onclick="shuffleSeats()">🎲 Eşleri Karıştır</button>
+      <button class="btn btn-outline btn-sm" onclick="shuffleSeats()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-zar"/></svg> Eşleri Karıştır</button>
       <button class="btn btn-outline btn-sm" onclick="clearSeats()">↩︎ Koltukları Boşalt</button>
-      <button class="btn btn-outline btn-sm" id="btn-delmode" onclick="toggleDelMode()">🗑️ Oyuncu Sil</button>
+      <button class="btn btn-outline btn-sm" id="btn-delmode" onclick="toggleDelMode()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-cop"/></svg> Oyuncu Sil</button>
     </div>
   </div>
   <div class="err" id="setup-err"></div>
-  <button class="btn btn-primary" onclick="startGame()">Oyunu Başlat 🎯</button>
+  <button class="btn btn-primary" onclick="startGame()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-onay"/></svg> Oyunu Başlat</button>
 </section>
 
 <!-- OYUN -->
@@ -379,17 +409,17 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   <div class="totals" id="totals"></div>
   <div class="hint center" id="fark-line" style="font-size:14px;font-weight:700;color:var(--cyan)"></div>
   <div class="hint center" id="bitenler-line"></div>
-  <button class="btn btn-primary" id="btn-el" onclick="openElModal()">✍️ El Bitti — Puan Gir</button>
-  <button class="btn btn-tile" onclick="openOlayModal()">⚡ Ceza Yaz <span class="hint" style="display:inline">(el sürerken — işlek, kaptırma, rekor)</span></button>
+  <button class="btn btn-primary" id="btn-el" onclick="openElModal()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-kalem"/></svg> El Bitti — Puan Gir</button>
+  <button class="btn btn-tile" onclick="openOlayModal()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-uyari"/></svg> Ceza Yaz <span class="hint" style="display:inline">(el sürerken — işlek, kaptırma, rekor)</span></button>
   <div class="card" id="pending-card" style="display:none">
-    <h3>⚡ Bu Elin Cezaları</h3>
+    <h3><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-uyari"/></svg> Bu Elin Cezaları</h3>
     <div class="evlist" id="pending-list"></div>
     <p class="hint">El bittiğinde bu cezalar otomatik olarak ele işlenir.</p>
   </div>
   <div class="row">
-    <button class="btn btn-tile btn-sm" onclick="shareText()">📤 Paylaş</button>
-    <button class="btn btn-tile btn-sm" id="btn-live" onclick="toggleLive()">🔳 QR — Canlı</button>
-    <button class="btn btn-tile btn-sm" onclick="renderStats();show('scr-stats')">📊 İstatistik</button>
+    <button class="btn btn-tile btn-sm" onclick="shareText()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-paylas"/></svg> Paylaş</button>
+    <button class="btn btn-tile btn-sm" id="btn-live" onclick="toggleLive()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-kare"/></svg> QR — Canlı</button>
+    <button class="btn btn-tile btn-sm" onclick="renderStats();show('scr-stats')"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-grafik"/></svg> İstatistik</button>
   </div>
   <div id="live-info" class="hint center" style="color:var(--cyan); display:none"></div>
   <div class="card">
@@ -401,8 +431,8 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div class="evlist" id="ev-log"><span class="hint">Henüz olay yok.</span></div>
   </div>
   <div class="row">
-    <button class="btn btn-outline btn-sm" id="btn-undo" onclick="undoLastEl()">↩️ Son Eli Düzelt</button>
-    <button class="btn btn-outline btn-sm" onclick="openErken()">🏳️ Erken Bitir / Pes</button>
+    <button class="btn btn-outline btn-sm" id="btn-undo" onclick="undoLastEl()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-gerial"/></svg> Son Eli Düzelt</button>
+    <button class="btn btn-outline btn-sm" onclick="openErken()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-bayrak"/></svg> Erken Bitir / Pes</button>
     <button class="btn btn-danger btn-sm" onclick="abortGame()">İptal</button>
   </div>
 </section>
@@ -411,7 +441,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 <section id="scr-defter-setup" class="screen">
   <button class="back" onclick="show('scr-home')">Geri</button>
   <div class="card">
-    <h3>🃏 Oyun Seç</h3>
+    <h3><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-tas"/></svg> Oyun Seç</h3>
     <div class="chips" id="dg-chips"></div>
     <p class="hint" id="dg-note"></p>
     <div class="checkline" id="dg-esli-wrap" style="display:none">
@@ -436,8 +466,8 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div class="chips" id="dg-sel"></div>
   </div>
   <div class="err" id="dg-err"></div>
-  <button class="btn btn-primary" onclick="startDefter()">Defteri Aç ✍️</button>
-  <button class="btn btn-outline btn-sm" onclick="renderAmStats();show('scr-am-stats')">📊 Amerikano İstatistikleri</button>
+  <button class="btn btn-primary" onclick="startDefter()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-kalem"/></svg> Defteri Aç</button>
+  <button class="btn btn-outline btn-sm" onclick="renderAmStats();show('scr-am-stats')"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-grafik"/></svg> Amerikano İstatistikleri</button>
 </section>
 
 <!-- DEFTER OYUN -->
@@ -454,11 +484,11 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div class="yazboz-wrap"><table class="yazboz" id="d-table"></table></div>
   </div>
   <div class="row">
-    <button class="btn btn-tile btn-sm" onclick="dShare()">📤 Paylaş</button>
-    <button class="btn btn-tile btn-sm" id="d-btn-live" onclick="toggleLiveD()">📡 Canlı Oda</button>
-    <button class="btn btn-tile btn-sm" onclick="renderAmStats();show('scr-am-stats')">📊 İstatistik</button>
+    <button class="btn btn-tile btn-sm" onclick="dShare()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-paylas"/></svg> Paylaş</button>
+    <button class="btn btn-tile btn-sm" id="d-btn-live" onclick="toggleLiveD()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-kare"/></svg> Canlı Oda</button>
+    <button class="btn btn-tile btn-sm" onclick="renderAmStats();show('scr-am-stats')"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-grafik"/></svg> İstatistik</button>
   </div>
-  <button class="btn btn-primary" onclick="bitirDefter()">🏁 Oyunu Bitir — Kazananı Yaz</button>
+  <button class="btn btn-primary" onclick="bitirDefter()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-bayrak"/></svg> Oyunu Bitir — Kazananı Yaz</button>
   <button class="btn btn-danger btn-sm" onclick="abortDefter()">Defteri İptal Et</button>
 </section>
 
@@ -502,15 +532,15 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   <div class="card" id="games-card" style="display:none">
     <h3 id="gecmis-baslik">Oyun Geçmişi</h3>
     <div class="evlist" id="games-list"></div>
-    <button class="btn btn-tile btn-sm" id="btn-all-games" style="display:none" onclick="showAllGames()">📜 Tümünü Göster</button>
+    <button class="btn btn-tile btn-sm" id="btn-all-games" style="display:none" onclick="showAllGames()">Tümünü Göster</button>
   </div>
   <div class="card">
     <h3>Veri Yedeği</h3>
     <div class="row" style="flex-wrap:wrap">
       <button class="btn btn-tile btn-sm" onclick="exportData()">Dışa Aktar</button>
       <button class="btn btn-tile btn-sm" onclick="importData()">İçe Aktar</button>
-      <button class="btn btn-green btn-sm" onclick="restoreBackup()">↪️ Yedekten Geri Yükle</button>
-      <button class="btn btn-green btn-sm" onclick="rebuildFromHistory()">🧩 Geçmişten Yeniden Kur</button>
+      <button class="btn btn-green btn-sm" onclick="restoreBackup()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-gerial"/></svg> Yedekten Geri Yükle</button>
+      <button class="btn btn-green btn-sm" onclick="rebuildFromHistory()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-parilti"/></svg> Geçmişten Yeniden Kur</button>
       <button class="btn btn-danger btn-sm" onclick="wipeStats()">Sıfırla</button>
     </div>
     <textarea id="databox" placeholder="Dışa aktarınca veri burada görünür; içe aktarmak için buraya yapıştır."></textarea>
@@ -521,7 +551,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 <section id="scr-am-stats" class="screen">
   <button class="back" onclick="goHome()">Geri</button>
   <div class="card">
-    <h3>🃏 Amerikano — Enler</h3>
+    <h3><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-kupa"/></svg> Amerikano — Enler</h3>
     <div class="enler" id="am-enler"></div>
   </div>
   <div class="card">
@@ -537,7 +567,13 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 <section id="scr-settings" class="screen">
   <button class="back" onclick="show('scr-home')">Geri</button>
   <div class="card" id="settings-card"></div>
-  <button class="btn btn-green" onclick="hardReload()">🔄 Önbelleği Yenile / Güncellemeyi Al</button>
+  <div class="card">
+    <h3><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-gerial"/></svg> Uygulama</h3>
+    <p class="hint" id="cache-durum">Sürüm v<span id="cache-ver"></span></p>
+    <button class="btn btn-green" id="cache-btn" onclick="onbellekTemizle()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-gerial"/></svg> Önbelleği temizle ve güncelle</button>
+    <button class="btn btn-tile btn-sm" onclick="surumKontrol()">Güncelleme var mı?</button>
+    <p class="hint">Masa verilerin, oyuncuların ve ayarların <b>silinmez</b> — sadece sayfanın tarayıcıda saklanan kopyası tazelenir.</p>
+  </div>
   <button class="btn btn-outline" onclick="resetSettings()">Varsayılan Kurallara Dön</button>
 </section>
 
@@ -572,7 +608,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 <!-- EL GİRİŞ MODALI -->
 <div class="modal-bg" id="modal-el">
   <div class="modal">
-    <h3>✍️ El Sonucu</h3>
+    <h3><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-kalem"/></svg> El Sonucu</h3>
     <label class="fld">Eli kim bitirdi?</label>
     <div class="chips" id="finisher-chips"></div>
     <div id="bitis-wrap">
@@ -581,7 +617,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
         <div class="chip sel" id="bt-duz" onclick="setBitis('duz')">Düz (−200)</div>
         <div class="chip" id="bt-okey" onclick="setBitis('okey')">Okey atarak (×2)</div>
         <div class="chip" id="bt-cift" onclick="setBitis('cift')">Çiftten (×2)</div>
-        <div class="chip" id="bt-kafa" onclick="setBitis('kafa')">💥 Kafa — elden (rakip ×2)</div>
+        <div class="chip" id="bt-kafa" onclick="setBitis('kafa')">Kafa — elden (rakip ×2)</div>
       </div>
       <div class="chips" id="rekor-chips"></div>
       <div id="rekor-extra"></div>
@@ -596,7 +632,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div class="err" id="el-err"></div>
     <div class="row">
       <button class="btn btn-outline btn-sm" onclick="closeModal('modal-el')">Vazgeç</button>
-      <button class="btn btn-green" onclick="saveEl()">Eli Kaydet ✔</button>
+      <button class="btn btn-green" onclick="saveEl()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-onay"/></svg> Eli Kaydet</button>
     </div>
   </div>
 </div>
@@ -604,7 +640,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 <!-- HIZLI CEZA MODALI -->
 <div class="modal-bg" id="modal-olay">
   <div class="modal">
-    <h3>⚡ Hızlı Ceza / Olay</h3>
+    <h3><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-uyari"/></svg> Hızlı Ceza / Olay</h3>
     <label class="fld">Kim?</label>
     <div class="chips" id="q-player"></div>
     <label class="fld">Ne oldu?</label>
@@ -614,7 +650,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div class="err" id="q-err"></div>
     <div class="row">
       <button class="btn btn-outline btn-sm" onclick="closeModal('modal-olay')">Vazgeç</button>
-      <button class="btn btn-green" onclick="saveQuickOlay()">Yaz ✔</button>
+      <button class="btn btn-green" onclick="saveQuickOlay()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-onay"/></svg> Yaz</button>
     </div>
   </div>
 </div>
@@ -622,7 +658,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 <!-- ERKEN BİTİRME / PES MODALI -->
 <div class="modal-bg" id="modal-erken">
   <div class="modal">
-    <h3>🏳️ Oyunu Erken Bitir</h3>
+    <h3><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-bayrak"/></svg> Oyunu Erken Bitir</h3>
     <p class="hint">Mevcut puanlarla bitirebilir ya da pes eden tarafı seçebilirsin. Pes eden istatistiklere işlenir.</p>
     <div id="erken-buttons"></div>
     <button class="btn btn-outline btn-sm" onclick="closeModal('modal-erken')">Vazgeç</button>
@@ -632,7 +668,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 <!-- QR MODALI -->
 <div class="modal-bg" id="modal-qr">
   <div class="modal center">
-    <h3 id="qr-title">🔳 QR</h3>
+    <h3 id="qr-title">QR</h3>
     <div id="qrbox"></div>
     <div class="codebox" id="qr-code-text"></div>
     <p class="hint" id="qr-hint"></p>
@@ -643,11 +679,15 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 <!-- SIRADAKİ TAŞI YAPAN ANONSU -->
 <div class="modal-bg" id="modal-dealer">
   <div class="modal center">
-    <div style="font-size:44px" id="dealer-emoji">🎲</div>
+    <div id="dealer-emoji" style="color:var(--cyan)"></div>
     <div style="color:var(--dim);font-weight:800;font-size:13px;letter-spacing:1px;margin-top:6px" id="dealer-el"></div>
     <div style="color:var(--cyan);font-size:32px;font-weight:900;margin-top:4px" id="dealer-name"></div>
-    <p class="hint" id="dealer-note" style="display:none">🎩 Muhtar — yeni bir tetikleyene kadar taşları hep o yapar</p>
-    <button class="btn btn-primary" onclick="closeModal('modal-dealer')">Anons Edildi ✔</button>
+    <p class="hint" id="dealer-note" style="display:none">Muhtar — yeni bir tetikleyene kadar taşları hep o yapar</p>
+    <div class="zar-alan">
+      <div id="zar-govde"></div>
+      <button class="btn btn-tile" id="zar-btn" onclick="zarAt()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-zar"/></svg> Zar At</button>
+    </div>
+    <button class="btn btn-primary" onclick="closeModal('modal-dealer')"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-onay"/></svg> Anons Edildi</button>
   </div>
 </div>
 
@@ -663,7 +703,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 
 <div class="modal-bg" id="modal-final">
   <div class="modal center">
-    <div class="confetti">🎉🏆🎉</div>
+    <div class="confetti" style="color:var(--cyan)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:44px;height:44px"><use href="#i-kupa"/></svg></div>
     <h3 id="final-title"></h3>
     <div id="final-body"></div>
     <button class="btn btn-primary" onclick="finishAndHome()">İstatistiklere Yazıldı — Ana Sayfa</button>
@@ -671,7 +711,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 </div>
 
 <script>
-const APP_VER = '4.6';
+const APP_VER = '4.8';
 /* ================= DEPOLAMA ================= */
 const store = {
   m:{},
@@ -769,7 +809,7 @@ function saveSet(){ store.set('yb_set', SET); }
 
 const SET_SCHEMA = [
   {t:'h', l:'Masa Düzeni'},
-  {k:'muhtarAktif', l:'🎩 Muhtar sistemi', s:'Muhtar: bitirenin öncesindeki oyuncu, biri yeniden tetikleyene kadar her eli o taşı yapar. Kapalıyken sıra masa düzeninde normal döner.', tip:'ch', ch:[
+  {k:'muhtarAktif', l:'Muhtar sistemi', s:'Muhtar: bitirenin öncesindeki oyuncu, biri yeniden tetikleyene kadar her eli o taşı yapar. Kapalıyken sıra masa düzeninde normal döner.', tip:'ch', ch:[
     {v:0, l:'Kapalı — normal sıra'}, {v:1, l:'Sadece okey atınca'}, {v:2, l:'Okey + elden (kafa)'}, {v:3, l:'Her bitişte'}
   ]},
   {t:'h', l:'Rekor Kuralları'},
@@ -980,7 +1020,7 @@ function renderSU(){
     <div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0">
       ${seatEl(3, esli?'4. koltuk':'4. koltuk (ops.)')}
       <div style="width:108px;height:84px;border-radius:16px;background:rgba(31,89,84,.55);border:1.5px solid rgba(127,208,221,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none">
-        <div style="font-size:20px">🎴</div>
+        <div style="color:var(--cyan)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><use href="#i-tas"/></svg></div>
         <div style="font-size:10px;font-weight:800;letter-spacing:2px;color:var(--dim)">MASA</div>
         <div style="font-size:9.5px;color:var(--dim);margin-top:1px">↺ taş sırası 1→2→3→4</div>
       </div>
@@ -988,7 +1028,7 @@ function renderSU(){
     </div>
     <div style="display:flex;justify-content:center">${seatEl(0, "1 · SEN (yazboz'u yazan)")}</div>
     <div style="margin-top:10px;border-top:1px solid var(--stroke);padding-top:8px">
-      <div style="font-weight:800;font-size:13.5px">🎲 İlk taşı kim yapıyor?</div>
+      <div style="font-weight:800;font-size:13.5px"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-zar"/></svg> İlk taşı kim yapıyor?</div>
       <div class="chips">${[0,1,2,3].map(i=>
         `<div class="chip small ${SU.dealer0===i?'sel':''}" onclick="SU.dealer0=${i};renderSU()">${SU.seats[i]||((i+1)+'. koltuk')}</div>`).join('')}</div>
       <p class="hint" style="margin:4px 0 0">Sonraki ellerde sıra masa düzeninde döner${SET.muhtarAktif?'':' (Ayarlar\'dan 🎩 muhtar sistemini de açabilirsin)'}.</p>
@@ -1058,7 +1098,7 @@ function renderGame(){
   if(!G) return;
   const isM = !!(SET.muhtarAktif && G.muhtar!==null && G.muhtar!==undefined);
   document.getElementById('el-counter').innerHTML = `El: ${Math.min(G.hands.length+1,G.elSayisi)} / ${G.elSayisi}`
-    + (G.done ? '' : ` <span style="color:var(--cyan)">· ${isM?'🎩':'🎲'} ${G.names[currentDealer()]}</span>`);
+    + (G.done ? '' : ` <span style="color:var(--cyan)">· ${ic(isM?'sapka':'zar')} ${G.names[currentDealer()]}</span>`);
   const totals = colTotals(G);
   const min = Math.min(...totals), max = Math.max(...totals);
   const played = G.hands.length>0, fark = max-min;
@@ -1078,7 +1118,7 @@ function renderGame(){
       }
     } else kn = kullukOf(getReg(), G.names);
   }
-  const colDisp = c => c.members.map(m=> G.names[m]===kn ? G.names[m]+' 🚬' : G.names[m]).join(' & ');
+  const colDisp = c => c.members.map(m=> G.names[m]===kn ? G.names[m]+' '+ic('kullukAsh') : G.names[m]).join(' & ');
   document.getElementById('totals').innerHTML = G.cols.map((c,i)=>`
     <div class="total-card ${played && totals[i]===min? 'leader':''}"
          style="border-top:3px solid ${COLC[i%COLC.length]}">
@@ -1091,7 +1131,7 @@ function renderGame(){
     ? `Fark: ${fark} (${G.cols[totals.indexOf(min)].name} önde)` : '';
   const bitCounts = G.names.map((n,i)=>({n, c:G.hands.filter(h=>h.finisher===i).length})).filter(x=>x.c>0);
   document.getElementById('bitenler-line').textContent = bitCounts.length
-    ? '✍️ Bitenler: ' + bitCounts.map(x=>`${x.n} ${x.c}`).join(' · ') : '';
+    ? ic('kalem')+' Bitenler: ' + bitCounts.map(x=>`${x.n} ${x.c}`).join(' · ') : '';
   // yazboz tablosu
   document.getElementById('yazboz-table').innerHTML = yazbozHTML(G, totals);
   // olay günlüğü
@@ -1100,7 +1140,7 @@ function renderGame(){
   document.getElementById('btn-el').style.display = G.hands.length>=G.elSayisi ? 'none':'block';
   const lastH = G.hands[G.hands.length-1];
   document.getElementById('btn-undo').style.display = (!G.done && lastH && lastH.sdPrev) ? 'inline-block' : 'none';
-  document.getElementById('btn-live').textContent = G.room ? '🔳 QR — Oda Açık' : '🔳 QR — Canlı İzleme';
+  document.getElementById('btn-live').innerHTML = ic('kare') + (G.room ? 'QR — Oda Açık' : 'QR — Canlı');
   const li = document.getElementById('live-info');
   if(G.room){ li.style.display='block'; li.textContent = 'Canlı oda açık — QR butonundan kodu paylaş.'; if(!heartbeatT) startHeartbeat(); }
   else li.style.display='none';
@@ -1147,12 +1187,12 @@ function openElModal(){
   const kn = document.getElementById('kafa-note'); kn.style.display='none'; kn.dataset.on='';
   // bitirenin rekoru: ayrı olay eklemeye gerek yok, bitişle birlikte işaretlenir
   document.getElementById('rekor-chips').innerHTML = SET.rekorAktif
-    ? `<div class="chip" id="bt-rcift" onclick="toggleFinRekor('rcift')">🏅 ${SET.rekorCift}+ çift rekoru (−${SET.rekorBonus})</div>
-       <div class="chip" id="bt-rseri" onclick="toggleFinRekor('rseri')">📏 Seri rekoru ${SET.rekorSeri} yan 1 (−${SET.rekorBonus})</div>`
+    ? `<div class="chip" id="bt-rcift" onclick="toggleFinRekor('rcift')">${ic('madalya')}${SET.rekorCift}+ çift rekoru (−${SET.rekorBonus})</div>
+       <div class="chip" id="bt-rseri" onclick="toggleFinRekor('rseri')">${ic('madalya')}Seri rekoru ${SET.rekorSeri} yan 1 (−${SET.rekorBonus})</div>`
     : '';
   document.getElementById('finisher-chips').innerHTML = G.names.map((n,i)=>
     `<div class="chip" id="fin-${i}" onclick="pickFinisher(${i})">${n}</div>`).join('')
-    + `<div class="chip" id="fin-none" onclick="pickFinisher(-1)">🚫 Biten olmadı</div>`;
+    + `<div class="chip" id="fin-none" onclick="pickFinisher(-1)">Biten olmadı</div>`;
   document.getElementById('bitis-wrap').style.display='';
   document.getElementById('other-players').innerHTML='';
   document.getElementById('olaylar').innerHTML='';
@@ -1193,7 +1233,7 @@ function updateKafaUI(kafa){
       + (SET.rekorAktif
         ? `<div class="chips" style="margin-top:4px">
              <div class="chip small" id="kn-plain" onclick="setKafaTip(false)">Rekorsuz Kafa (−${SET.bitmeBonus})</div>
-             <div class="chip small" id="kn-rekor" onclick="setKafaTip(true)">🏅 Rekorlu Kafa (−${toplam})</div>
+             <div class="chip small" id="kn-rekor" onclick="setKafaTip(true)">${ic('madalya')}Rekorlu Kafa (−${toplam})</div>
            </div>` : '');
   }
   note.style.display='block';
@@ -1238,8 +1278,8 @@ function pickFinisher(i){
     partner = col.members.find(m=>m!==i);
   }
   const box = document.getElementById('other-players');
-  const partnerNote = partner>=0 ? `<p class="hint">👥 Eşi <b>${G.names[partner]}</b> — bitiren takımda olduğu için eli sayılmaz.</p>`
-    : (i===-1 ? `<p class="hint">🚫 Biten olmadı — herkesin durumu girilir, bitirme puanı ve çarpan uygulanmaz.</p>` : '');
+  const partnerNote = partner>=0 ? `<p class="hint">${ic('kisiler')}Eşi <b>${G.names[partner]}</b> — bitiren takımda olduğu için eli sayılmaz.</p>`
+    : (i===-1 ? `<p class="hint">Biten olmadı — herkesin durumu girilir, bitirme puanı ve çarpan uygulanmaz.</p>` : '');
   box.innerHTML = partnerNote + G.names.map((n,j)=>{
     if(j===i || j===partner) return '';
     elForm.others[j] = {durum:null, kalan:0, ciftGid:false};
@@ -1279,7 +1319,7 @@ const OLAY_TYPES = () => {
     {v:'islek', l:`İşlek taş attı (+${SET.islekCeza})`},
     {v:'kaptirma', l:'Taş kaptırdı (attığı taşla rakip açtı)'},
     {v:'okeykap', l:`Yere açtığı okeyi kaptırdı (+${SET.okeyKaptirmaCeza})`},
-    {v:'yanlisac', l:`🙈 Yanlış açtı (+${SET.yanlisAcmaCeza})`}
+    {v:'yanlisac', l:`Yanlış açtı (+${SET.yanlisAcmaCeza})`}
   ];
   if(SET.rekorAktif){
     t.push({v:'rcift', l:`REKOR: ${SET.rekorCift}+ çift açtı (−${SET.rekorBonus})`});
@@ -1567,11 +1607,58 @@ function showDealerPop(){
   if(!G || G.done) return;
   const d = currentDealer();
   const isM = !!(SET.muhtarAktif && G.muhtar!==null && G.muhtar!==undefined);
-  document.getElementById('dealer-emoji').textContent = isM ? '🎩' : '🎲';
+  document.getElementById('dealer-emoji').innerHTML =
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+      stroke-linejoin="round" style="width:44px;height:44px"><use href="#i-${isM?'sapka':'zar'}"/></svg>`;
   document.getElementById('dealer-el').textContent = `EL ${G.hands.length+1} — SIRADAKİ TAŞI YAPAN`;
   document.getElementById('dealer-name').textContent = G.names[d];
   document.getElementById('dealer-note').style.display = isM ? 'block' : 'none';
+  clearInterval(zarSayac);
+  document.getElementById('zar-govde').innerHTML = '';
+  zarMesgul = false;
+  document.getElementById('zar-btn').innerHTML = `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-zar"/></svg> Zar At`;
   openModal('modal-dealer');
+}
+
+/* Zar: gösterge taşını saymak için iki zar. Yüzler 3x3 ızgarada nokta.
+   Atışta zarlar havaya savrulup dönerek oturur — sayı yazılmaz, zarlar konuşur. */
+const ZAR_NOKTA = {1:[4], 2:[0,8], 3:[0,4,8], 4:[0,2,6,8], 5:[0,2,4,6,8], 6:[0,2,3,5,6,8]};
+function zarNoktalari(el, v){
+  const acik = ZAR_NOKTA[v] || ZAR_NOKTA[1];
+  el.innerHTML = [0,1,2,3,4,5,6,7,8].map(i => acik.includes(i) ? '<i></i>' : '<span></span>').join('');
+}
+function zarKur(){
+  const g = document.getElementById('zar-govde');
+  if(g.querySelector('.zarlar')) return;
+  g.innerHTML = `<div class="zarlar">
+    <div class="zar-kap"><div class="zar"></div><div class="zar-golge"></div></div>
+    <div class="zar-kap"><div class="zar"></div><div class="zar-golge"></div></div>
+  </div>`;
+}
+let zarMesgul = false, zarSayac = null;
+function zarAt(){
+  if(zarMesgul) return;
+  zarMesgul = true;
+  zarKur();
+  const btn = document.getElementById('zar-btn');
+  btn.textContent = 'Dönüyor…';
+  const kaplar = [...document.querySelectorAll('#zar-govde .zar-kap')];
+  const yuzler = kaplar.map(k => k.querySelector('.zar'));
+  const rnd = () => 1 + Math.floor(Math.random()*6);
+  // animasyonu baştan başlat
+  kaplar.forEach(k => { k.classList.remove('at'); void k.offsetWidth; k.classList.add('at'); });
+  let adim = 0;
+  clearInterval(zarSayac);
+  zarSayac = setInterval(() => {
+    if(++adim >= 13){
+      clearInterval(zarSayac);
+      yuzler.forEach(y => zarNoktalari(y, rnd()));
+      zarMesgul = false;
+      btn.innerHTML = `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-zar"/></svg> Tekrar At`;
+      return;
+    }
+    yuzler.forEach(y => zarNoktalari(y, rnd()));
+  }, 55);
 }
 
 /* son eli geri al: puanlar ve istatistikler o elin öncesine döner, giriş ekranı açılır */
@@ -1592,7 +1679,7 @@ function undoLastEl(){
 function openErken(){
   if(!G) return;
   document.getElementById('erken-buttons').innerHTML =
-    `<button class="btn btn-primary" onclick="closeModal('modal-erken');endGame()">🏁 Mevcut puanlarla bitir (düşük kazanır)</button>` +
+    `<button class="btn btn-primary" onclick="closeModal('modal-erken');endGame()">${ic('bayrak')}Mevcut puanlarla bitir (düşük kazanır)</button>` +
     G.cols.map((c,i)=>`<button class="btn btn-danger" onclick="closeModal('modal-erken');endGame(${i})">🏳️ ${c.name} pes etti</button>`).join('');
   openModal('modal-erken');
 }
@@ -1822,20 +1909,20 @@ function renderCloud(){
   const id = cloudId();
   const pend = store.get('yb_pending', []).length;
   if(id){
-    c.innerHTML = `<h3>☁️ Bulut Senkron — Açık</h3>
+    c.innerHTML = `<h3>Bulut Senkron — Açık</h3>
       <p class="hint" id="cloud-status">${pend? '⏳ '+pend+' bekleyen sonuç var':'☁️ Bağlı'}</p>
       <div class="codebox">${id}</div>
       <div class="row">
-        <button class="btn btn-green btn-sm" onclick="shareMasaInvite()">👪 Davet Linki Gönder</button>
-        <button class="btn btn-tile btn-sm" onclick="cloudSync()">🔄 Eşitle</button>
+        <button class="btn btn-green btn-sm" onclick="shareMasaInvite()">${ic('kisiler')}Davet Linki Gönder</button>
+        <button class="btn btn-tile btn-sm" onclick="cloudSync()">${ic('gerial')}Eşitle</button>
         <button class="btn btn-danger btn-sm" onclick="cloudDisconnect()">Kes</button>
       </div>
       <p class="hint">Davet linkini açan telefon bu masaya otomatik bağlanır: sen olmasan da onların oynadığı oyunlar ortak skorboarda işlenir. Linki sadece ailene/masa arkadaşlarına gönder.</p>`;
   } else {
-    c.innerHTML = `<h3>☁️ Bulut Senkron — Kapalı</h3>
+    c.innerHTML = `<h3>Bulut Senkron — Kapalı</h3>
       <p class="hint">İstatistikler şu an sadece bu telefonda. (İlk oyun bittiğinde masa otomatik kurulur; istersen şimdi kur ve davet linkini gönder.)</p>
-      <button class="btn btn-green btn-sm" onclick="cloudCreate()">☁️ Masayı Şimdi Kur</button>
-      <button class="btn btn-tile btn-sm" onclick="shareMasaInvite()">👪 Kur + Davet Linki Gönder</button>
+      <button class="btn btn-green btn-sm" onclick="cloudCreate()">${ic('kisiler')}Masayı Şimdi Kur</button>
+      <button class="btn btn-tile btn-sm" onclick="shareMasaInvite()">${ic('kisiler')}Kur + Davet Linki Gönder</button>
       <label class="fld" style="margin-top:10px">Ya da mevcut koda bağlan:</label>
       <input type="text" id="cloud-code-in" placeholder="Arkadaşının paylaştığı kod">
       <button class="btn btn-tile btn-sm" style="margin-top:8px" onclick="cloudConnect()">Bağlan</button>`;
@@ -2141,20 +2228,20 @@ function renderAmStats(){
       const pct = p.oyun? Math.round(100*p.gal/p.oyun):0;
       const ort = p.oyun? Math.round((p.puan||0)/p.oyun):null;
       return `<tr><td>${dec(k)}</td><td>${p.oyun}</td><td>${p.gal}</td><td>%${pct}</td><td>${p.streakMax||0}</td><td>${ort===null?'—':ort}</td><td>${p.best===null?'—':p.best}</td><td>${p.worst==null?'—':p.worst}</td></tr>`; }).join('');
-  const en = (key,label,emoji,minMode)=>{
+  const en = (key,label,minMode)=>{
     let bestVal=null, holders=[];
     keys.forEach(k=>{ const v=reg[k][key];
       if(v===null||v===undefined||(!minMode && v<=0)) return;
       if(bestVal===null||(minMode? v<bestVal : v>bestVal)){bestVal=v;holders=[disp(k)];}
       else if(v===bestVal) holders.push(disp(k)); });
     if(bestVal===null) return '';
-    return `<div class="en-card"><div class="et">${emoji} ${label}</div><div class="en">${holders.join(', ')}</div><div class="ev">${bestVal}</div></div>`;
+    return `<div class="en-card"><div class="et">${label}</div><div class="en">${holders.join(', ')}</div><div class="ev">${bestVal}</div></div>`;
   };
   const küllükCard = küllük
-    ? `<div class="en-card" style="border-color:rgba(232,138,155,.4)"><div class="et">🚬 Masanın Küllüğü</div><div class="en">${disp(kulluk)}</div><div class="ev">%${Math.round(100*reg[küllük].gal/reg[küllük].oyun)} galibiyet</div></div>` : '';
-  enBox.innerHTML = (en('gal','En çok kazanan','🏆') + küllükCard +
-    en('streakMax','En uzun galibiyet serisi','🔥') +
-    en('best','En iyi oyun (düşük)','⭐',true) + en('worst','En kötü oyun','🥴')) || '<span class="hint">Henüz veri yok.</span>';
+    ? `<div class="en-card" style="border-color:rgba(232,138,155,.4)"><div class="et">Masanın Küllüğü</div><div class="en">${disp(kulluk)}</div><div class="ev">%${Math.round(100*reg[küllük].gal/reg[küllük].oyun)} galibiyet</div></div>` : '';
+  enBox.innerHTML = (en('gal','En çok kazanan') + küllükCard +
+    en('streakMax','En uzun galibiyet serisi') +
+    en('best','En iyi oyun (düşük)',true) + en('worst','En kötü oyun')) || '<span class="hint">Henüz veri yok.</span>';
 }
 
 /* Detaylı istatistik sayfası: oyuncu kartları */
@@ -2181,7 +2268,7 @@ function renderGamesList(count){
     const tot = (z.cols||[]).map((c,ci)=>`${c}: <b>${(z.totals||[])[ci]}</b>`).join(' · ');
     const hasEller = z.eller && z.eller.length;
     return `<div ${hasEller?`onclick="toggleOyunDetay(${i})" style="cursor:pointer"`:''}>
-      <b style="color:var(--cyan)">${z.mode||'Oyun'}</b> — 🏆 <b>${(z.winners||[]).join(' & ')||'?'}</b>${z.pes?' <span class="hint" style="display:inline">('+z.pes+' pes etti 🏳️)</span>':''}
+      <b style="color:var(--cyan)">${z.mode||'Oyun'}</b> — <b>${(z.winners||[]).join(' & ')||'?'}</b>${z.pes?' <span class="hint" style="display:inline">('+z.pes+' pes etti 🏳️)</span>':''}
       <span class="hint" style="display:inline">· ${dt.toLocaleDateString('tr-TR')} ${dt.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}</span><br>
       <span class="hint" style="display:inline">${tot}${hasEller?' · <u>el el görmek için dokun</u>':' · <i>el detayı yok (eski sürümde oynandı)</i>'}</span>
       <div id="od-${i}" style="display:none"></div>
@@ -2189,7 +2276,7 @@ function renderGamesList(count){
   }).join('');
   const btn = document.getElementById('btn-all-games');
   btn.style.display = arr.length > count ? 'inline-block' : 'none';
-  btn.textContent = `📜 Tümünü Göster (${arr.length} oyun)`;
+  btn.textContent = `Tümünü Göster (${arr.length} oyun)`;
 }
 function showAllGames(){
   window._gamesShowAll = true;
@@ -2272,8 +2359,7 @@ function renderStatsTables(){
   const toplamEl = oz.reduce((a,z)=>a+(z.el||(z.eller||[]).length||0),0);
   const sonTs = oz.length ? Math.max(...oz.map(z=>z.ts||0)) : 0;
   document.getElementById('stats-ozet').innerHTML =
-    [['Oyuncu',names.length],['Oyun',oz.length],['El',toplamEl],
-     ['Son oyun', sonTs?new Date(sonTs).toLocaleDateString('tr-TR',{day:'2-digit',month:'short'}):'—']]
+    [['Oyuncu',names.length],['Oyun',oz.length],['El',toplamEl]]
     .map(([l,v])=>`<div class="ozet-kutu"><b>${v}</b><span>${l}</span></div>`).join('');
 
   /* --- rozetler --- */
@@ -2297,9 +2383,9 @@ function renderStatsTables(){
     İki şeyden çıkar — ne kadar kazandığın ve her elde ortalama kaç ceza yazdığın.</p>
     <p><b>Kazanma gücü</b> seni beklenenle kıyaslar. Eşli oyunda kazanma şansın 2'de 1, dört kişilik teklide 4'te 1;
     ham yüzdeye bakmak bu yüzden haksızlık olurdu. <b>1.00× tam ortalama</b>, 1.20× beklenenden %20 fazla kazanıyorsun demek.</p>
-    <p><b>🐣 Çaylak:</b> ${sira.baraj} oyundan az oynayan sıralamaya girmez — 1 oyun oynayıp kaybeden küllüğe oturmasın diye.</p>
-    <p><b>🏆 Rekorlar</b> ham sayıdır. <b>📊 Oranlar</b> ise sıklıktır (oyun başına kaç taş kaptırıyor) — çok oynayan haksız yere öne geçmesin diye.</p>
-    <p>🚬 <b>güncel küllük</b> son 10 oyuna bakar, sigara orada söner. 💀 <b>kariyer küllüğü</b> tüm zamanların hesabıdır.</p>`;
+    <p><b>Çaylak:</b> ${sira.baraj} oyundan az oynayan sıralamaya girmez — 1 oyun oynayıp kaybeden küllüğe oturmasın diye.</p>
+    <p><b>Rekorlar</b> ham sayıdır. <b>Oranlar</b> ise sıklıktır (oyun başına kaç taş kaptırıyor) — çok oynayan haksız yere öne geçmesin diye.</p>
+    <p><b>Güncel küllük</b> son 10 oyuna bakar, sigara orada söner. <b>Kariyer küllüğü</b> tüm zamanların hesabıdır.</p>`;
 
   /* --- sekmeler --- */
   document.getElementById('sira-sekme').innerHTML =
@@ -2320,7 +2406,7 @@ function renderStatsTables(){
           <td style="font-weight:900;color:${r.kg>=1?'var(--ok)':'#ff9fb2'}">${r.kg.toFixed(2)}×</td>
           <td>${r.el?Math.round(r.elOrt):'—'}</td></tr>`).join('')}
       </table></div>
-      <p class="hint">Güç = kazanma gücü (1.00 ortalama) · el ort. eşli oyunda takım puanıdır · 🐣 bu ay 2 oyundan az.</p>`;
+      <p class="hint">Güç = kazanma gücü (1.00 ortalama) · el ort. eşli oyunda takım puanıdır · çaylak: bu ay 2 oyundan az.</p>`;
   } else {
     body.innerHTML = names.map((n,i)=>{
       const p=reg[n], R=S[n], acik=(_acikOyuncu===n);
@@ -2332,39 +2418,39 @@ function renderStatsTables(){
       const ortEl = aktifEl ? Math.round(p.puan/aktifEl) : null;
       const mini=(l,v)=>`<div class="en-card"><div class="et">${l}</div><div class="ev">${v}</div></div>`;
       const detay = !acik ? '' : `
-        ${un.length?`<div class="kutucuk"><div class="kb">🎖️ ÜNVANLAR</div>${un.map(u=>`<div style="font-size:12.5px;padding:1px 0">${u.emoji} <b>${u.ad}</b> <span class="hint">— ${u.not}</span></div>`).join('')}</div>`:''}
-        ${(il.kabus||il.kurban||il.enIyiEs||il.enKotuEs)?`<div class="kutucuk"><div class="kb">🎯 MASA İLİŞKİLERİ</div>
-          ${il.kabus?`<div style="font-size:12.5px;padding:1px 0">😰 Kâbusun: <b>${il.kabus.n}</b> <span class="hint">(${il.kabus.g}G ${il.kabus.m}M)</span></div>`:''}
-          ${il.kurban?`<div style="font-size:12.5px;padding:1px 0">🍗 Kurbanın: <b>${il.kurban.n}</b> <span class="hint">(${il.kurban.g}G ${il.kurban.m}M)</span></div>`:''}
-          ${il.enIyiEs?`<div style="font-size:12.5px;padding:1px 0">🤝 Uğurlu eşin: <b>${il.enIyiEs.n}</b> <span class="hint">(${il.enIyiEs.gal}/${il.enIyiEs.oyun})</span></div>`:''}
-          ${il.enKotuEs?`<div style="font-size:12.5px;padding:1px 0">🥲 Uğursuz eşin: <b>${il.enKotuEs.n}</b> <span class="hint">(${il.enKotuEs.gal}/${il.enKotuEs.oyun})</span></div>`:''}
+        ${un.length?`<div class="kutucuk"><div class="kb">ÜNVANLAR</div>${un.map(u=>`<div style="font-size:12.5px;padding:1px 0"><b>${u.ad}</b> <span class="hint">— ${u.not}</span></div>`).join('')}</div>`:''}
+        ${(il.kabus||il.kurban||il.enIyiEs||il.enKotuEs)?`<div class="kutucuk"><div class="kb">MASA İLİŞKİLERİ</div>
+          ${il.kabus?`<div style="font-size:12.5px;padding:1px 0">Kâbusun: <b>${il.kabus.n}</b> <span class="hint">(${il.kabus.g}G ${il.kabus.m}M)</span></div>`:''}
+          ${il.kurban?`<div style="font-size:12.5px;padding:1px 0">Kurbanın: <b>${il.kurban.n}</b> <span class="hint">(${il.kurban.g}G ${il.kurban.m}M)</span></div>`:''}
+          ${il.enIyiEs?`<div style="font-size:12.5px;padding:1px 0">Uğurlu eşin: <b>${il.enIyiEs.n}</b> <span class="hint">(${il.enIyiEs.gal}/${il.enIyiEs.oyun})</span></div>`:''}
+          ${il.enKotuEs?`<div style="font-size:12.5px;padding:1px 0">Uğursuz eşin: <b>${il.enKotuEs.n}</b> <span class="hint">(${il.enKotuEs.gal}/${il.enKotuEs.oyun})</span></div>`:''}
         </div>`:''}
-        <div class="kutucuk"><div class="kb">🏵️ KİLOMETRE TAŞLARI · ${km.kazanilan}/${km.toplam}</div>
-          ${km.liste.map(t=>`<span class="km ${t.tamam?'on':'off'}">${t.emoji} ${t.ad}</span>`).join('')}</div>
+        <div class="kutucuk"><div class="kb">KİLOMETRE TAŞLARI · ${km.kazanilan}/${km.toplam}</div>
+          ${km.liste.map(t=>`<span class="km ${t.tamam?'on':'off'}">${t.ad}</span>`).join('')}</div>
         <div class="enler" style="margin-top:8px">
-          ${mini('⚖️ Masa Puanı', R?(R.mp+(R.barajUstu?'':' 🐣')):'—')}
-          ${mini('💪 Kazanma gücü', R?R.kg.toFixed(2)+'×':'—')}
-          ${mini('🎮 Oyun / Galibiyet', `${p.oyun} / ${p.gal} (%${pct})`)}
-          ${mini('🔥 En uzun seri', p.streakMax||0)}
-          ${mini('🃏 Oynadığı el', (p.els||0)+(p.esBit?` (${aktifEl} aktif)`:''))}
-          ${mini('🧊 Ortalama el puanı', ortEl===null?'—':ortEl)}
-          ${mini('✅ Kendi bitirdi', p.bit+(aktifEl?` (%${Math.round(100*p.bit/aktifEl)})`:''))}
-          ${p.esBit ? mini('👥 Eşi bitirdi', p.esBit) : ''}
-          ${p.esBit ? mini('🤝 Takım bitirişi', (p.bit+p.esBit)+(p.els?` (%${Math.round(100*(p.bit+p.esBit)/p.els)})`:'')) : ''}
-          ${mini('🀄 Okeyle / ♊ çiftten', (p.okeyBit||0)+' / '+(p.ciftBit||0))}
-          ${mini('🗣️ Kafa attı / 💥 yedi', p.kafa+' / '+(p.kafaYedi||0))}
-          ${mini('🏅 Rekorlu kafa', p.kafaRekor||0)}
-          ${mini('🙈 Açamadı', (p.acamadi||0)+(aktifEl?` (%${Math.round(100*(p.acamadi||0)/aktifEl)})`:''))}
-          ${mini('⚠️ İşlek attı', p.islek||0)}
-          ${mini('🎯 Taş kaptırdı', p.kap?`${p.kap} (${p.kapPuan})`:'—')}
-          ${mini('💰 Taş kapıp yazdırdı', p.kapAldi?`${p.kapAldi} (${p.kapAldiPuan})`:'—')}
-          ${mini('💸 Okey kaptırdı', p.okap||0)}
-          ${mini('🤦 Yanlış açtı', p.yanlisAc||0)}
-          ${mini('🏅 Rekorlar (Ç/S)', p.rcift+' / '+p.rseri)}
-          ${mini('🎯 En yüksek açılış', p.srmax||'—')}
-          ${mini('🃏 En çok çiftle açılış', p.crmax||'—')}
-          ${mini('⭐ En iyi / 🥴 kötü el', (p.best===null?'—':p.best)+' / '+(p.worst==null?'—':'+'+p.worst))}
-          ${mini('🏳️ Pes / 💰 Kariyer', (p.pes||0)+' / '+(p.puan||0))}
+          ${mini('Masa Puanı', R?(R.mp+(R.barajUstu?'':' · çaylak')):'—')}
+          ${mini('Kazanma gücü', R?R.kg.toFixed(2)+'×':'—')}
+          ${mini('Oyun / Galibiyet', `${p.oyun} / ${p.gal} (%${pct})`)}
+          ${mini('En uzun seri', p.streakMax||0)}
+          ${mini('Oynadığı el', (p.els||0)+(p.esBit?` (${aktifEl} aktif)`:''))}
+          ${mini('Ortalama el puanı', ortEl===null?'—':ortEl)}
+          ${mini('Kendi bitirdi', p.bit+(aktifEl?` (%${Math.round(100*p.bit/aktifEl)})`:''))}
+          ${p.esBit ? mini('Eşi bitirdi', p.esBit) : ''}
+          ${p.esBit ? mini('Takım bitirişi', (p.bit+p.esBit)+(p.els?` (%${Math.round(100*(p.bit+p.esBit)/p.els)})`:'')) : ''}
+          ${mini('Okeyle / çiftten', (p.okeyBit||0)+' / '+(p.ciftBit||0))}
+          ${mini('Kafa attı / yedi', p.kafa+' / '+(p.kafaYedi||0))}
+          ${mini('Rekorlu kafa', p.kafaRekor||0)}
+          ${mini('Açamadı', (p.acamadi||0)+(aktifEl?` (%${Math.round(100*(p.acamadi||0)/aktifEl)})`:''))}
+          ${mini('İşlek attı', p.islek||0)}
+          ${mini('Taş kaptırdı', p.kap?`${p.kap} (${p.kapPuan})`:'—')}
+          ${mini('Taş kapıp yazdırdı', p.kapAldi?`${p.kapAldi} (${p.kapAldiPuan})`:'—')}
+          ${mini('Okey kaptırdı', p.okap||0)}
+          ${mini('Yanlış açtı', p.yanlisAc||0)}
+          ${mini('Rekorlar (Ç/S)', p.rcift+' / '+p.rseri)}
+          ${mini('En yüksek açılış', p.srmax||'—')}
+          ${mini('En çok çiftle açılış', p.crmax||'—')}
+          ${mini('En iyi / kötü el', (p.best===null?'—':p.best)+' / '+(p.worst==null?'—':'+'+p.worst))}
+          ${mini('Pes / kariyer', (p.pes||0)+' / '+(p.puan||0))}
         </div>`;
       return `<div class="sira-row" onclick="toggleOyuncu('${escq(n)}')">
         <div class="sira-top">
@@ -2377,7 +2463,7 @@ function renderStatsTables(){
           <span>${p.oyun} oyun · %${pct} kazanma${R?` · ${R.kg.toFixed(2)}× güç · el ort. ${Math.round(R.elOrt)}`:''}${(R&&!R.barajUstu)?` · baraja ${Math.max(0,sira.baraj-p.oyun)} oyun`:''}</span>
           <span class="serit">${serit.map(x=>`<i class="${x.gal?'w':''}"></i>`).join('')}</span>
         </div>
-        ${un.length?`<div>${un.slice(0,3).map(u=>`<span class="unvan">${u.emoji} ${u.ad}</span>`).join('')}</div>`:''}
+        ${un.length?`<div>${un.slice(0,3).map(u=>`<span class="unvan">${u.ad}</span>`).join('')}</div>`:''}
         ${detay}
       </div>`;
     }).join('');
@@ -2385,7 +2471,7 @@ function renderStatsTables(){
 
   /* --- oranlar (baraj üstü) --- */
   const uygun = sira.satirlar.filter(r=>r.barajUstu);
-  const oran = (label,emoji,f,bicim,ters)=>{
+  const oran = (label,f,bicim,ters)=>{
     let best=null, holders=[];
     uygun.forEach(r=>{
       const v=f(reg[r.n], r);
@@ -2394,26 +2480,26 @@ function renderStatsTables(){
       else if(v===best) holders.push(r.n);
     });
     if(best===null || !holders.length || holders.length===uygun.length) return '';
-    return `<div class="en-card"><div class="et">${emoji} ${label}</div><div class="en">${holders.join(', ')}</div><div class="ev">${bicim(best)}</div></div>`;
+    return `<div class="en-card"><div class="et">${label}</div><div class="en">${holders.join(', ')}</div><div class="ev">${bicim(best)}</div></div>`;
   };
   const yuzde=v=>'%'+Math.round(v), perOyun=v=>v.toFixed(2)+'/oyun';
   document.getElementById('oran-not').textContent =
     `Sayı değil sıklık — çok oynayan haksız yere öne geçmesin diye. Sadece baraj üstü (${sira.baraj}+ oyun) oyuncular.`;
   document.getElementById('oranlar').innerHTML = (
-    oran('Kazanma gücü','💪',(p,r)=>r.kg,v=>v.toFixed(2)+'×') +
-    oran('En temiz el ortalaması','🧊',(p,r)=>r.elOrt,v=>Math.round(v)+' puan',true) +
-    oran('En sık bitiren','✅',(p,r)=>r.aktifEl?100*p.bit/r.aktifEl:null,yuzde) +
-    oran('En sık kafa atan','🗣️',p=>p.oyun?p.kafa/p.oyun:null,perOyun) +
-    oran('En sık açamayan','🙈',(p,r)=>r.aktifEl?100*(p.acamadi||0)/r.aktifEl:null,yuzde) +
-    oran('En çok taş kaptıran','🎯',p=>p.oyun?(p.kap||0)/p.oyun:null,perOyun) +
-    oran('En çok taş kapan','💰',p=>p.oyun?(p.kapAldi||0)/p.oyun:null,perOyun) +
-    oran('En sık işlek atan','⚠️',p=>p.oyun?(p.islek||0)/p.oyun:null,perOyun) +
-    oran('En sık okey kaptıran','💸',p=>p.oyun?(p.okap||0)/p.oyun:null,perOyun) +
-    oran('En sık yanlış açan','🤦',p=>p.oyun?(p.yanlisAc||0)/p.oyun:null,perOyun)
+    oran('Kazanma gücü',(p,r)=>r.kg,v=>v.toFixed(2)+'×') +
+    oran('En temiz el ortalaması',(p,r)=>r.elOrt,v=>Math.round(v)+' puan',true) +
+    oran('En sık bitiren',(p,r)=>r.aktifEl?100*p.bit/r.aktifEl:null,yuzde) +
+    oran('En sık kafa atan',p=>p.oyun?p.kafa/p.oyun:null,perOyun) +
+    oran('En sık açamayan',(p,r)=>r.aktifEl?100*(p.acamadi||0)/r.aktifEl:null,yuzde) +
+    oran('En çok taş kaptıran',p=>p.oyun?(p.kap||0)/p.oyun:null,perOyun) +
+    oran('En çok taş kapan',p=>p.oyun?(p.kapAldi||0)/p.oyun:null,perOyun) +
+    oran('En sık işlek atan',p=>p.oyun?(p.islek||0)/p.oyun:null,perOyun) +
+    oran('En sık okey kaptıran',p=>p.oyun?(p.okap||0)/p.oyun:null,perOyun) +
+    oran('En sık yanlış açan',p=>p.oyun?(p.yanlisAc||0)/p.oyun:null,perOyun)
   ) || '<span class="hint">Baraj üstü en az 2 oyuncu olunca dolacak.</span>';
 
   /* --- rekorlar (ham) --- */
-  const en = (key,label,emoji,minMode)=>{
+  const en = (key,label,minMode)=>{
     let bestVal=null, holders=[];
     names.forEach(n=>{
       const v = reg[n][key];
@@ -2422,16 +2508,16 @@ function renderStatsTables(){
       else if(v===bestVal) holders.push(n);
     });
     if(bestVal===null) return '';
-    return `<div class="en-card"><div class="et">${emoji} ${label}</div><div class="en">${holders.join(', ')}</div><div class="ev">${bestVal}</div></div>`;
+    return `<div class="en-card"><div class="et">${label}</div><div class="en">${holders.join(', ')}</div><div class="ev">${bestVal}</div></div>`;
   };
   enBox.innerHTML = (
-    en('gal','En çok kazanan','🏆') + en('streakMax','En uzun galibiyet serisi','🔥') +
-    en('bit','En çok bitiren','✅') + en('kafa','En çok kafa atan','🗣️') + en('kafaRekor','En çok rekorlu kafa','🏅') +
-    en('okeyBit','En çok okeyle bitiren','🀄') + en('ciftBit','En çok çiftten bitiren','♊') +
-    en('rcift','En çok çift rekoru','🏅') + en('rseri','En çok seri rekoru','📏') +
-    en('srmax','En yüksek açılış (puan)','🎯') + en('crmax','En çok çiftle açılış','🃏') +
-    en('best','En iyi tek el','⭐',true) + en('worst','En kötü tek el','🥴') +
-    en('kafaYedi','En çok kafa yiyen','💥') + en('pes','En çok pes eden','🏳️')
+    en('gal','En çok kazanan') + en('streakMax','En uzun galibiyet serisi') +
+    en('bit','En çok bitiren') + en('kafa','En çok kafa atan') + en('kafaRekor','En çok rekorlu kafa') +
+    en('okeyBit','En çok okeyle bitiren') + en('ciftBit','En çok çiftten bitiren') +
+    en('rcift','En çok çift rekoru') + en('rseri','En çok seri rekoru') +
+    en('srmax','En yüksek açılış (puan)') + en('crmax','En çok çiftle açılış') +
+    en('best','En iyi tek el',true) + en('worst','En kötü tek el') +
+    en('kafaYedi','En çok kafa yiyen') + en('pes','En çok pes eden')
   ) || '<span class="hint">Henüz veri yok.</span>';
 
   /* --- şeref listesi --- */
@@ -3123,7 +3209,7 @@ const GAME_ICONS = {amerikano:'🃏'};
 function renderHomeGames(){
   document.getElementById('home-games').innerHTML =
     `<button class="btn btn-primary game-btn hero-btn" style="grid-column:1/-1" onclick="goSetup()">
-       <span class="game-title">🎴 YENİ OYUN</span>
+       <span class="game-title">${ic('tas')}YENİ OYUN</span>
        <span class="game-sub">Otomatik hesaplı akıllı yazboz · eşli / tekli</span>
      </button>`;
 }
@@ -3139,6 +3225,26 @@ function hardReload(){
   // benzersiz adresle taze kopya zorlanır (önbellek devre dışı kalır)
   location.replace(location.pathname + '?r=' + Date.now());
 }
+/* Ayarlar → "Önbelleği temizle": tarayıcı önbelleğini ve varsa service worker'ı
+   düşürüp sayfanın EN GÜNCEL halini çeker. Masa verilerine (localStorage) dokunmaz. */
+async function onbellekTemizle(){
+  const b = document.getElementById('cache-btn');
+  if(b){ b.disabled = true; b.textContent = 'Temizleniyor…'; }
+  try{ if(window.caches){ const ks = await caches.keys(); await Promise.all(ks.map(k => caches.delete(k))); } }catch(e){}
+  try{ if(navigator.serviceWorker){ const rs = await navigator.serviceWorker.getRegistrations(); await Promise.all(rs.map(r => r.unregister())); } }catch(e){}
+  hardReload();
+}
+async function surumKontrol(){
+  const d = document.getElementById('cache-durum');
+  if(!location.protocol.startsWith('http')){ if(d) d.textContent = 'Dosyadan açılmış — sürüm kontrolü yapılamıyor.'; return; }
+  if(d) d.textContent = 'Kontrol ediliyor…';
+  try{
+    const r = await fetch(location.pathname + '?vchk=' + Date.now(), {cache:'no-store'});
+    const m = (await r.text()).match(/APP_VER = '([\d.]+)'/);
+    if(m && m[1] !== APP_VER){ if(d) d.innerHTML = `Yeni sürüm var: <b>v${m[1]}</b> — "Önbelleği temizle ve güncelle" düğmesine bas.`; }
+    else if(d) d.textContent = `Güncelsin (v${APP_VER}).`;
+  }catch(e){ if(d) d.textContent = 'Kontrol edilemedi.'; }
+}
 async function checkUpdate(){
   if(!location.protocol.startsWith('http')) return;
   try{
@@ -3152,6 +3258,7 @@ async function checkUpdate(){
   }catch(e){}
 }
 document.getElementById('ver-sub').textContent = '101 okey yazboz · v' + APP_VER;
+document.getElementById('cache-ver').textContent = APP_VER;
 temaUygula();
 introBaslat();
 boot();
