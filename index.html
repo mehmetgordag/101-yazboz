@@ -201,7 +201,7 @@ input[type=number]{max-width:120px;}
 }
 .total-card.leader::after{content:""; position:absolute; top:6px; right:8px; width:13px; height:13px;
   background:var(--yellow); -webkit-mask:var(--m-tac) center/contain no-repeat; mask:var(--m-tac) center/contain no-repeat;}
-.total-card.loser::before{content:""; position:absolute; top:6px; left:8px; width:13px; height:13px; background:var(--red); -webkit-mask:var(--m-kul) center/contain no-repeat; mask:var(--m-kul) center/contain no-repeat; opacity:.85;}
+.total-card.loser::before{content:"\1F6AC"; position:absolute; top:4px; left:8px; font-size:13px; line-height:1;}
 .total-card .tsub{font-size:10px; color:var(--dim);}
 
 /* yazboz table */
@@ -425,7 +425,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   </div>
   <button id="tema-btn" onclick="temaDegistir()" title="Tema" aria-label="Tema"></button>
   <h1>YAZBOZ</h1>
-  <div class="sub" id="ver-sub">101 okey yazboz · v5.7.1</div>
+  <div class="sub" id="ver-sub">101 okey yazboz · v5.7.2</div>
 </header>
 <main>
 
@@ -820,9 +820,9 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 </div>
 
 <script>
-const APP_VER = '5.7.1';
-const BUILD = '7ff405e5';   // yayinla.sh dosya içeriğinden hesaplar
-const SURUM_NOT = 'Marka nötr ikon seti (YB) — özel logo gelene kadar';       // son değişiklik notu (yayinla.sh yazar)
+const APP_VER = '5.7.2';
+const BUILD = 'a8072a68';   // yayinla.sh dosya içeriğinden hesaplar
+const SURUM_NOT = 'Küllük işareti ilk günkü renkli sigara emojisine döndü · açılış tanıtımında 👑🚬';       // son değişiklik notu (yayinla.sh yazar)
 /* ================= DEPOLAMA ================= */
 const store = {
   m:{},
@@ -837,7 +837,7 @@ const INTRO = [
     d:'Üyelik yok, şifre yok. Oyuncuları masa sırasıyla otur, eli gir — bütün cezaları, çarpanları ve kafaları uygulama hesaplar, tabelaya işler.' },
   { ic:'kisiler', t:'Masa = ortak defteriniz',
     d:'İlk oyununla masan kurulur. Davet linkini gruba at: linki açan herkes aynı deftere yazar, sen olmasan da tabela işler. Canlı izleme linkiyle maçı dışarıdan da takip edebilirler.' },
-  { ic:'tac', t:'Kral ve küllük',
+  { ic:'tac', em:'\u{1F451}\u{1F6AC}', t:'Kral ve küllük',
     d:'Masa Puanı herkesi aynı teraziye koyar: ne kadar kazandığın ve el başına kaç ceza yazdığın. En yüksek puan kralı, en düşük puan küllüğü belirler — sigara ise son 10 oyunun en kötüsünde söner. İyi oyunlar!' },
 ];
 let introAdim = 0;
@@ -846,8 +846,10 @@ function introCiz(){
   document.getElementById('intro-govde').innerHTML =
     `<div style="width:74px;height:74px;border-radius:37px;background:var(--glass2);border:1px solid var(--stroke2);
        display:flex;align-items:center;justify-content:center;margin:2px auto 14px;color:var(--cyan)">
-       <svg class="ic" style="width:36px;height:36px" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-${a.ic}"/></svg></div>
+       ${a.em
+         ? `<span style="font-size:30px;line-height:1">${a.em}</span>`
+         : `<svg class="ic" style="width:36px;height:36px" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-${a.ic}"/></svg>`}</div>
      <h3 style="font-size:19px;margin:0 0 6px">${a.t}</h3>
      <p style="color:var(--dim);font-size:14.5px;line-height:1.55;margin:0">${a.d}</p>`;
   document.getElementById('intro-nokta').innerHTML = INTRO.map((_,i)=>
@@ -1278,7 +1280,7 @@ function renderGame(){
       }
     } else kn = kullukOf(getReg(), G.names);
   }
-  const colDisp = c => c.members.map(m=> G.names[m]===kn ? G.names[m]+' '+ic('kullukAsh') : G.names[m]).join(' & ');
+  const colDisp = c => c.members.map(m=> G.names[m]===kn ? G.names[m]+' \u{1F6AC}' : G.names[m]).join(' & ');
   document.getElementById('totals').innerHTML = G.cols.map((c,i)=>`
     <div class="total-card ${played && totals[i]===min? 'leader':''}"
          style="border-top:3px solid ${COLC[i%COLC.length]}">
@@ -2812,7 +2814,7 @@ function renderStatsTables(){
     if(!A) return 1; if(!B) return -1;
     return (Number(B.barajUstu)-Number(A.barajUstu))||(B.mp-A.mp)||(B.oyun-A.oyun);
   });
-  const rz1 = (t,c) => ` <span style="color:${c}">${ic(t)}</span>`;
+  const rz1 = (t,c) => t==='kullukAsh' ? ' \u{1F6AC}' : ` <span style="color:${c}">${ic(t)}</span>`;
   const rozetleri = n => (n===kral?rz1('tac','var(--yellow)'):'')+(n===guncelKulluk?rz1('kullukAsh','var(--red)'):'')
     +(n===kariyerKulluk?rz1('kurukafa','var(--red)'):'')+((S[n]&&!S[n].barajUstu)?rz1('civciv','var(--dim)'):'');
 
@@ -2835,7 +2837,7 @@ function renderStatsTables(){
     <div class="rz-b">${b}</div><div class="rz-n">${n||'—'}</div><div class="rz-a">${a}</div></div>`;
   document.getElementById('stats-rozet').innerHTML =
     rz(ic('tac','xl'),'MASANIN KRALI', kral, kral?`Masa Puanı ${S[kral].mp} · ${S[kral].kg.toFixed(2)}× kazanma`:`${sira.baraj} oyun dolunca belli olur`, kral?'var(--cyan)':'') +
-    rz(ic('kullukAsh','xl'),'GÜNCEL KÜLLÜK', guncelKulluk, guncelKulluk?`son ${form.pencere} oyunun en kötüsü`:'en az 3 oyun gerekiyor', guncelKulluk?'var(--red)':'') +
+    rz('<span style="font-size:26px;line-height:1">\u{1F6AC}</span>','GÜNCEL KÜLLÜK', guncelKulluk, guncelKulluk?`son ${form.pencere} oyunun en kötüsü`:'en az 3 oyun gerekiyor', guncelKulluk?'var(--red)':'') +
     rz(ic('kurukafa','xl'),'KARİYER KÜLLÜĞÜ', kariyerKulluk, kariyerKulluk?`Masa Puanı ${S[kariyerKulluk].mp} · tüm zamanlar`:'—', kariyerKulluk?'rgba(232,138,155,.5)':'');
 
   /* --- ikililer --- */
@@ -2998,7 +3000,7 @@ function renderStatsTables(){
     document.getElementById('seref-list').innerHTML = AY.serefListesi.map(a=>
       `<div style="display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.12)">
         <span class="hint" style="font-weight:700">${a.ad}</span>
-        <span style="font-weight:800">${ic('tac')} ${a.kral}${a.kulluk?` <span class="hint">· ${ic('kullukAsh')} ${a.kulluk}</span>`:''}</span>
+        <span style="font-weight:800">${ic('tac')} ${a.kral}${a.kulluk?` <span class="hint">· \u{1F6AC} ${a.kulluk}</span>`:''}</span>
         <span class="hint" style="width:56px;text-align:right">${a.oyun} oyun</span>
       </div>`).join('');
   } else sc.style.display='none';
