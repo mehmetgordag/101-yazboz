@@ -25,6 +25,10 @@
   --grad-teal:linear-gradient(135deg,#6cc7b5,#4f9ec4);
   --shadow:0 8px 24px rgba(4,18,26,.35);
   --blur:blur(20px) saturate(1.35);
+  --vurgu:rgba(127,208,221,.14); --vurgu-kenar:rgba(127,208,221,.40);
+  --uyari-bg:rgba(232,138,155,.12); --uyari-kenar:rgba(232,138,155,.44);
+  --ok-bg:rgba(108,199,181,.12); --ok-kenar:rgba(108,199,181,.38);
+  --sel-ink:#0a2530;
   --m-tac:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z'/><path d='M5 21h14'/></svg>");
   --m-kul:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M2.8 13.4h18.4v2.4a4.6 4.6 0 0 1-4.6 4.6H7.4a4.6 4.6 0 0 1-4.6-4.6z'/><line x1='7.6' y1='13.4' x2='7.6' y2='16'/><line x1='16.4' y1='13.4' x2='16.4' y2='16'/><line x1='9.6' y1='13.4' x2='17.8' y2='8.6'/><line x1='15' y1='10.2' x2='16.6' y2='11.6'/><path d='M19.6 6.6c1.2-1 1.2-2.4 0-3.4'/></svg>");
 }
@@ -43,6 +47,10 @@
   --grad:linear-gradient(135deg,#3ba0b4 0%,#2f7fa8 60%,#2b6497 100%);
   --grad-teal:linear-gradient(135deg,#2f9a86,#2f7fa8);
   --shadow:0 8px 22px rgba(23,50,61,.12);
+  --vurgu:rgba(18,121,140,.10); --vurgu-kenar:rgba(18,121,140,.38);
+  --uyari-bg:rgba(192,64,92,.09); --uyari-kenar:rgba(192,64,92,.38);
+  --ok-bg:rgba(31,122,85,.10); --ok-kenar:rgba(31,122,85,.36);
+  --sel-ink:#ffffff;
 }
 /* ikonlar: metinle aynı renk, aynı çizgi kalınlığı */
 .ic{width:1.05em; height:1.05em; display:inline-block; vertical-align:-.16em; flex:none;}
@@ -119,26 +127,26 @@ main{max-width:520px; margin:0 auto; padding:8px 14px;}
 .chips{display:flex; flex-wrap:wrap; gap:8px; margin:8px 0;}
 .chip{
   padding:10px 16px; border-radius:999px; background:var(--glass2); color:var(--txt);
-  font-weight:700; font-size:14px; cursor:pointer; border:1px solid var(--stroke); user-select:none;
+  font-weight:700; font-size:14px; cursor:pointer; border:1.5px solid var(--stroke); user-select:none;
   backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur);
   transition:all .12s ease;
 }
 .chip.sel{
-  border-color:var(--cyan); background:rgba(127,208,221,.16); color:#fff;
-  box-shadow:0 0 0 1px var(--cyan);
+  border-color:var(--cyan); background:var(--cyan); color:var(--sel-ink);
+  font-weight:900; box-shadow:0 3px 12px var(--vurgu-kenar);
 }
 .chip.small{padding:7px 13px; font-size:13px;}
 
 /* inputs */
 label.fld{display:block; font-size:13px; font-weight:700; margin:10px 0 5px; color:var(--txt);}
 input[type=text],input[type=number],select{
-  width:100%; padding:12px; border-radius:13px; border:1px solid var(--stroke);
-  font-size:16px; background:rgba(255,255,255,.1); color:var(--txt); font-family:inherit;
+  width:100%; padding:12px; border-radius:13px; border:1.5px solid var(--stroke2);
+  font-size:16px; background:var(--glass2); color:var(--txt); font-family:inherit; font-weight:700;
   backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur);
 }
-input::placeholder{color:rgba(224,246,255,.4);}
-input:focus,select:focus,textarea:focus{outline:none; border-color:var(--cyan); box-shadow:0 0 0 1px var(--cyan);}
-select option{background:#0a3a55; color:#fff;}
+input::placeholder,textarea::placeholder{color:var(--dim); font-weight:400; opacity:1;}
+input:focus,select:focus,textarea:focus{outline:none; border-color:var(--cyan); box-shadow:0 0 0 2px var(--vurgu-kenar);}
+select option{background:var(--modal-bg); color:var(--txt);}
 input[type=number]{max-width:120px;}
 .checkline{display:flex; align-items:center; gap:9px; margin:9px 0; font-size:14px; color:var(--txt); font-weight:600;}
 .checkline input{width:20px; height:20px; accent-color:var(--cyan);}
@@ -208,7 +216,8 @@ table.yazboz tr.totrow td{font-weight:900; background:rgba(127,208,221,.13); fon
   backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur);
 }
 .modal h3{margin:2px 0 12px; font-size:17px;}
-.player-block{border:1px solid var(--stroke); border-radius:16px; padding:12px; margin:9px 0; background:var(--glass3);}
+.player-block{border:1.5px solid var(--stroke); border-radius:16px; padding:12px; margin:9px 0; background:var(--glass3); transition:all .12s ease;}
+.player-block.dolu{border-color:var(--cyan); background:var(--vurgu);}
 .player-block .pname{font-weight:800; margin-bottom:6px; color:var(--cyan);}
 .radio-row{display:flex; gap:6px; flex-wrap:wrap;}
 .radio-row .chip{padding:8px 12px; font-size:13px;}
@@ -218,13 +227,15 @@ table.yazboz tr.totrow td{font-weight:900; background:rgba(127,208,221,.13); fon
 .preview b.neg{color:var(--ok);}
 .preview b.pos{color:#eaa9b6;}
 .hint{font-size:12px; color:var(--dim); margin:4px 0;}
-.err{color:#ff9fb2; font-size:13px; font-weight:700; margin:6px 0; display:none;}
+.err{color:var(--danger); font-size:13px; font-weight:700; margin:6px 0; display:none;}
 
 /* stats */
 .stat-table{width:100%; border-collapse:collapse; font-size:12.5px; background:transparent; border-radius:14px; overflow:hidden; border:1px solid var(--stroke); color:var(--txt);}
 .stat-table th,.stat-table td{padding:8px 4px; text-align:center; border-bottom:1px solid rgba(255,255,255,.12);}
 .stat-table th{background:rgba(255,255,255,.12); font-size:11px;}
 .stat-table td{font-variant-numeric:tabular-nums;}
+table.yazboz tr.duz{cursor:pointer;}
+table.yazboz tr.duz:hover td{background:var(--glass2);}
 .stat-table td:first-child,.stat-table th:first-child{text-align:left; padding-left:10px; font-weight:700;}
 .enler{display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:8px;}
 .ozet-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:10px 0;}
@@ -249,6 +260,7 @@ table.yazboz tr.totrow td{font-weight:900; background:rgba(127,208,221,.13); fon
 .serit i.w{background:var(--ok); border-color:var(--ok);}
 /* zar */
 .zar-alan{border-top:1px solid var(--stroke); margin-top:14px; padding-top:24px;}
+.vurgu{background:var(--glass2); border:1px solid var(--stroke2); border-radius:16px; padding:12px; margin:10px 0; text-align:center;}
 .zarlar{display:flex; gap:18px; justify-content:center; perspective:700px; margin-bottom:4px;}
 .zar-kap{display:flex; flex-direction:column; align-items:center;}
 .zar{width:58px; height:58px; border-radius:13px; background:var(--txt); padding:8px;
@@ -327,15 +339,15 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 ::-webkit-scrollbar{height:5px; width:5px;}
 ::-webkit-scrollbar-thumb{background:var(--scroll); border-radius:99px;}
 /* güncelleme çubuğu */
-#update-bar{
+#update-bar,#hata-bar{
   position:fixed; left:12px; right:12px; bottom:calc(14px + env(safe-area-inset-bottom));
   z-index:99; display:none; align-items:center; gap:10px;
   background:var(--modal-bg); border:1px solid var(--cyan); border-radius:16px;
   padding:12px 14px; box-shadow:0 10px 30px rgba(2,20,35,.6);
   backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur);
 }
-#update-bar span{flex:1; font-size:13.5px; font-weight:700; color:var(--txt);}
-#update-bar button{flex:none; margin:0; width:auto; padding:9px 16px; font-size:13.5px;}
+#update-bar span,#hata-bar span{flex:1; font-size:13.5px; font-weight:700; color:var(--txt);}
+#update-bar button,#hata-bar button{flex:none; margin:0; width:auto; padding:9px 16px; font-size:13.5px;}
 </style>
 </head>
 <body>
@@ -349,7 +361,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   </div>
   <button id="tema-btn" onclick="temaDegistir()" title="Tema" aria-label="Tema"></button>
   <h1>YAZBOZ</h1>
-  <div class="sub" id="ver-sub">101 okey yazboz · v5.3.0</div>
+  <div class="sub" id="ver-sub">101 okey yazboz · v5.4.2</div>
 </header>
 <main>
 
@@ -432,6 +444,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   </div>
   <div class="row">
     <button class="btn btn-outline btn-sm" id="btn-undo" onclick="undoLastEl()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-gerial"/></svg> Son Eli Düzelt</button>
+    <button class="btn btn-outline btn-sm" onclick="openMasaModal()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-kisiler"/></svg> Masa Düzeni</button>
     <button class="btn btn-outline btn-sm" onclick="openErken()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-bayrak"/></svg> Erken Bitir / Pes</button>
     <button class="btn btn-danger btn-sm" onclick="abortGame()">İptal</button>
   </div>
@@ -601,6 +614,10 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 </main>
 
 <!-- GÜNCELLEME ÇUBUĞU -->
+<div id="hata-bar" style="display:none; border-color:var(--danger)">
+  <span id="hata-txt">Bir şeyler ters gitti</span>
+  <button class="btn btn-primary" onclick="location.reload()">Yenile</button>
+</div>
 <div id="update-bar">
   <span id="update-txt">Yeni sürüm hazır</span>
   <button class="btn btn-primary" onclick="hardReload()">Güncelle</button>
@@ -657,6 +674,20 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 </div>
 
 <!-- ERKEN BİTİRME / PES MODALI -->
+<div class="modal-bg" id="modal-masa">
+  <div class="modal">
+    <h3><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-kisiler"/></svg> Masa Düzeni</h3>
+    <p class="hint">Oyunun ortasında biri kalkarsa ya da eşler yer değiştirirse buradan ayarla. O ana kadarki istatistik ayrılan oyuncuda kalır.</p>
+    <div class="chips" id="masa-tip"></div>
+    <div id="masa-govde"></div>
+    <div class="err" id="masa-err"></div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal('modal-masa')">Vazgeç</button>
+      <button class="btn btn-green btn-sm" style="flex:2" onclick="masaUygula()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-onay"/></svg> Uygula</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-bg" id="modal-erken">
   <div class="modal">
     <h3><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-bayrak"/></svg> Oyunu Erken Bitir</h3>
@@ -712,9 +743,9 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 </div>
 
 <script>
-const APP_VER = '5.3.0';
-const BUILD = 'c6400289';   // yayinla.sh dosya içeriğinden hesaplar
-const SURUM_NOT = 'uygulama sürüm satırı; zar ve ilk el anonsu';       // son değişiklik notu (yayinla.sh yazar)
+const APP_VER = '5.4.2';
+const BUILD = 'ff0432ea';   // yayinla.sh dosya içeriğinden hesaplar
+const SURUM_NOT = 'girdi kutuları ve yer tutucu kontrastı';       // son değişiklik notu (yayinla.sh yazar)
 /* ================= DEPOLAMA ================= */
 const store = {
   m:{},
@@ -1067,8 +1098,8 @@ function startGame(){
     mode:setupMode, elSayisi:setupEl, names, cols,
     hands:[], events:[], room:null, pendingOlaylar:[],
     dealer0: (SU.dealer0>=0 && SU.dealer0<names.length) ? SU.dealer0 : 0, muhtar:null,
-    statDelta: Object.fromEntries(names.map(n=>[n,{bit:0,kafa:0,rcift:0,rseri:0,best:null,srmax:0,crmax:0,pes:0,
-      els:0,okeyBit:0,ciftBit:0,acamadi:0,islek:0,kap:0,kapPuan:0,okap:0,yanlisAc:0,puan:0,worst:null,kafaYedi:0}])),
+    statDelta: Object.fromEntries(names.map(n=>[n, bosStat()])),
+    degisimler: [],
     done:false, startedAt: new Date().toISOString()
   };
   // isimleri kayda geç
@@ -1167,7 +1198,8 @@ function yazbozHTML(g, totals){
   let h = '<tr><th>El</th>' + g.cols.map((c,i)=>`<th style="color:${COLC[i%COLC.length]}">${c.name}</th>`).join('') + '</tr>';
   let run = g.cols.map(()=>0);
   g.hands.forEach((hand,hi)=>{
-    h += `<tr><td>${hi+1}</td>`;
+    const duz = (g===G) && !g.done && elDuzeltilebilir(hi);
+    h += `<tr${duz?` class="duz" onclick="elDuzelt(${hi})" title="bu eli düzelt"`:''}><td>${hi+1}${duz?' <span style="opacity:.45">✎</span>':''}</td>`;
     hand.colDeltas.forEach((d,ci)=>{
       run[ci]+=d;
       // bu eli bu sütundaki biri mi bitirdi? tabelada anında görünsün
@@ -1183,6 +1215,7 @@ function yazbozHTML(g, totals){
 
 /* ================= EL GİRİŞİ ================= */
 let elForm = null;
+let elDuzenle = null;        // { index, sonraki[] } — el düzeltme kipi
 
 function openElModal(){
   elForm = { finisher:null, okey:false, cift:false, kafa:false, kafaTouched:false, kafaRekor:false, rcift:false, rseri:false, rseriPuan:0, rciftAdet:0, others:{}, olaylar:[] };
@@ -1209,8 +1242,25 @@ function setBitis(t){
   if(t==='duz'){ elForm.okey=false; elForm.cift=false; elForm.kafa=false; elForm.kafaTouched=true; }
   else if(t==='okey') elForm.okey=!elForm.okey;
   else if(t==='cift'){ elForm.cift=!elForm.cift; if(elForm.cift) elForm.kafa=false; } // çiftten kafa olmaz
-  else if(t==='kafa'){ elForm.kafa=!elForm.kafa; elForm.kafaTouched=true; if(elForm.kafa) elForm.cift=false; }
+  else if(t==='kafa'){
+    elForm.kafa=!elForm.kafa; elForm.kafaTouched=true; elForm.kafaRekor=false;
+    if(elForm.kafa){
+      elForm.cift=false;
+      // Kafa = kimse açamadı. Rakipleri tek tek işaretlemeye gerek kalmasın.
+      Object.keys(elForm.others||{}).forEach(j=>{
+        elForm.others[j].durum='acamadi'; elForm.others[j].kalan=0; elForm.others[j].ciftGid=false;
+        const blok=document.getElementById('pb-'+j);
+        if(blok){
+          blok.classList.add('dolu');
+          const cips=blok.querySelectorAll('.radio-row .chip');
+          cips.forEach((c,k)=>c.classList.toggle('sel', k===2));
+          const ex=document.getElementById('pb-extra-'+j); if(ex) ex.innerHTML='';
+        }
+      });
+    }
+  }
   setBitisChips();
+  updateKafaUI(!!elForm.kafa && elForm.finisher>=0 && !elForm.cift);
   updatePreview();
 }
 function setBitisChips(){
@@ -1301,6 +1351,7 @@ function pickFinisher(i){
 }
 
 function setDurum(j, d, chipEl){
+  const blok = document.getElementById('pb-'+j); if(blok) blok.classList.add('dolu');
   elForm.others[j].durum = d;
   chipEl.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));
   chipEl.classList.add('sel');
@@ -1368,6 +1419,13 @@ function olayExtra(id){
     box.innerHTML = `<label class="fld">Kaç çiftle açtı? (rekor kaydı için)</label>
       <input type="number" min="0" inputmode="numeric" placeholder="örn. 8" oninput="elForm.olaylar[${id}].val=Number(this.value)||0">`;
   } else box.innerHTML='';
+}
+
+/* Bir oyunluk istatistik sayacı */
+function bosStat(){
+  return {bit:0,kafa:0,kafaRekor:0,rcift:0,rseri:0,best:null,srmax:0,crmax:0,pes:0,
+    els:0,esBit:0,okeyBit:0,ciftBit:0,acamadi:0,islek:0,kap:0,kapPuan:0,kapAldi:0,kapAldiPuan:0,
+    okap:0,yanlisAc:0,puan:0,worst:null,kafaYedi:0};
 }
 
 /* Masa düzeni: taş saat yönünde ilerler — herkes kendinden SONRAKİ koltuğa atar */
@@ -1480,7 +1538,7 @@ function pickQT(t){
   if(t==='kaptirma'){
     if(qForm.pid===null){ ex.innerHTML = '<p class="hint">Önce taşı atanı seç — kimin kaptığını masa düzeninden kendim bulurum.</p>'; updateQ(); return; }
     const atan = G.names[qForm.pid], alan = G.names[qForm.aid];
-    ex.innerHTML = `<div style="background:rgba(232,138,155,.12);border:1px solid rgba(232,138,155,.4);border-radius:16px;padding:12px;margin:8px 0;text-align:center">
+    ex.innerHTML = `<div style="background:var(--uyari-bg);border:1px solid var(--uyari-kenar);border-radius:16px;padding:12px;margin:8px 0;text-align:center">
         <div style="font-weight:900;font-size:17px">${atan} <span style="color:var(--red)">→</span> ${alan}</div>
         <div class="hint">Masa sırasına göre taşı ${alan} kaptı · cezayı ${atan} yer.</div>
       </div>
@@ -1533,6 +1591,25 @@ function saveEl(){
   const r = computeEl();
   const err = document.getElementById('el-err');
   if(!r.valid){ err.textContent=r.errmsg; err.style.display='block'; return; }
+  // --- düzeltme kipi: eli değiştir, sonraki elleri kendi kayıtlarından tekrar işle ---
+  if(elDuzenle){
+    const formlar = [JSON.parse(JSON.stringify(elForm))].concat(elDuzenle.sonraki);
+    const d = elDuzenle; elDuzenle = null;
+    const sonuc = elleriIsle(formlar);
+    closeModal('modal-el'); saveGame(); renderGame(); pushLive();
+    if(!sonuc.ok) alert('Sonraki eller işlenemedi: ' + sonuc.errmsg + ' — o eli de yeniden gir.');
+    return;
+  }
+  saveElKaydet(r);
+  G.pendingOlaylar = [];
+  closeModal('modal-el');
+  saveGame(); renderGame();
+  if(G.hands.length>=G.elSayisi) endGame();
+  else showDealerPop();
+}
+
+/* Eli oyuna işler (doğrulama ve arayüz dışında saf kayıt) */
+function saveElKaydet(r){
   // geri alma için anlık görüntü (son eli düzeltme özelliği)
   const sdPrev = JSON.parse(JSON.stringify(G.statDelta));
   const evPrev = G.events.length;
@@ -1540,7 +1617,9 @@ function saveEl(){
   const dealer = currentDealer();
   // sütun deltaları
   const colDeltas = G.cols.map(c=>c.members.reduce((s,m)=>s+r.deltas[m],0));
-  G.hands.push({ deltas:r.deltas, colDeltas, finisher:elForm.finisher, kafa:r.kafa, okey:elForm.okey, cift:elForm.cift, dealer, sdPrev, evPrev, muhtarPrev });
+  // Formun kendisi de saklanır: el sonradan SİLİNMEDEN düzeltilebilsin diye
+  const formKopya = JSON.parse(JSON.stringify(elForm));
+  G.hands.push({ deltas:r.deltas, colDeltas, finisher:elForm.finisher, kafa:r.kafa, okey:elForm.okey, cift:elForm.cift, dealer, sdPrev, evPrev, muhtarPrev, form:formKopya });
   // Muhtar 🎩: seçilen moda göre bitirenin önündeki oyuncu muhtar olur
   const mm = SET.muhtarAktif||0;
   const tetik = elForm.finisher>=0 && ( (mm===1 && elForm.okey) || (mm===2 && (elForm.okey || r.kafa)) || (mm===3) );
@@ -1596,14 +1675,9 @@ function saveEl(){
       }
     }
   }
-  G.pendingOlaylar = [];
   G.names.forEach((n,i)=>{
-    if(sd[n].best===null || r.deltas[i]<sd[n].best) sd[n].best = r.deltas[i];
+    if(sd[n].best===null || sd[n].best===undefined || r.deltas[i]<sd[n].best) sd[n].best = r.deltas[i];
   });
-  closeModal('modal-el');
-  saveGame(); renderGame();
-  if(G.hands.length>=G.elSayisi) endGame();
-  else showDealerPop();
 }
 
 /* El bitince anons: sıradaki taşı yapan kim? Yazboz'u tutan görür, masaya söyler */
@@ -1665,6 +1739,201 @@ function zarAt(){
   }, 55);
 }
 
+/* ===== EL DÜZELTME — eli silmeden, girilen veriyi düzelterek ===== */
+function elDuzeltilebilir(i, sonKac){
+  sonKac = sonKac || 3;
+  if(!G || G.done || !G.hands.length) return false;
+  if(i < Math.max(0, G.hands.length - sonKac) || i >= G.hands.length) return false;
+  return G.hands.slice(i).every(h => h.sdPrev && h.form);
+}
+function elDuzenlemeyeAl(i){
+  if(!elDuzeltilebilir(i)) return null;
+  const h = G.hands[i];
+  const paket = {
+    form: JSON.parse(JSON.stringify(h.form)),
+    sonraki: G.hands.slice(i+1).map(x=>JSON.parse(JSON.stringify(x.form))),
+  };
+  G.hands.length = i;
+  G.statDelta = h.sdPrev;
+  if(typeof h.evPrev === 'number') G.events.length = h.evPrev;
+  if(h.muhtarPrev !== undefined) G.muhtar = h.muhtarPrev;
+  return paket;
+}
+function elleriIsle(formlar){
+  const yedek = elForm;
+  for(const f of formlar){
+    elForm = f;
+    const r = computeEl();
+    if(!r.valid){ elForm = yedek; return {ok:false, errmsg:r.errmsg}; }
+    saveElKaydet(r);
+  }
+  elForm = yedek;
+  return {ok:true};
+}
+
+/* Yazbozdaki bir ele dokununca: o eli girildiği haliyle aç */
+function elDuzelt(i){
+  if(!elDuzeltilebilir(i)){ alert('Sadece son 3 el düzeltilebilir. Daha eski eller ya da eski sürümde girilmiş kayıtlar açılamıyor.'); return; }
+  if(!confirm(`El ${i+1} girdiğin haliyle açılacak — cezalar dahil her şey yerinde olacak.\nKaydedince sonraki eller otomatik yeniden hesaplanır. Devam?`)) return;
+  const paket = elDuzenlemeyeAl(i);
+  if(!paket){ alert('Bu elin kaydı eksik, düzeltilemiyor.'); return; }
+  elDuzenle = { index:i, sonraki:paket.sonraki, form:JSON.parse(JSON.stringify(paket.form)) };
+  saveGame(); renderGame();
+  elModalDoldur(paket.form);
+}
+
+/* Kaydedilmiş bir formu el giriş modalına birebir yükler */
+function elModalDoldur(f){
+  openElModal();
+  document.querySelector('#modal-el h3').innerHTML =
+    ic('kalem') + `El ${elDuzenle.index+1} — Düzelt`;
+  pickFinisher(f.finisher);
+  elForm.okey=!!f.okey; elForm.cift=!!f.cift; elForm.kafa=!!f.kafa; elForm.kafaTouched=true;
+  elForm.kafaRekor=!!f.kafaRekor; elForm.rcift=!!f.rcift; elForm.rseri=!!f.rseri;
+  elForm.rseriPuan=f.rseriPuan||0; elForm.rciftAdet=f.rciftAdet||0;
+  setBitisChips();
+  ['bt-rcift','bt-rseri'].forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.toggle('sel', id==='bt-rcift'?elForm.rcift:elForm.rseri); });
+  updateKafaUI(elForm.kafa && f.finisher>=0 && !elForm.cift);
+  renderRekorExtra();
+  // rakiplerin durumu ve elde kalanlar
+  Object.entries(f.others||{}).forEach(([j,o])=>{
+    if(!o.durum) return;
+    const blok = document.getElementById('pb-'+j); if(!blok) return;
+    const cips = blok.querySelectorAll('.radio-row .chip');
+    const idx = {seri:0, cift:1, acamadi:2}[o.durum];
+    if(cips[idx]) setDurum(Number(j), o.durum, cips[idx]);
+    if(o.durum!=='acamadi'){
+      const inp = document.querySelector('#pb-extra-'+j+' input[type=number]');
+      if(inp){ inp.value = o.kalan||0; }
+      elForm.others[j].kalan = o.kalan||0;
+    }
+    elForm.others[j].ciftGid = !!o.ciftGid;
+  });
+  // o elin cezaları
+  elForm.olaylar = [];
+  document.getElementById('olaylar').innerHTML = '';
+  (f.olaylar||[]).filter(o=>!o.del).forEach(o=>{
+    addOlayRow();
+    const id = elForm.olaylar.length-1;
+    Object.assign(elForm.olaylar[id], o);
+    const div = document.getElementById('olay-'+id);
+    const sels = div.querySelectorAll('select');
+    sels[0].value = String(o.pid); sels[1].value = o.type;
+    olayExtra(id);
+    const box = document.getElementById('olay-extra-'+id);
+    const num = box.querySelector('input[type=number]');
+    if(o.type==='kaptirma'){
+      if(num) num.value = o.tas||0;
+      const c1=document.getElementById('oa-'+id); if(c1) c1.checked=!!o.alanCift;
+      const c2=document.getElementById('ob-'+id); if(c2) c2.checked=!!o.atanCift;
+    } else if(num) num.value = o.val||0;
+  });
+  updatePreview();
+}
+
+/* Düzeltmeden vazgeç: el ve sonrakiler eski haliyle geri konur */
+function elDuzeltVazgec(){
+  if(elDuzenle){
+    const formlar = [elDuzenle.form].concat(elDuzenle.sonraki);
+    elDuzenle = null;
+    const g = elleriIsle(formlar);
+    saveGame(); renderGame();
+    if(!g.ok) alert('Eller geri yüklenirken sorun çıktı — yazbozu kontrol et.');
+  }
+  closeModal('modal-el');
+}
+
+/* Masa düzeni modalı */
+let mForm = {tip:'oyuncu', koltuk:null, koltuk2:null, ad:''};
+function openMasaModal(){
+  if(!G || G.done) return;
+  mForm = {tip:'oyuncu', koltuk:null, koltuk2:null, ad:''};
+  document.getElementById('masa-err').style.display='none';
+  renderMasaModal();
+  openModal('modal-masa');
+}
+function masaTip(t){ mForm.tip=t; mForm.koltuk=null; mForm.koltuk2=null; renderMasaModal(); }
+function masaKoltuk(i){ mForm.koltuk=i; if(mForm.koltuk2===i) mForm.koltuk2=null; renderMasaModal(); }
+function masaKoltuk2(i){ mForm.koltuk2=i; renderMasaModal(); }
+function masaAd(v){ mForm.ad=v; renderMasaModal(); }
+function renderMasaModal(){
+  document.getElementById('masa-tip').innerHTML =
+    `<div class="chip small ${mForm.tip==='oyuncu'?'sel':''}" onclick="masaTip('oyuncu')">Oyuncu değişimi</div>
+     <div class="chip small ${mForm.tip==='yer'?'sel':''}" onclick="masaTip('yer')">Yer değiştirme</div>`;
+  const koltuklar = (secili, fn, atla) => G.names.map((n,i)=>
+    (atla===i) ? '' : `<div class="chip small ${secili===i?'sel':''}" onclick="${fn}(${i})">${i+1}. ${n}</div>`).join('');
+  let h = `<p class="hint" style="margin-top:8px">${mForm.tip==='oyuncu'?'Kim kalkıyor?':'Kim ile kim yer değiştiriyor?'}</p>
+    <div class="chips">${koltuklar(mForm.koltuk,'masaKoltuk')}</div>`;
+  if(mForm.tip==='yer'){
+    h += `<p class="hint">Yerine geçtiği koltuk:</p><div class="chips">${koltuklar(mForm.koltuk2,'masaKoltuk2',mForm.koltuk)}</div>`;
+    if(mForm.koltuk!=null && mForm.koltuk2!=null){
+      h += `<div class="vurgu"><b style="font-size:15px">${G.names[mForm.koltuk]} ⇄ ${G.names[mForm.koltuk2]}</b>
+        ${G.mode==='esli'?'<div class="hint">Eşler değişiyor — bundan sonraki eller yeni takımlara yazılır, tabeladaki puanlar takım hanesinde kalır.</div>':''}</div>`;
+    }
+  } else {
+    const reg = getReg();
+    const aday = Object.keys(reg).filter(n=>!n.startsWith(AM) && !G.names.includes(n)).slice(0,12);
+    h += `<p class="hint">Yerine kim oturuyor?</p>
+      <div class="chips">${aday.map(n=>`<div class="chip small ${mForm.ad===n?'sel':''}" onclick="masaAd('${escq(n)}')">${n}</div>`).join('')}</div>
+      <input type="text" placeholder="Yeni isim" value="${mForm.ad||''}" oninput="mForm.ad=this.value">`;
+    if(mForm.koltuk!=null && mForm.ad){
+      h += `<div class="vurgu"><b style="font-size:15px">${G.names[mForm.koltuk]} → ${mForm.ad}</b>
+        <div class="hint">${G.names[mForm.koltuk]} bu oyunda ${G.hands.length} el oynadı; o eller onda kalıyor. Oyun ve galibiyet hanesi koltukta daha çok el oynayana yazılır.</div></div>`;
+    }
+  }
+  document.getElementById('masa-govde').innerHTML = h;
+}
+function masaUygula(){
+  const r = mForm.tip==='oyuncu' ? oyuncuDegistir(mForm.koltuk, mForm.ad) : koltukDegistir(mForm.koltuk, mForm.koltuk2);
+  const e = document.getElementById('masa-err');
+  if(!r.ok){ e.textContent=r.errmsg; e.style.display='block'; return; }
+  closeModal('modal-masa'); saveGame(); renderGame(); pushLive();
+}
+
+/* ===== MASA DEĞİŞİKLİKLERİ ===== */
+function colAdlariYenile(){ G.cols.forEach(c=>{ c.name = c.members.map(m=>G.names[m]).join(' & '); }); }
+function oyuncuDegistir(koltuk, yeniAd){
+  if(!G || G.done) return {ok:false, errmsg:'Oyun bitmiş.'};
+  const yeni = String(yeniAd||'').trim(), eski = G.names[koltuk];
+  if(koltuk==null || koltuk<0 || koltuk>=G.names.length) return {ok:false, errmsg:'Koltuk seç.'};
+  if(!yeni) return {ok:false, errmsg:'İsim gir.'};
+  if(yeni===eski) return {ok:false, errmsg:'Aynı oyuncu.'};
+  if(G.names.includes(yeni)) return {ok:false, errmsg:yeni+' zaten masada.'};
+  G.degisimler = G.degisimler || [];
+  G.degisimler.push({tip:'oyuncu', el:G.hands.length, koltuk, eski, yeni});
+  G.names[koltuk] = yeni;
+  if(!G.statDelta[yeni]) G.statDelta[yeni] = bosStat();
+  colAdlariYenile();
+  G.events.push(`🔁 El ${G.hands.length+1} öncesi: ${eski} → ${yeni} (${koltuk+1}. koltuk)`);
+  return {ok:true};
+}
+function koltukDegistir(a, b){
+  if(!G || G.done) return {ok:false, errmsg:'Oyun bitmiş.'};
+  if(a==null || b==null || a===b) return {ok:false, errmsg:'İki farklı koltuk seç.'};
+  const A = G.names[a], B = G.names[b];
+  G.degisimler = G.degisimler || [];
+  G.degisimler.push({tip:'koltuk', el:G.hands.length, koltuk:a, koltuk2:b, eski:A, yeni:B});
+  G.names[a] = B; G.names[b] = A;
+  colAdlariYenile();
+  G.events.push(`🔀 El ${G.hands.length+1} öncesi: ${A} ile ${B} yer değiştirdi`);
+  return {ok:true};
+}
+function koltukParcalari(g){
+  const n = g.hands.length;
+  return g.names.map((suanki,i)=>{
+    const dg = (g.degisimler||[]).filter(d=>d.koltuk===i || d.koltuk2===i).sort((x,y)=>x.el-y.el);
+    const parca = []; let bas = 0;
+    for(const d of dg){
+      const ayrilan = d.koltuk===i ? d.eski : d.yeni;
+      parca.push({ad:ayrilan, el:d.el-bas}); bas = d.el;
+    }
+    parca.push({ad:suanki, el:n-bas});
+    const birlesik = {};
+    parca.forEach(p=>{ if(p.el>0 || !parca.some(q=>q.el>0)) birlesik[p.ad] = (birlesik[p.ad]||0) + p.el; });
+    return Object.entries(birlesik).map(([ad,el])=>({ad,el}));
+  });
+}
+
 /* son eli geri al: puanlar ve istatistikler o elin öncesine döner, giriş ekranı açılır */
 function undoLastEl(){
   if(!G || G.done || !G.hands.length) return;
@@ -1698,7 +1967,18 @@ function endGame(pesCol){
   // kalıcı istatistikleri işle (yerel + bulut kuyruğu; oyun özeti geçmişe yazılır)
   /* Beklenen galibiyet payı: eşli 0.50 · 4 kişilik tekli 0.25 · beraberlik 1.00 · pes oyunu 0.75 */
   const bekPay = G.cols.length ? winners.length / G.cols.length : 0;
-  const deltas = G.names.map(n=>Object.assign({n, oyun:1, gal:winNames.includes(n)?1:0}, G.statDelta[n], {bek:bekPay}));
+  /* Oyun ortasında değişim olduysa el bazlı istatistik herkesin kendinde kalır;
+     OYUN ve GALİBİYET o koltukta daha çok el oynayana yazılır. */
+  const parcalar = koltukParcalari(G);
+  const koltukSahibi = {};
+  parcalar.forEach((liste,i)=>{
+    if(!liste.length) return;
+    const en = liste.slice().sort((a,b)=>b.el-a.el || String(a.ad).localeCompare(String(b.ad),'tr'))[0];
+    const col = G.cols.find(c=>c.members.includes(i));
+    koltukSahibi[en.ad] = { oyun:1, gal:(col && winners.includes(col))?1:0, bek:bekPay };
+  });
+  const deltas = Object.keys(G.statDelta).map(n=>Object.assign(
+    {n, oyun:0, gal:0, bek:0}, G.statDelta[n], koltukSahibi[n] || {}));
   const reg = getReg();
   applyDeltas(reg, deltas);
   setReg(reg);
@@ -1707,6 +1987,7 @@ function endGame(pesCol){
     ts: Date.now(), mode: '101 OKEY ('+(G.mode==='esli'?'eşli':'tekli')+')', el: G.hands.length,
     cols: G.cols.map(c=>c.name), totals, winners: winners.map(c=>c.name),
     pes: pes ? G.cols[pesCol].name : undefined,
+    degisimler: (G.degisimler && G.degisimler.length) ? G.degisimler.slice() : undefined,
     eller: G.hands.map(h=>({ d: h.colDeltas,
       f: h.finisher>=0 ? G.cols.findIndex(c=>c.members.includes(h.finisher)) : -1,
       fn: h.finisher>=0 ? G.names[h.finisher] : null, k: h.kafa?1:0 }))
@@ -1891,21 +2172,32 @@ function cloudDisconnect(){
   if(!confirm('Bulut bağlantısı kesilsin mi? (Veriler telefonda kalır, buluttaki kayıt silinmez)')) return;
   store.del('yb_cloud'); renderCloud();
 }
-function masaInviteLink(){
-  const id = cloudId(); if(!id) return null;
-  return appUrl()+'?masa='+id;
+/* İKİ AYRI LİNK:
+   · Katılım linki gizli yazma anahtarını taşır — sadece masada oynayanlara.
+   · İzleme linki yalnız herkese açık kodu taşır; açan görür, değiştiremez. */
+function masaKatilimLinki(){ const id = cloudId(); return id ? appUrl()+'?masa='+id : null; }
+function masaIzlemeLinki(){ const id = cloudId(); return id ? appUrl()+'?masa='+NET.publicCode(id) : null; }
+function masaInviteLink(){ return masaKatilimLinki(); }
+function masaYazabilir(){ const p = parseS(cloudId()||''); return !!(p && p.s); }
+
+function linkPaylas(t){
+  if(navigator.share) navigator.share({text:t}).catch(()=>{});
+  else { navigator.clipboard && navigator.clipboard.writeText(t); alert('Link panoya kopyalandı — WhatsApp\'a yapıştır.'); }
+}
+async function masaHazirla(){
+  let id = cloudId();
+  if(!id && sbReady()){ try{ id = await masaKur(); }catch(e){} }
+  if(!id){ alert('Masa kurulamadı — internet bağlantını kontrol edip tekrar dene.'); return false; }
+  return true;
 }
 async function shareMasaInvite(){
-  let id = cloudId();
-  if(!id && sbReady()){
-    // masa yoksa önce sessizce kur
-    try{ id = await masaKur(); }catch(e){}
-  }
-  if(!id){ alert('Masa kurulamadı — internet bağlantını kontrol edip tekrar dene.'); return; }
-  const link = masaInviteLink();
-  const t = '🎴 YAZBOZ masamıza katıl!\nBu linki bir kere aç, telefonun otomatik bağlansın — oynadığın oyunlar ortak skorboarda işlenir:\n'+link;
-  if(navigator.share) navigator.share({text:t}).catch(()=>{});
-  else { navigator.clipboard && navigator.clipboard.writeText(t); alert('Davet linki panoya kopyalandı — WhatsApp\'a yapıştır.'); }
+  if(!await masaHazirla()) return;
+  if(!confirm('Bu link masaya YAZMA yetkisi verir: açan kişi oyun kaydedebilir, istatistikleri değiştirebilir ve silebilir.\n\nSadece masada oynayanlara gönder. Devam edilsin mi?')) return;
+  linkPaylas('YAZBOZ masamıza katıl — bu link masaya yazma yetkisi verir, sadece sana gönderiyorum:\n'+masaKatilimLinki());
+}
+async function shareMasaIzleme(){
+  if(!await masaHazirla()) return;
+  linkPaylas('YAZBOZ masamızın istatistikleri (sadece izleme):\n'+masaIzlemeLinki());
 }
 function cloudShareCode(){ shareMasaInvite(); }
 function renderCloud(){
@@ -1914,10 +2206,11 @@ function renderCloud(){
   const pend = store.get('yb_pending', []).length;
   if(id){
     c.innerHTML = `<h3>Bulut Senkron — Açık</h3>
-      <p class="hint" id="cloud-status">${pend? '⏳ '+pend+' bekleyen sonuç var':'☁️ Bağlı'}</p>
+      <p class="hint" id="cloud-status">${pend? pend+' bekleyen sonuç var':(masaYazabilir()?'Bağlı':'İzleme modu — bu cihaz masaya yazamaz')}</p>
       <div class="codebox">${id}</div>
       <div class="row">
-        <button class="btn btn-green btn-sm" onclick="shareMasaInvite()">${ic('kisiler')}Davet Linki Gönder</button>
+        <button class="btn btn-green btn-sm" onclick="shareMasaInvite()">${ic('kisiler')}Katılım Linki</button>
+        <button class="btn btn-tile btn-sm" onclick="shareMasaIzleme()">${ic('goz')}İzleme Linki</button>
         <button class="btn btn-tile btn-sm" onclick="cloudSync()">${ic('gerial')}Eşitle</button>
         <button class="btn btn-danger btn-sm" onclick="cloudDisconnect()">Kes</button>
       </div>
@@ -3270,6 +3563,11 @@ async function checkUpdate(){
     }
   }catch(e){}
 }
+/* Beklenmedik hata: sayfa boş kalmasın, kullanıcı ne yapacağını bilsin */
+window.addEventListener('error', e => {
+  const b = document.getElementById('hata-bar');
+  if(b){ b.style.display='flex'; document.getElementById('hata-txt').textContent = 'Bir şeyler ters gitti: ' + (e.message || 'bilinmeyen hata'); }
+});
 document.getElementById('ver-sub').textContent = '101 okey yazboz · v' + APP_VER;
 document.getElementById('cache-ver').textContent = APP_VER + ' · yapı ' + BUILD;
 if(SURUM_NOT){ const n = document.getElementById('surum-not'); if(n){ n.textContent = 'Son değişiklik: ' + SURUM_NOT; n.style.display='block'; } }
