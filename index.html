@@ -8,7 +8,18 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%23073a52'/%3E%3Crect x='10' y='8' width='44' height='48' rx='7' fill='%23f7f1e3'/%3E%3Ctext x='32' y='36' font-family='Arial,sans-serif' font-weight='bold' font-size='19' fill='%23c0392b' text-anchor='middle'%3EYB%3C/text%3E%3Ccircle cx='22' cy='46' r='3' fill='%23c0392b'/%3E%3Ccircle cx='29' cy='46' r='3' fill='%23222'/%3E%3Ccircle cx='36' cy='46' r='3' fill='%231f7cf0'/%3E%3Ccircle cx='43' cy='46' r='3' fill='%23d9930a'/%3E%3C/svg%3E">
 <link rel="icon" type="image/png" sizes="512x512" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<title>Yazboz — Masa Oyunları</title>
+<title>Yazboz — Masanın Puan Defteri · yazbozum.com</title>
+<meta name="description" content="Masa oyunları için akıllı yazboz: 101 Okey ile başladık, cezaları uygulama hesaplar. Masanın kralı, küllüğü, istatistikler ve canlı skor — yazbozum.com">
+<link rel="canonical" href="https://yazbozum.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Yazboz">
+<meta property="og:title" content="Yazboz — Masanın Puan Defteri">
+<meta property="og:description" content="Bütün cezaları uygulama hesaplar. Masanın kralı belli olsun — küllük de. İstatistik, canlı skor, ortak masa.">
+<meta property="og:url" content="https://yazbozum.com/">
+<meta property="og:image" content="https://yazbozum.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <style>
 :root{
   color-scheme:dark;
@@ -414,7 +425,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   </div>
   <button id="tema-btn" onclick="temaDegistir()" title="Tema" aria-label="Tema"></button>
   <h1>YAZBOZ</h1>
-  <div class="sub" id="ver-sub">101 okey yazboz · v5.6.0</div>
+  <div class="sub" id="ver-sub">101 okey yazboz · v5.7.1</div>
 </header>
 <main>
 
@@ -809,9 +820,9 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 </div>
 
 <script>
-const APP_VER = '5.6.0';
-const BUILD = 'e9be606e';   // yayinla.sh dosya içeriğinden hesaplar
-const SURUM_NOT = 'Yeni kurulum ekranı (masa krokisi) · güvenlik katmanı: isim/veri temizliği, izleyici zırhı';       // son değişiklik notu (yayinla.sh yazar)
+const APP_VER = '5.7.1';
+const BUILD = '7ff405e5';   // yayinla.sh dosya içeriğinden hesaplar
+const SURUM_NOT = 'Marka nötr ikon seti (YB) — özel logo gelene kadar';       // son değişiklik notu (yayinla.sh yazar)
 /* ================= DEPOLAMA ================= */
 const store = {
   m:{},
@@ -894,7 +905,7 @@ const DEF_SET = {
 const YB_DEFAULTS = {
   sbUrl:'https://ksttzgpposhdsxnqmfph.supabase.co',
   sbKey:'sb_publishable_4WJKvKbreXwlOcj5OiGfIA_fKShjHOY',
-  siteUrl:'https://mehmetgordag.github.io/101-yazboz/'
+  siteUrl:'https://yazbozum.com/'
 };
 /* Uygulamanın herkese açık adresi: sayfa nereden açılmış olursa olsun (dosya, önbellek, webview)
    paylaşım linkleri her zaman bu adresi kullanır */
@@ -979,7 +990,7 @@ function resetSettings(){
 function getReg(){ return store.get('yb_players', {}); }
 function setReg(r){ store.set('yb_players', temizReg(r)); }
 const PLAYER_DEFAULTS = {oyun:0, gal:0, bek:0, bit:0, kafa:0, kafaRekor:0, rcift:0, rseri:0, best:null, srmax:0, crmax:0, pes:0,
-  els:0, esBit:0, okeyBit:0, ciftBit:0, acamadi:0, islek:0, kap:0, kapPuan:0, kapAldi:0, kapAldiPuan:0, okap:0, yanlisAc:0, puan:0, worst:null, kafaYedi:0, streak:0, streakMax:0};
+  els:0, esBit:0, okeyBit:0, ciftBit:0, acamadi:0, islek:0, kap:0, kapPuan:0, kapAldi:0, kapAldiPuan:0, okap:0, yanlisAc:0, puan:0, worst:null, kafaYedi:0, dealerBit:0, birakti:0, streak:0, streakMax:0};
 function ensurePlayer(reg, name){
   if(!reg[name]) reg[name] = Object.assign({}, PLAYER_DEFAULTS);
   else for(const k in PLAYER_DEFAULTS) if(reg[name][k]===undefined) reg[name][k]=PLAYER_DEFAULTS[k]; // eski sürüm kayıtlarını taşı
@@ -1561,7 +1572,7 @@ function olayExtra(id){
 function bosStat(){
   return {bit:0,kafa:0,kafaRekor:0,rcift:0,rseri:0,best:null,srmax:0,crmax:0,pes:0,
     els:0,esBit:0,okeyBit:0,ciftBit:0,acamadi:0,islek:0,kap:0,kapPuan:0,kapAldi:0,kapAldiPuan:0,
-    okap:0,yanlisAc:0,puan:0,worst:null,kafaYedi:0};
+    okap:0,yanlisAc:0,puan:0,worst:null,kafaYedi:0,dealerBit:0,birakti:0};
 }
 
 /* Masa düzeni: taş saat yönünde ilerler — herkes kendinden SONRAKİ koltuğa atar */
@@ -1776,6 +1787,8 @@ function saveElKaydet(r){
   if(elForm.finisher>=0){
     const finN = G.names[elForm.finisher];
     sd[finN].bit++;
+    // Taşı kendi yaptığı elde bitirmek ayrı bir marifettir 🏹
+    if(elForm.finisher===dealer) sd[finN].dealerBit=(sd[finN].dealerBit||0)+1;
     if(r.kafa) sd[finN].kafa++;
     if(elForm.okey) sd[finN].okeyBit=(sd[finN].okeyBit||0)+1;
     if(elForm.cift) sd[finN].ciftBit=(sd[finN].ciftBit||0)+1;
@@ -2053,6 +2066,7 @@ function oyuncuDegistir(koltuk, yeniAd){
   G.degisimler.push({tip:'oyuncu', el:G.hands.length, koltuk, eski, yeni});
   G.names[koltuk] = yeni;
   if(!G.statDelta[yeni]) G.statDelta[yeni] = bosStat();
+  if(G.statDelta[eski]) G.statDelta[eski].birakti=(G.statDelta[eski].birakti||0)+1;
   colAdlariYenile();
   G.events.push(`🔁 El ${G.hands.length+1} öncesi: ${eski} → ${yeni} (${koltuk+1}. koltuk)`);
   return {ok:true};
@@ -2173,6 +2187,7 @@ function applyDeltas(players, ds){
     p.els+=d.els||0; p.okeyBit+=d.okeyBit||0; p.ciftBit+=d.ciftBit||0; p.acamadi+=d.acamadi||0;
     p.islek+=d.islek||0; p.kap+=d.kap||0; p.kapPuan+=d.kapPuan||0; p.okap+=d.okap||0; p.yanlisAc+=d.yanlisAc||0;
     p.puan+=d.puan||0; p.kafaYedi+=d.kafaYedi||0;
+    p.dealerBit=(p.dealerBit||0)+(d.dealerBit||0); p.birakti=(p.birakti||0)+(d.birakti||0);
     if(d.best!==undefined && d.best!==null && (p.best===null || d.best<p.best)) p.best=d.best;
     if(d.worst!==undefined && d.worst!==null && (p.worst===null || d.worst>p.worst)) p.worst=d.worst;
     if(d.srmax && d.srmax>(p.srmax||0)) p.srmax=d.srmax; // en yüksek seri açılışı
@@ -2533,6 +2548,9 @@ const UNVANLAR = [
   {emoji:'🤦', ad:'Acar', not:'en çok yanlış açan', min:2, f:p=>p.oyun?(p.yanlisAc||0)/p.oyun:null, sayac:p=>p.yanlisAc||0},
   {emoji:'💸', ad:'Okey Dağıtan', not:'en çok okey kaptıran', min:2, f:p=>p.oyun?(p.okap||0)/p.oyun:null, sayac:p=>p.okap||0},
   {emoji:'🎯', ad:'Bitirici', not:'en sık bitiren', min:5, f:(p,r)=>r.aktifEl?(p.bit||0)/r.aktifEl:null, sayac:p=>p.bit||0},
+  {emoji:'🏹', ad:'Nişancı', not:'taşı kendi yaptığı eli en çok bitiren', min:2, f:p=>p.oyun?(p.dealerBit||0)/p.oyun:null, sayac:p=>p.dealerBit||0},
+  {emoji:'🌊', ad:'Gel-Git', not:'bir uçtan bir uca — en geniş el makası', min:1, f:p=>(p.worst!=null&&p.best!=null)?p.worst-p.best:null, sayac:p=>(p.worst!=null&&p.best!=null)?1:0},
+  {emoji:'🚪', ad:'Firari', not:'oyunu en çok yarıda bırakan', min:1, f:p=>p.birakti||0, sayac:p=>p.birakti||0},
 ];
 function unvanlar(reg, names, sira){
   const S = sira || masaSirasi(reg, names);
