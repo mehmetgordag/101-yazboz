@@ -349,7 +349,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   </div>
   <button id="tema-btn" onclick="temaDegistir()" title="Tema" aria-label="Tema"></button>
   <h1>YAZBOZ</h1>
-  <div class="sub" id="ver-sub">101 okey yazboz · v4.8</div>
+  <div class="sub" id="ver-sub">101 okey yazboz · v4.9</div>
 </header>
 <main>
 
@@ -711,7 +711,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 </div>
 
 <script>
-const APP_VER = '4.8';
+const APP_VER = '4.9';
 /* ================= DEPOLAMA ================= */
 const store = {
   m:{},
@@ -1071,10 +1071,11 @@ function startGame(){
   // isimleri kayda geç
   const reg = getReg(); names.forEach(n=>ensurePlayer(reg,n)); setReg(reg);
   saveGame(); renderGame(); show('scr-game');
+  showDealerPop(true);   // ilk el de zarsız geçmesin
 }
 
 function saveGame(){ store.set('yb_active', G); }
-function resumeGame(){ G = store.get('yb_active', null); if(G){ renderGame(); show('scr-game'); } }
+function resumeGame(){ G = store.get('yb_active', null); if(G){ renderGame(); show('scr-game'); if(!G.hands.length) showDealerPop(true); } }
 function abortGame(){
   if(!confirm('Oyun iptal edilsin mi? Puanlar istatistiklere yazılmaz.')) return;
   stopLivePush(); store.del('yb_active'); G=null; boot(); show('scr-home');
@@ -1603,14 +1604,14 @@ function saveEl(){
 }
 
 /* El bitince anons: sıradaki taşı yapan kim? Yazboz'u tutan görür, masaya söyler */
-function showDealerPop(){
+function showDealerPop(ilk){
   if(!G || G.done) return;
   const d = currentDealer();
   const isM = !!(SET.muhtarAktif && G.muhtar!==null && G.muhtar!==undefined);
   document.getElementById('dealer-emoji').innerHTML =
     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
       stroke-linejoin="round" style="width:44px;height:44px"><use href="#i-${isM?'sapka':'zar'}"/></svg>`;
-  document.getElementById('dealer-el').textContent = `EL ${G.hands.length+1} — SIRADAKİ TAŞI YAPAN`;
+  document.getElementById('dealer-el').textContent = ilk ? 'İLK TAŞI YAPAN' : `EL ${G.hands.length+1} — SIRADAKİ TAŞI YAPAN`;
   document.getElementById('dealer-name').textContent = G.names[d];
   document.getElementById('dealer-note').style.display = isM ? 'block' : 'none';
   clearInterval(zarSayac);
