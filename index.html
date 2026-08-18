@@ -425,7 +425,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   </div>
   <button id="tema-btn" onclick="temaDegistir()" title="Tema" aria-label="Tema"></button>
   <h1>YAZBOZ</h1>
-  <div class="sub" id="ver-sub">101 okey yazboz · v5.8.0</div>
+  <div class="sub" id="ver-sub">101 okey yazboz · v5.9.0</div>
 </header>
 <main>
 
@@ -618,6 +618,11 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div id="seref-list"></div>
   </div>
   <div class="card" id="cloud-card"></div>
+  <div class="card" id="hikaye-card" style="display:none">
+    <h3 id="hikaye-baslik">Masanın Hikâyesi</h3>
+    <p class="hint">El-el serilerden çıkan desenler — eşli oyunda takım bazlıdır.</p>
+    <div id="hikaye-govde"></div>
+  </div>
   <div class="card" id="games-card" style="display:none">
     <h3 id="gecmis-baslik">Oyun Geçmişi</h3>
     <div class="evlist" id="games-list"></div>
@@ -820,9 +825,9 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 </div>
 
 <script>
-const APP_VER = '5.8.0';
-const BUILD = 'cd9eb810';   // yayinla.sh dosya içeriğinden hesaplar
-const SURUM_NOT = 'Aylık ve kariyer sıralaması artık aynı formül (Masa Puanı) · adalet ayarı: %70 kazanma + %30 el, uç değer kelepçesi';       // son değişiklik notu (yayinla.sh yazar)
+const APP_VER = '5.9.0';
+const BUILD = 'a3de4e0e';   // yayinla.sh dosya içeriğinden hesaplar
+const SURUM_NOT = 'Kısmî bek onarımı — eski kayıtların yarım bek\'i 5× hayalet güç üretmesin';       // son değişiklik notu (yayinla.sh yazar)
 /* ================= DEPOLAMA ================= */
 const store = {
   m:{},
@@ -992,7 +997,7 @@ function resetSettings(){
 function getReg(){ return store.get('yb_players', {}); }
 function setReg(r){ store.set('yb_players', temizReg(r)); }
 const PLAYER_DEFAULTS = {oyun:0, gal:0, bek:0, bit:0, kafa:0, kafaRekor:0, rcift:0, rseri:0, best:null, srmax:0, crmax:0, pes:0,
-  els:0, esBit:0, okeyBit:0, ciftBit:0, acamadi:0, islek:0, kap:0, kapPuan:0, kapAldi:0, kapAldiPuan:0, okap:0, yanlisAc:0, puan:0, worst:null, kafaYedi:0, dealerBit:0, birakti:0, streak:0, streakMax:0};
+  els:0, esBit:0, okeyBit:0, ciftBit:0, acamadi:0, islek:0, kap:0, kapPuan:0, kapAldi:0, kapAldiPuan:0, okap:0, yanlisAc:0, puan:0, worst:null, kafaYedi:0, dealerBit:0, birakti:0, mvp:0, streak:0, streakMax:0};
 function ensurePlayer(reg, name){
   if(!reg[name]) reg[name] = Object.assign({}, PLAYER_DEFAULTS);
   else for(const k in PLAYER_DEFAULTS) if(reg[name][k]===undefined) reg[name][k]=PLAYER_DEFAULTS[k]; // eski sürüm kayıtlarını taşı
@@ -1574,7 +1579,7 @@ function olayExtra(id){
 function bosStat(){
   return {bit:0,kafa:0,kafaRekor:0,rcift:0,rseri:0,best:null,srmax:0,crmax:0,pes:0,
     els:0,esBit:0,okeyBit:0,ciftBit:0,acamadi:0,islek:0,kap:0,kapPuan:0,kapAldi:0,kapAldiPuan:0,
-    okap:0,yanlisAc:0,puan:0,worst:null,kafaYedi:0,dealerBit:0,birakti:0};
+    okap:0,yanlisAc:0,puan:0,worst:null,kafaYedi:0,dealerBit:0,birakti:0,mvp:0};
 }
 
 /* Masa düzeni: taş saat yönünde ilerler — herkes kendinden SONRAKİ koltuğa atar */
@@ -2147,6 +2152,17 @@ function endGame(pesCol){
   });
   const deltas = Object.keys(G.statDelta).map(n=>Object.assign(
     {n, oyun:0, gal:0, bek:0}, G.statDelta[n], koltukSahibi[n] || {}));
+  /* Maçın adamı (oyun sonu kartıyla aynı ölçü) kariyerde birikir — deltalara
+     YEREL kayda işlenmeden önce eklenir ki hem yerel hem bulut aynı sayıyı görsün */
+  if(G.hands.length){
+    const perM = G.names.map((n,i)=>{
+      const top = G.hands.reduce((sm,h)=>sm+(h.deltas[i]||0),0);
+      const pasif = (G.statDelta[n]&&G.statDelta[n].esBit)||0;
+      return {n, ort: top/Math.max(1,G.hands.length-pasif), bit:(G.statDelta[n]&&G.statDelta[n].bit)||0};
+    });
+    const mvpK = perM.slice().sort((a,b)=>(a.ort-b.ort)||(b.bit-a.bit))[0];
+    if(mvpK){ const dm = deltas.find(x=>x.n===mvpK.n); if(dm) dm.mvp=(dm.mvp||0)+1; }
+  }
   const reg = getReg();
   applyDeltas(reg, deltas);
   setReg(reg);
@@ -2193,6 +2209,7 @@ function applyDeltas(players, ds){
     p.islek+=d.islek||0; p.kap+=d.kap||0; p.kapPuan+=d.kapPuan||0; p.okap+=d.okap||0; p.yanlisAc+=d.yanlisAc||0;
     p.puan+=d.puan||0; p.kafaYedi+=d.kafaYedi||0;
     p.dealerBit=(p.dealerBit||0)+(d.dealerBit||0); p.birakti=(p.birakti||0)+(d.birakti||0);
+    p.mvp=(p.mvp||0)+(d.mvp||0);
     if(d.best!==undefined && d.best!==null && (p.best===null || d.best<p.best)) p.best=d.best;
     if(d.worst!==undefined && d.worst!==null && (p.worst===null || d.worst>p.worst)) p.worst=d.worst;
     if(d.srmax && d.srmax>(p.srmax||0)) p.srmax=d.srmax; // en yüksek seri açılışı
@@ -2425,7 +2442,17 @@ function masaSirasi(reg, names, opts){
   const baraj = Math.max(K.barajMin, Math.ceil(_medyan(list.map(n=>reg[n].oyun||0))/K.barajBolen));
   const satirlar = list.map(n=>{
     const p = reg[n], oyun = p.oyun||0;
-    const bek = (p.bek && p.bek>0) ? p.bek : oyun*masaOran;   /* eski kayıt → nötr tahmin */
+    /* Kısmî bek onarımı: bek bir dönem hiç, bir dönem yarım birikti. Oyun
+       başına en düşük pay 0.25'tir — bunun altı KESİN eksik kayıttır ve masa
+       ortalamasıyla tamamlanır ("1 beklentiyle 6 galibiyet" = 5× hayalet güç
+       üretmesin). Makul kayda ve teklicinin doğal düşük bek'ine dokunulmaz. */
+    const bekKayit = (p.bek && p.bek>0) ? p.bek : 0;
+    let bek;
+    if(bekKayit>0 && bekKayit >= oyun*0.25 - 1e-9){ bek = bekKayit; }
+    else {
+      const kapsanan = masaOran>1e-9 ? Math.min(oyun, bekKayit/masaOran) : 0;
+      bek = bekKayit + Math.max(0, oyun-kapsanan)*masaOran;
+    }
     const bOrt = oyun ? bek/oyun : masaOran, on = K.onYukOyun*bOrt;
     const kg = (bek+on)>0 ? ((p.gal||0)+on)/(bek+on) : 1;
     const aktifEl = Math.max(0, (p.els||0)-(p.esBit||0));
@@ -2559,6 +2586,9 @@ const UNVANLAR = [
   {emoji:'🏹', ad:'Nişancı', not:'taşı kendi yaptığı eli en çok bitiren', min:2, f:p=>p.oyun?(p.dealerBit||0)/p.oyun:null, sayac:p=>p.dealerBit||0},
   {emoji:'🌊', ad:'Gel-Git', not:'bir uçtan bir uca — en geniş el makası', min:1, f:p=>(p.worst!=null&&p.best!=null)?p.worst-p.best:null, sayac:p=>(p.worst!=null&&p.best!=null)?1:0},
   {emoji:'🚪', ad:'Firari', not:'oyunu en çok yarıda bırakan', min:1, f:p=>p.birakti||0, sayac:p=>p.birakti||0},
+  {emoji:'⭐', ad:'Yıldız', not:'en çok maçın adamı seçilen', min:2, f:p=>p.oyun?(p.mvp||0)/p.oyun:null, sayac:p=>p.mvp||0},
+  {emoji:'🧤', ad:'En Dikkatli', not:'el başına en az dikkat cezası (işlek · okey · yanlış açış)', min:0, ters:true,
+    f:(p,r)=>r.aktifEl?((p.islek||0)+(p.okap||0)+(p.yanlisAc||0))/r.aktifEl:null, sayac:()=>1},
 ];
 function unvanlar(reg, names, sira){
   const S = sira || masaSirasi(reg, names);
@@ -2620,6 +2650,100 @@ function aylikSampiyona(gecmis, opts){
     return {key:a.key, ad:a.ad, oyun:a.oyun, satirlar, baraj:s.baraj, kral:s.kral, kulluk:s.kulluk};
   }).sort((a,b)=>b.key.localeCompare(a.key));
   return {aylar:liste, buAy:liste[0]||null, serefListesi:liste.slice(1).filter(a=>a.kral)};
+}
+
+/* ---- MASANIN HİKÂYESİ: el-el serilerden çıkan desenler (okuma tarafı) ---- */
+function oyunAnalizi(gecmis, opts){
+  const esik = (opts&&opts.donusEsik)||100;
+  const kisi = {};
+  const K = ad => kisi[ad] || (kisi[ad]={donus:0, batissiz:0, lanet:null, _el:{}, _sum:0, _cnt:0});
+  let rekorDonus=null, rekorBatissiz=null;
+  for(const z of ozetleri(gecmis)){
+    if(!Array.isArray(z.eller) || z.eller.length<2 || !Array.isArray(z.cols)) continue;
+    const kazanan = new Set(z.winners||[]);
+    const winIdx = z.cols.findIndex(c=>kazanan.has(c));
+    const run = z.cols.map(()=>0);
+    let enAcik = 0;
+    z.eller.forEach((e,hi)=>{
+      (e.d||[]).forEach((v,ci)=>{ run[ci]+=Number(v)||0; });
+      if(winIdx>=0 && hi<z.eller.length-1 && run.length>1){
+        const digerEnIyi = Math.min(...run.filter((_,ci)=>ci!==winIdx));
+        const acik = run[winIdx]-digerEnIyi;
+        if(acik>enAcik) enAcik=acik;
+      }
+    });
+    if(winIdx>=0 && enAcik>=esik){
+      _uyeler(z.cols[winIdx]).forEach(ad=>{ K(ad).donus++; });
+      if(!rekorDonus || enAcik>rekorDonus.fark) rekorDonus={fark:enAcik, kim:z.cols[winIdx], ts:z.ts||0};
+    }
+    z.cols.forEach((c,ci)=>{
+      let kosu=0, enKosu=0;
+      z.eller.forEach(e=>{
+        const v = Number((e.d||[])[ci])||0;
+        if(v<=0){ kosu++; if(kosu>enKosu) enKosu=kosu; } else kosu=0;
+      });
+      _uyeler(c).forEach(ad=>{
+        const k=K(ad);
+        if(enKosu>k.batissiz) k.batissiz=enKosu;
+        z.eller.forEach((e,hi)=>{
+          const v=Number((e.d||[])[ci])||0;
+          const t=k._el[hi]||(k._el[hi]={sum:0,cnt:0});
+          t.sum+=v; t.cnt++; k._sum+=v; k._cnt++;
+        });
+      });
+    });
+  }
+  Object.keys(kisi).forEach(ad=>{
+    const k=kisi[ad];
+    const genel = k._cnt ? k._sum/k._cnt : 0;
+    let en=null;
+    Object.keys(k._el).forEach(hi=>{
+      const t=k._el[hi];
+      if(t.cnt<3) return;
+      const ort=t.sum/t.cnt;
+      if(ort<=0) return;
+      if(ort < Math.max(60, genel*1.4+40)) return;
+      if(!en || ort>en.ort) en={el:Number(hi)+1, ort:Math.round(ort), adet:t.cnt};
+    });
+    k.lanet=en; delete k._el; delete k._sum; delete k._cnt;
+    if(k.batissiz>1 && (!rekorBatissiz || k.batissiz>rekorBatissiz.seri)) rekorBatissiz={n:ad, seri:k.batissiz};
+  });
+  let sampiyon=null;
+  Object.keys(kisi).forEach(ad=>{ const k=kisi[ad]; if(k.donus && (!sampiyon || k.donus>sampiyon.adet)) sampiyon={n:ad, adet:k.donus}; });
+  return {kisi, sampiyon, rekorDonus, rekorBatissiz};
+}
+const GUN_ADI = ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+function masaMesaisi(gecmis){
+  const gun={}, kisiler={};
+  let gece=0, toplam=0;
+  for(const z of ozetleri(gecmis)){
+    if(!z.ts || !Array.isArray(z.cols)) continue;
+    toplam++;
+    const d=new Date(z.ts);
+    gun[d.getDay()]=(gun[d.getDay()]||0)+1;
+    const saat=d.getHours();
+    const geceMi = saat>=23||saat<6;
+    if(geceMi) gece++;
+    const kazanan=new Set(z.winners||[]);
+    z.cols.forEach(c=>_uyeler(c).forEach(ad=>{
+      const k=kisiler[ad]||(kisiler[ad]={gOyun:0,gGal:0,dOyun:0,dGal:0});
+      if(geceMi){ k.gOyun++; if(kazanan.has(c)) k.gGal++; }
+      else { k.dOyun++; if(kazanan.has(c)) k.dGal++; }
+    }));
+  }
+  let enGun=null;
+  Object.keys(gun).forEach(g=>{ if(!enGun||gun[g]>enGun.sayi) enGun={gun:GUN_ADI[g], sayi:gun[g]}; });
+  let geceKusu=null, geceKurbani=null;
+  Object.keys(kisiler).forEach(ad=>{
+    const k=kisiler[ad];
+    if(k.gOyun<3||k.dOyun<3) return;
+    const fark=k.gGal/k.gOyun-k.dGal/k.dOyun;
+    if(!geceKusu||fark>geceKusu.fark) geceKusu={n:ad,fark};
+    if(!geceKurbani||fark<geceKurbani.fark) geceKurbani={n:ad,fark};
+  });
+  if(geceKusu&&geceKusu.fark<0.1) geceKusu=null;
+  if(geceKurbani&&geceKurbani.fark>-0.1) geceKurbani=null;
+  return {toplam, enGun, gece, geceKusu, geceKurbani};
 }
 
 /* Son N oyunun form şeridi */
@@ -2805,7 +2929,31 @@ function toggleNasil(){ _nasilAcik=!_nasilAcik;
 function setSiraSekme(t){ _siraSekme=t; renderStatsTables(); }
 function toggleOyuncu(n){ _acikOyuncu = (_acikOyuncu===n)?null:n; renderStatsTables(); }
 
+
+/* Masanın Hikâyesi kartı */
+function hikayeCiz(){
+  const kart = document.getElementById('hikaye-card');
+  if(!kart) return;
+  const gecmis = window._sonOyunlar || [];
+  const AN = oyunAnalizi(gecmis);
+  const MS = masaMesaisi(gecmis);
+  const sat = [];
+  const yaz = (em, b, t) => sat.push(`<div style="padding:4px 0;font-size:13.5px">${em} <b>${b}</b> ${t}</div>`);
+  if(AN.sampiyon) yaz('🔄','Geri Dönüş Şampiyonu:',`${escH(AN.sampiyon.n)} (${AN.sampiyon.adet} kez geriden gelip kazandı)`);
+  if(AN.rekorDonus) yaz('🏔️','En büyük dönüş:',`${escH(AN.rekorDonus.kim)} — ${AN.rekorDonus.fark} puan geriden`);
+  if(AN.rekorBatissiz) yaz('🛡️','En uzun batışsız koşu:',`${escH(AN.rekorBatissiz.n)} — üst üste ${AN.rekorBatissiz.seri} el artı yemeden`);
+  Object.keys(AN.kisi).sort((a,b)=>a.localeCompare(b,'tr')).forEach(n=>{
+    const L = AN.kisi[n].lanet;
+    if(L) yaz('🕳️', escH(n)+':', `${L.el}. el laneti — o elde ortalama +${L.ort} (${L.adet} oyun)`);
+  });
+  if(MS.enGun) yaz('📅','Masanın mesaisi:',`en çok ${MS.enGun.gun} (${MS.enGun.sayi} oyun)${MS.gece?` · ${MS.gece} gece yarısı oyunu`:''}`);
+  if(MS.geceKusu) yaz('🦉','Gece kuşu:',`${escH(MS.geceKusu.n)} — gece oyunlarında %${Math.round(MS.geceKusu.fark*100)} daha çok kazanıyor`);
+  if(MS.geceKurbani) yaz('🥱','Gece kurbanı:',`${escH(MS.geceKurbani.n)} — gece oyunlarında %${Math.round(-MS.geceKurbani.fark*100)} düşüyor`);
+  if(sat.length){ kart.style.display='block'; document.getElementById('hikaye-govde').innerHTML = sat.join(''); }
+  else kart.style.display='none';
+}
 function renderStatsTables(){
+  hikayeCiz();
   const reg = getReg();
   const names = Object.keys(reg).filter(n=>!n.startsWith(AM));
   const gecmis = window._sonOyunlar || [];
@@ -3007,7 +3155,8 @@ function renderStatsTables(){
     en('rcift','En çok çift rekoru') + en('rseri','En çok seri rekoru') +
     en('srmax','En yüksek açılış (puan)') + en('crmax','En çok çiftle açılış') +
     en('best','En iyi tek el',true) + en('worst','En kötü tek el') +
-    en('kafaYedi','En çok kafa yiyen') + en('pes','En çok pes eden')
+    en('kafaYedi','En çok kafa yiyen') + en('pes','En çok pes eden') +
+    en('kapAldiPuan','En değerli kapış kasası (puan)') + en('mvp','En çok maçın adamı')
   ) || '<span class="hint">Henüz veri yok.</span>';
 
   /* --- şeref listesi --- */
