@@ -365,6 +365,42 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 }
 #update-bar span,#hata-bar span{flex:1; font-size:13.5px; font-weight:700; color:var(--txt);}
 #update-bar button,#hata-bar button{flex:none; margin:0; width:auto; padding:9px 16px; font-size:13.5px;}
+
+/* ---- kurulum ekranı: adımlar, segment kontrol, masa krokisi ---- */
+.adim{font-weight:900;font-size:15.5px;color:var(--txt);margin-bottom:8px;}
+.adim-no{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:11px;
+  background:var(--vurgu);border:1px solid var(--vurgu-kenar);color:var(--cyan);font-size:12px;font-weight:900;margin-right:6px;vertical-align:-4px;}
+.adim-link{font-size:12px;font-weight:800;color:var(--dim);cursor:pointer;padding:4px 8px;border-radius:9px;}
+.adim-link.acik{color:var(--teal);background:var(--ok-bg);}
+.seg{display:flex;background:var(--glass3);border:1px solid var(--stroke);border-radius:14px;padding:3px;}
+.seg-btn{flex:1;text-align:center;padding:9px 4px;border-radius:11px;font-weight:700;font-size:13.5px;color:var(--dim);cursor:pointer;user-select:none;}
+.seg-btn.sel{background:var(--cyan);color:var(--sel-ink);font-weight:900;}
+.masa-kroki{border-radius:22px;padding:14px;border:1.5px solid var(--vurgu-kenar);
+  background:linear-gradient(135deg,var(--felt),var(--felt2));margin-top:10px;}
+.mk-baslik{color:var(--cyan);font-weight:900;text-align:center;font-size:13.5px;letter-spacing:.5px;}
+.mk-orta{width:104px;height:78px;border-radius:16px;background:var(--glass3);border:1px solid var(--stroke2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none;color:var(--cyan);}
+.mk-orta .ic{width:22px;height:22px;}
+.mk-masa{color:var(--dim);font-size:9.5px;font-weight:800;letter-spacing:2px;margin-top:2px;}
+.mk-sira{color:var(--dim);font-size:9px;}
+.koltuk{display:flex;flex-direction:column;align-items:center;width:92px;}
+.k-circ{width:56px;height:56px;border-radius:28px;display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:19px;position:relative;}
+.k-circ.dolu{background:var(--glass);border:2px solid;cursor:pointer;box-shadow:var(--shadow);}
+.k-circ.bos{border:1.5px dashed var(--stroke2);color:var(--dim);}
+.k-circ.bos .ic{width:18px;height:18px;}
+.k-x{position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:9px;background:var(--modal-bg);
+  border:1px solid var(--stroke2);color:var(--dim);font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.k-zar{position:absolute;bottom:-4px;right:-4px;width:20px;height:20px;border-radius:10px;background:var(--cyan);
+  color:var(--sel-ink);display:flex;align-items:center;justify-content:center;}
+.k-zar .ic{width:12px;height:12px;}
+.k-ad{color:var(--txt);font-size:12px;font-weight:800;margin-top:5px;text-align:center;max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.k-ad.bos{color:var(--dim);font-weight:600;}
+.k-lab{font-size:10px;font-weight:700;margin-top:1px;text-align:center;}
+.kurulum-ozet{background:var(--ok-bg);border:1px solid var(--ok-kenar);border-radius:16px;padding:12px;margin:10px 0 4px;text-align:center;}
+.ko-ust{color:var(--txt);font-weight:800;font-size:13.5px;}
+.ko-ust .ic{color:var(--teal);}
+.ko-alt{color:var(--dim);font-size:12px;margin-top:3px;}
 </style>
 </head>
 <body>
@@ -378,7 +414,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   </div>
   <button id="tema-btn" onclick="temaDegistir()" title="Tema" aria-label="Tema"></button>
   <h1>YAZBOZ</h1>
-  <div class="sub" id="ver-sub">101 okey yazboz · v5.5.0</div>
+  <div class="sub" id="ver-sub">101 okey yazboz · v5.6.0</div>
 </header>
 <main>
 
@@ -396,23 +432,30 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 <!-- OYUN KURULUMU -->
 <section id="scr-setup" class="screen">
   <button class="back" onclick="show('scr-home')">Geri</button>
+  <div style="text-align:center;margin:10px 0 14px">
+    <div style="font-size:22px;font-weight:900;letter-spacing:2px;color:var(--cyan)">MASAYI KUR</div>
+    <div style="color:var(--dim);letter-spacing:3px;font-size:10.5px;margin-top:2px">101 OKEY · YENİ OYUN</div>
+  </div>
   <div class="card">
-    <h3>Oyun Türü</h3>
-    <div class="chips" id="mode-chips">
-      <div class="chip sel" data-mode="esli" onclick="pickMode('esli')"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-kisiler"/></svg> Eşli (2'ye 2)</div>
-      <div class="chip" data-mode="tekli" onclick="pickMode('tekli')">Herkes Kendine</div>
+    <div class="adim"><span class="adim-no">1</span> Nasıl oynanacak?</div>
+    <div class="seg" id="mode-chips">
+      <div class="seg-btn sel" data-mode="esli" onclick="pickMode('esli')">Eşli · 2'ye 2</div>
+      <div class="seg-btn" data-mode="tekli" onclick="pickMode('tekli')">Herkes Kendine</div>
     </div>
-    <h3 style="margin-top:12px">El Sayısı</h3>
-    <div class="chips" id="el-chips">
-      <div class="chip" data-el="7" onclick="pickEl(7)">7</div>
-      <div class="chip" data-el="9" onclick="pickEl(9)">9</div>
-      <div class="chip sel" data-el="11" onclick="pickEl(11)">11</div>
-      <div class="chip" data-el="13" onclick="pickEl(13)">13</div>
+    <p class="hint" style="margin:10px 0 4px">El sayısı</p>
+    <div class="seg" id="el-chips">
+      <div class="seg-btn" data-el="7" onclick="pickEl(7)">7 el</div>
+      <div class="seg-btn" data-el="9" onclick="pickEl(9)">9 el</div>
+      <div class="seg-btn sel" data-el="11" onclick="pickEl(11)">11 el</div>
+      <div class="seg-btn" data-el="13" onclick="pickEl(13)">13 el</div>
     </div>
   </div>
   <div class="card">
-    <h3>Oyuncular</h3>
-    <p class="hint">Havuzdaki bir isme dokun, sıradaki boş koltuğa otursun. Koltuktaki isme dokununca havuza geri döner.</p>
+    <div class="adim" style="display:flex;justify-content:space-between;align-items:center">
+      <span><span class="adim-no">2</span> Masayı kur</span>
+      <span id="btn-delmode" class="adim-link" onclick="toggleDelMode()">Oyuncu sil</span>
+    </div>
+    <p class="hint">Havuzdaki isme dokun → boş koltuğa otursun. Koltuktakine dokun → geri çıksın.</p>
     <div class="row">
       <input type="text" id="new-name" placeholder="Yeni isim ekle" style="flex:1" onkeydown="if(event.key==='Enter')addPoolName()">
       <button class="btn btn-tile btn-sm" style="flex:none;margin-top:0" onclick="addPoolName()">＋ Ekle</button>
@@ -421,12 +464,17 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div id="seats"></div>
     <div class="row" style="flex-wrap:wrap">
       <button class="btn btn-outline btn-sm" onclick="shuffleSeats()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-zar"/></svg> Eşleri Karıştır</button>
-      <button class="btn btn-outline btn-sm" onclick="clearSeats()">↩︎ Koltukları Boşalt</button>
-      <button class="btn btn-outline btn-sm" id="btn-delmode" onclick="toggleDelMode()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-cop"/></svg> Oyuncu Sil</button>
+      <button class="btn btn-outline btn-sm" onclick="clearSeats()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-gerial"/></svg> Boşalt</button>
     </div>
   </div>
+  <div class="card">
+    <div class="adim"><span class="adim-no">3</span> İlk taşı kim yapıyor?</div>
+    <p class="hint">Sonraki ellerde sıra masa düzeninde döner (Ayarlar'dan muhtar sistemini de açabilirsin).</p>
+    <div class="chips" id="dealer-chips"></div>
+  </div>
+  <div id="setup-ozet"></div>
   <div class="err" id="setup-err"></div>
-  <button class="btn btn-primary" onclick="startGame()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-onay"/></svg> Oyunu Başlat</button>
+  <button class="btn btn-primary" onclick="startGame()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-oynat"/></svg> Oyunu Başlat</button>
 </section>
 
 <!-- OYUN -->
@@ -761,9 +809,9 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 </div>
 
 <script>
-const APP_VER = '5.5.0';
-const BUILD = 'd356ab68';   // yayinla.sh dosya içeriğinden hesaplar
-const SURUM_NOT = 'Küllük ikonu geri geldi · yazbozda düzeltme rozeti · el düzeltme ekranında cezalar · gerçek açık tema';       // son değişiklik notu (yayinla.sh yazar)
+const APP_VER = '5.6.0';
+const BUILD = 'e9be606e';   // yayinla.sh dosya içeriğinden hesaplar
+const SURUM_NOT = 'Yeni kurulum ekranı (masa krokisi) · güvenlik katmanı: isim/veri temizliği, izleyici zırhı';       // son değişiklik notu (yayinla.sh yazar)
 /* ================= DEPOLAMA ================= */
 const store = {
   m:{},
@@ -929,7 +977,7 @@ function resetSettings(){
 
 /* ================= OYUNCU KAYITLARI ================= */
 function getReg(){ return store.get('yb_players', {}); }
-function setReg(r){ store.set('yb_players', r); }
+function setReg(r){ store.set('yb_players', temizReg(r)); }
 const PLAYER_DEFAULTS = {oyun:0, gal:0, bek:0, bit:0, kafa:0, kafaRekor:0, rcift:0, rseri:0, best:null, srmax:0, crmax:0, pes:0,
   els:0, esBit:0, okeyBit:0, ciftBit:0, acamadi:0, islek:0, kap:0, kapPuan:0, kapAldi:0, kapAldiPuan:0, okap:0, yanlisAc:0, puan:0, worst:null, kafaYedi:0, streak:0, streakMax:0};
 function ensurePlayer(reg, name){
@@ -953,12 +1001,13 @@ function openModal(id){ document.getElementById(id).classList.add('open'); }
 let setupMode = 'esli', setupEl = 11;
 function pickMode(m){
   setupMode = m;
-  document.querySelectorAll('#mode-chips .chip').forEach(c=>c.classList.toggle('sel', c.dataset.mode===m));
+  document.querySelectorAll('#mode-chips .seg-btn').forEach(c=>c.classList.toggle('sel', c.dataset.mode===m));
   renderSU();
 }
 function pickEl(n){
   setupEl = n;
-  document.querySelectorAll('#el-chips .chip').forEach(c=>c.classList.toggle('sel', Number(c.dataset.el)===n));
+  document.querySelectorAll('#el-chips .seg-btn').forEach(c=>c.classList.toggle('sel', Number(c.dataset.el)===n));
+  renderSU();
 }
 
 /* --- koltuk sistemi: dokun-yerleştir --- */
@@ -966,6 +1015,48 @@ let SU = {pool:[], seats:[null,null,null,null], dealer0:0};
 const escq = n => n.replace(/'/g,"\\'");
 /* metni HTML'e gömerken kaçır — isimler <> & içerse bile bozulmasın */
 const escH = t => String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+/* GÜVENLİK — dış kaynaklı metin temizliği (motordaki temizAd/temizReg/temizVeri ile birebir).
+   Yazma linkini alan biri buluta bozuk isim/veri itebilir; HTML'e girmeden KAYNAKTA temizlenir. */
+const AYRILMIS = ['__proto__','constructor','prototype'];
+function temizAd(ad){
+  const v = String(ad==null?'':ad).replace(/[<>"'`\u0000-\u001f\u007f]/g,'').replace(/\s+/g,' ').trim().slice(0,24);
+  return AYRILMIS.includes(v.toLowerCase()) ? '' : v;
+}
+function temizReg(r){
+  const out = {};
+  if(!r || typeof r!=='object') return out;
+  for(const k of Object.keys(r)){
+    const ad = temizAd(k); if(!ad) continue;
+    const v = r[k]; if(!v || typeof v!=='object') continue;
+    const t = {};
+    for(const f of Object.keys(v)){
+      if(AYRILMIS.includes(String(f).toLowerCase())) continue;
+      const x = v[f];
+      if(x===null || (typeof x==='number' && isFinite(x))) t[f]=x;
+    }
+    if(!(ad in out) || (t.oyun||0) > (out[ad].oyun||0)) out[ad]=t;
+  }
+  return out;
+}
+function temizVeri(x, derinlik=0){
+  if(derinlik>6) return undefined;
+  if(typeof x==='string') return x.replace(/[<>"'`]/g,'').slice(0,400);
+  if(typeof x==='number') return isFinite(x)?x:0;
+  if(typeof x==='boolean' || x===null) return x;
+  if(Array.isArray(x)) return x.slice(0,500).map(v=>temizVeri(v,derinlik+1));
+  if(x && typeof x==='object'){
+    const o={};
+    for(const k of Object.keys(x).slice(0,200)){
+      const kk=String(k).replace(/[<>"'`]/g,'');
+      if(AYRILMIS.includes(kk.toLowerCase())) continue;
+      const v=temizVeri(x[k],derinlik+1);
+      if(v!==undefined) o[kk]=v;
+    }
+    return o;
+  }
+  return undefined;
+}
 
 let delMode = false;
 function goSetup(){
@@ -984,7 +1075,9 @@ function clearSeats(){
 }
 function toggleDelMode(){
   delMode = !delMode;
-  document.getElementById('btn-delmode').textContent = delMode ? '✔ Silme Bitti' : '🗑️ Oyuncu Sil';
+  const b = document.getElementById('btn-delmode');
+  b.textContent = delMode ? 'Silme bitti' : 'Oyuncu sil';
+  b.classList.toggle('acik', delMode);
   renderSU();
 }
 function removePlayer(n){
@@ -1010,7 +1103,7 @@ function removePlayer(n){
 }
 function addPoolName(){
   const inp = document.getElementById('new-name');
-  const v = (inp.value||'').trim();
+  const v = temizAd(inp.value);
   inp.value='';
   if(!v) return;
   // aynı isim havuzdaysa onu koltuğa al; koltuktaysa dokunma
@@ -1045,47 +1138,50 @@ function shuffleSeats(){
   renderSU();
 }
 function renderSU(){
+  const basHarf = ad => String(ad||'').trim().split(/\s+/).slice(0,2).map(p=>(p[0]||'').toLocaleUpperCase('tr-TR')).join('');
   document.getElementById('pool-chips').innerHTML = SU.pool.length
     ? SU.pool.map(n=> delMode
-        ? `<div class="chip small" style="border-color:var(--red);color:#ffb9c7" onclick="removePlayer('${escq(n)}')">${n} ✕</div>`
-        : `<div class="chip small" onclick="seatName('${escq(n)}')">${n}</div>`).join('')
+        ? `<div class="chip small" style="border-color:var(--red);color:var(--red)" onclick="removePlayer('${escq(n)}')">${escH(n)} ✕</div>`
+        : `<div class="chip small" onclick="seatName('${escq(n)}')">${escH(n)}</div>`).join('')
     : '<span class="hint">Havuz boş — yukarıdan yeni isim ekleyebilirsin.</span>';
-  // Gerçek masa görünümü 🎴: sen altta (1. koltuk), eşin tam karşında; taş sırası saat tersine 1→2→3→4.
-  // Eşli oyunda karşılıklı koltuklar aynı takımdır: 1&3 (mavi) · 2&4 (turkuaz).
+  // Masa krokisi: sen altta (1. koltuk), taş sırası saat tersine 1→2→3→4.
+  // Eşli oyunda karşılıklı koltuklar aynı takım: 1&3 (mavi) · 2&4 (turkuaz).
   const esli = setupMode==='esli';
   const tkc = i => esli ? (i%2===0 ? 'var(--blue)' : 'var(--teal)') : 'var(--cyan)';
-  const seatEl = (i,label)=>{
-    const col = tkc(i);
-    const inner = SU.seats[i]
-      ? `<div class="chip sel" style="border-color:${col}" onclick="unseat(${i})">${SU.seats[i]} <span style="opacity:.6">✕</span></div>`
-      : `<div class="chip" style="border-style:dashed;opacity:.6;border-color:${col};color:var(--dim)">boş</div>`;
-    return `<div style="display:flex;flex-direction:column;align-items:center;max-width:150px">${inner}
-      <div style="font-size:10.5px;font-weight:700;margin-top:3px;color:${esli?col:'var(--dim)'};text-align:center">${label}</div></div>`;
+  const koltuk = (i,label)=>{
+    const col = tkc(i), ad = SU.seats[i], dolu = !!ad;
+    const circ = dolu
+      ? `<div class="k-circ dolu" style="border-color:${col};color:${col}" onclick="unseat(${i})" role="button" aria-label="Koltuğu boşalt">${escH(basHarf(ad))}<span class="k-x">✕</span>${SU.dealer0===i?`<span class="k-zar">${ic('zar')}</span>`:''}</div>`
+      : `<div class="k-circ bos">${ic('arti')}</div>`;
+    return `<div class="koltuk">${circ}<div class="k-ad ${dolu?'':'bos'}">${dolu?escH(ad):'boş'}</div><div class="k-lab" style="color:${esli?col:'var(--dim)'}">${label}</div></div>`;
   };
-  const s = document.getElementById('seats');
-  s.innerHTML = `<div style="background:var(--glass3);border:1px solid var(--stroke);border-radius:18px;padding:12px;margin-top:10px">
-    <div style="text-align:center;font-weight:800;color:var(--cyan)">Oturduğunuz gibi yerleştir</div>
-    <p class="hint" style="text-align:center;margin:4px 0 6px">${esli
-      ? "Yazboz'u yazan sen: 1. koltuk. Havuzdan dokun, masadaki sırayla dolsun. Eşler karşılıklı: 1&amp;3 bir takım, 2&amp;4 bir takım."
-      : "Yazboz'u yazan sen: 1. koltuk. Havuzdan dokun, masadaki sırayla dolsun."}</p>
-    <div style="display:flex;justify-content:center">${seatEl(2, esli?'3 · karşındaki eşin':'3. koltuk')}</div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0">
-      ${seatEl(3, esli?'4. koltuk':'4. koltuk (ops.)')}
-      <div style="width:108px;height:84px;border-radius:16px;background:rgba(31,89,84,.55);border:1.5px solid rgba(127,208,221,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none">
-        <div style="color:var(--cyan)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><use href="#i-tas"/></svg></div>
-        <div style="font-size:10px;font-weight:800;letter-spacing:2px;color:var(--dim)">MASA</div>
-        <div style="font-size:9.5px;color:var(--dim);margin-top:1px">↺ taş sırası 1→2→3→4</div>
-      </div>
-      ${seatEl(1, '2. koltuk')}
+  document.getElementById('seats').innerHTML = `<div class="masa-kroki">
+    <div class="mk-baslik">OTURDUĞUNUZ GİBİ YERLEŞTİR</div>
+    <p class="hint" style="text-align:center;margin:3px 0 8px">${esli
+      ? 'Sen 1. koltuk. Eşler karşılıklı: 1&amp;3 — 2&amp;4.'
+      : 'Sen 1. koltuk — masadaki sırayla doldur.'}</p>
+    <div style="display:flex;justify-content:center">${koltuk(2, esli?'3 · eşin':'3. koltuk')}</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0">
+      ${koltuk(3, esli?'4. koltuk':'4 · (ops.)')}
+      <div class="mk-orta">${ic('tas')}<div class="mk-masa">MASA</div><div class="mk-sira">↺ taş sırası 1→2→3→4</div></div>
+      ${koltuk(1, '2. koltuk')}
     </div>
-    <div style="display:flex;justify-content:center">${seatEl(0, "1 · SEN (yazboz'u yazan)")}</div>
-    <div style="margin-top:10px;border-top:1px solid var(--stroke);padding-top:8px">
-      <div style="font-weight:800;font-size:13.5px"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-zar"/></svg> İlk taşı kim yapıyor?</div>
-      <div class="chips">${[0,1,2,3].map(i=>
-        `<div class="chip small ${SU.dealer0===i?'sel':''}" onclick="SU.dealer0=${i};renderSU()">${SU.seats[i]||((i+1)+'. koltuk')}</div>`).join('')}</div>
-      <p class="hint" style="margin:4px 0 0">Sonraki ellerde sıra masa düzeninde döner${SET.muhtarAktif?'':' (Ayarlar\'dan 🎩 muhtar sistemini de açabilirsin)'}.</p>
-    </div>
+    <div style="display:flex;justify-content:center">${koltuk(0, "1 · SEN (yazan)")}</div>
   </div>`;
+  // ilk taşı yapan
+  document.getElementById('dealer-chips').innerHTML = [0,1,2,3].map(i=>
+    `<div class="chip small ${SU.dealer0===i?'sel':''}" style="${SU.seats[i]?'':'opacity:.45'}" onclick="if(${!!SU.seats[i]}){SU.dealer0=${i};renderSU();}">${SU.seats[i]?escH(SU.seats[i]):((i+1)+'. koltuk')}</div>`).join('');
+  // canlı özet
+  const hazir = esli ? SU.seats.every(Boolean) : SU.seats.filter(Boolean).length>=3;
+  const oz = document.getElementById('setup-ozet');
+  if(hazir){
+    const takim = esli
+      ? `${escH(SU.seats[0])} &amp; ${escH(SU.seats[2])} &nbsp;—&nbsp; ${escH(SU.seats[1])} &amp; ${escH(SU.seats[3])}`
+      : SU.seats.filter(Boolean).map(escH).join(' · ');
+    const dAd = SU.seats[SU.dealer0] || SU.seats.find(Boolean);
+    oz.innerHTML = `<div class="kurulum-ozet"><div class="ko-ust">${ic('onay')} ${takim}</div>
+      <div class="ko-alt">${esli?'Eşli':'Herkes kendine'} · ${setupEl} el · ilk taş: ${escH(dAd||'')}</div></div>`;
+  } else oz.innerHTML = '';
 }
 
 /* ================= OYUN DURUMU ================= */
@@ -1931,14 +2027,14 @@ function renderMasaModal(){
       <div class="chips">${aday.map(n=>`<div class="chip small ${mForm.ad===n?'sel':''}" onclick="masaAd('${escq(n)}')">${n}</div>`).join('')}</div>
       <input type="text" placeholder="Yeni isim" value="${mForm.ad||''}" oninput="mForm.ad=this.value">`;
     if(mForm.koltuk!=null && mForm.ad){
-      h += `<div class="vurgu"><b style="font-size:15px">${G.names[mForm.koltuk]} → ${mForm.ad}</b>
+      h += `<div class="vurgu"><b style="font-size:15px">${escH(G.names[mForm.koltuk])} → ${escH(mForm.ad)}</b>
         <div class="hint">${G.names[mForm.koltuk]} bu oyunda ${G.hands.length} el oynadı; o eller onda kalıyor. Oyun ve galibiyet hanesi koltukta daha çok el oynayana yazılır.</div></div>`;
     }
   }
   document.getElementById('masa-govde').innerHTML = h;
 }
 function masaUygula(){
-  const r = mForm.tip==='oyuncu' ? oyuncuDegistir(mForm.koltuk, mForm.ad) : koltukDegistir(mForm.koltuk, mForm.koltuk2);
+  const r = mForm.tip==='oyuncu' ? oyuncuDegistir(mForm.koltuk, temizAd(mForm.ad)) : koltukDegistir(mForm.koltuk, mForm.koltuk2);
   const e = document.getElementById('masa-err');
   if(!r.ok){ e.textContent=r.errmsg; e.style.display='block'; return; }
   closeModal('modal-masa'); saveGame(); renderGame(); pushLive();
@@ -2135,7 +2231,7 @@ async function cloudSync(silent){
       // oda bulunamadıysa (süre aşımı/bozulma) yereldeki veriyle yeniden kur; gerçek bağlantı hatasıysa çevrimdışına düş
       if(!(e && /bulunamadı|bozuk/.test(e.message||''))) throw e;
     }
-    const cloudP = (d && d.players) ? d.players : {};
+    const cloudP = temizReg((d && d.players) ? d.players : {});
     const local = getReg();
     const pending = flatPending();
     // bekleyenlerin oyuncu bazında özeti (çift saymayı önlemek için)
@@ -2605,8 +2701,9 @@ async function loadSonOyunlar(){
   const sb = parseS(cloudId()||'');
   if(!sb || !sbReady()){ card.style.display='none'; return; }
   try{
-    const arr = await sbRpc('yb_oyunlar', {p_code:sb.c, p_limit:50});
-    if(!arr || !arr.length){ card.style.display='none'; return; }
+    const arrHam = await sbRpc('yb_oyunlar', {p_code:sb.c, p_limit:50});
+    const arr = temizVeri(arrHam) || [];
+    if(!arr.length){ card.style.display='none'; return; }
     window._sonOyunlar = arr;
     renderStatsTables();          /* geçmişe dayalı bölümler (form, aylık, ilişkiler) tazelensin */
     card.style.display='block';
@@ -2947,8 +3044,8 @@ async function rebuildFromHistory(){
   if(!sb || !sbReady()){ alert('Masa bağlantısı yok — önce masaya bağlan.'); return; }
   if(!confirm('Oyun geçmişindeki tüm oyunlardan istatistikler yeniden kurulacak ve buluta yazılacak. Devam?')) return;
   try{
-    const arr = await sbRpc('yb_oyunlar', {p_code:sb.c, p_limit:50});
-    if(!arr || !arr.length){ alert('Geçmişte kayıtlı oyun bulunamadı.'); return; }
+    const arr = temizVeri(await sbRpc('yb_oyunlar', {p_code:sb.c, p_limit:50})) || [];
+    if(!arr.length){ alert('Geçmişte kayıtlı oyun bulunamadı.'); return; }
     const games = arr.slice().sort((a,b)=>((a.ts||(a.ozet||{}).ts||0)-(b.ts||(b.ozet||{}).ts||0)));
     const built = {};
     for(const o of games){
@@ -3267,7 +3364,7 @@ function joinRoom(){
   viewerLastTs = 0;
   const poll = async ()=>{
     try{
-      const d = await NET.pull(code);
+      const d = temizVeri(await NET.pull(code));
       if(!d || !Array.isArray(d.hands) || !Array.isArray(d.cols)) return; // bozuk/yabancı veri: yoksay
       if(d.ts && d.ts < viewerLastTs) return; // eski veri: yoksay (sabotaj/gecikme koruması)
       if(d.ts) viewerLastTs = d.ts;
@@ -3286,13 +3383,15 @@ function joinRoom(){
   poll();
 }
 function renderViewer(d){
-  const totals = d.cols.map((_,i)=>d.hands.reduce((s,h)=>s+h[i],0));
+  // dıştan gelen el değerleri sayıya zorlanır (metin birleştirme = enjeksiyon kapısı)
+  d.hands = d.hands.map(h=>Array.isArray(h)?h.map(v=>Number(v)||0):[]);
+  const totals = d.cols.map((_,i)=>d.hands.reduce((s,h)=>s+(h[i]||0),0));
   const best = (d.dir==='high' ? Math.max : Math.min)(...totals);
   const worst = (d.dir==='high' ? Math.min : Math.max)(...totals);
   document.getElementById('v-totals').innerHTML = d.cols.map((c,i)=>
     `<div class="total-card ${totals[i]===best && d.hands.length?'leader':''} ${d.hands.length && d.cols.length>1 && best!==worst && totals[i]===worst?'loser':''}"
-       style="border-top:3px solid ${COLC[i%COLC.length]}"><div class="tname" style="color:${COLC[i%COLC.length]}">${c}</div><div class="tscore">${totals[i]}</div></div>`).join('');
-  let h = '<tr><th>El</th>'+d.cols.map(c=>`<th>${c}</th>`).join('')+'</tr>';
+       style="border-top:3px solid ${COLC[i%COLC.length]}"><div class="tname" style="color:${COLC[i%COLC.length]}">${escH(c)}</div><div class="tscore">${totals[i]}</div></div>`).join('');
+  let h = '<tr><th>El</th>'+d.cols.map(c=>`<th>${escH(c)}</th>`).join('')+'</tr>';
   const run = d.cols.map(()=>0);
   d.hands.forEach((hd,hi)=>{
     h += `<tr><td>${hi+1}</td>`+hd.map((v,ci)=>{run[ci]+=v;return `<td><span class="d ${v<0?'neg':''}">${v>0?'+':''}${v}</span><br><span class="c">${run[ci]}</span></td>`;}).join('')+'</tr>';
@@ -3570,6 +3669,8 @@ function renderHomeGames(){
      </button>`;
 }
 function boot(){
+  // eski sürümlerde kaydedilmiş oyuncu havuzunu bir kez süz (güvenlik temizliği)
+  if(!store.get('yb_reg_temiz', false)){ setReg(getReg()); store.set('yb_reg_temiz', true); }
   const g = store.get('yb_active', null);
   document.getElementById('btn-devam').style.display = (g && !g.done) ? 'block' : 'none';
   const dg = store.get('yb_defter_active', null);
