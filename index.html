@@ -425,7 +425,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   </div>
   <button id="tema-btn" onclick="temaDegistir()" title="Tema" aria-label="Tema"></button>
   <h1>YAZBOZ</h1>
-  <div class="sub" id="ver-sub">101 okey yazboz · v5.7.2</div>
+  <div class="sub" id="ver-sub">101 okey yazboz · v5.8.0</div>
 </header>
 <main>
 
@@ -820,9 +820,9 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 </div>
 
 <script>
-const APP_VER = '5.7.2';
-const BUILD = 'a8072a68';   // yayinla.sh dosya içeriğinden hesaplar
-const SURUM_NOT = 'Küllük işareti ilk günkü renkli sigara emojisine döndü · açılış tanıtımında 👑🚬';       // son değişiklik notu (yayinla.sh yazar)
+const APP_VER = '5.8.0';
+const BUILD = 'cd9eb810';   // yayinla.sh dosya içeriğinden hesaplar
+const SURUM_NOT = 'Aylık ve kariyer sıralaması artık aynı formül (Masa Puanı) · adalet ayarı: %70 kazanma + %30 el, uç değer kelepçesi';       // son değişiklik notu (yayinla.sh yazar)
 /* ================= DEPOLAMA ================= */
 const store = {
   m:{},
@@ -2158,7 +2158,10 @@ function endGame(pesCol){
     degisimler: (G.degisimler && G.degisimler.length) ? G.degisimler.slice() : undefined,
     eller: G.hands.map(h=>({ d: h.colDeltas,
       f: h.finisher>=0 ? G.cols.findIndex(c=>c.members.includes(h.finisher)) : -1,
-      fn: h.finisher>=0 ? G.names[h.finisher] : null, k: h.kafa?1:0 }))
+      fn: h.finisher>=0 ? G.names[h.finisher] : null, k: h.kafa?1:0 })),
+    /* aylık tablo kariyerle aynı formülü kullanabilsin: kişi bazlı kompakt özet */
+    kisiler: deltas.map(d=>({ n:d.n, o:d.oyun||0, g:d.gal||0,
+      b:Math.round((d.bek||0)*1000)/1000, p:d.puan||0, e:d.els||0, s:d.esBit||0, t:d.bit||0 }))
   }});
   store.set('yb_pending', pend);
   cloudSync();
@@ -2405,7 +2408,7 @@ function renderCloud(){
     3) Eş etkisi — El Ortalaması AKTİF el üzerinden (eşin bitirdiği eller düşülür).
    Masa Puanı = iki metriğin z-skoru; 50 = masa ortalaması.
    ============================================================ */
-const SIRA = { onYukOyun:4, onYukEl:20, agirlikKazanma:0.55, agirlikEl:0.45, zOlcek:12,
+const SIRA = { onYukOyun:4, onYukEl:20, agirlikKazanma:0.70, agirlikEl:0.30, zOlcek:12, zSinir:2.2,
   barajBolen:4, barajMin:3, formPencere:10, formMinOyun:3, formOnYuk:2 };
 const _ort = a => a.reduce((s,x)=>s+x,0)/(a.length||1);
 const _medyan = a => { const t=[...a].sort((x,y)=>x-y); const m=t.length>>1; return t.length ? (t.length%2 ? t[m] : (t[m-1]+t[m])/2) : 0; };
@@ -2438,9 +2441,12 @@ function masaSirasi(reg, names, opts){
   const taban = uygun.length>=2 ? uygun : satirlar;
   const kgM=_ort(taban.map(r=>r.kg)), kgS=_sapma(taban.map(r=>r.kg),kgM);
   const elM=_ort(taban.map(r=>r.elOrtD)), elS=_sapma(taban.map(r=>r.elOrtD),elM);
+  const zs = K.zSinir || 2.2;
   satirlar.forEach(r=>{
-    r.zKazanma = kgS>1e-9 ? (r.kg-kgM)/kgS : 0;
-    r.zEl = elS>1e-9 ? -(r.elOrtD-elM)/elS : 0;
+    // Kelepçe: kazanan kazanandır — tek uç değer (bir gece çok ceza) %30'luk
+    // el bileşenini sınırsız büyütüp açık ara kazananı tahttan indiremez.
+    r.zKazanma = _kis(kgS>1e-9 ? (r.kg-kgM)/kgS : 0, -zs, zs);
+    r.zEl = _kis(elS>1e-9 ? -(r.elOrtD-elM)/elS : 0, -zs, zs);
     r.mp = Math.round(_kis(50 + K.zOlcek*(K.agirlikKazanma*r.zKazanma + K.agirlikEl*r.zEl), 0, 100));
   });
   const sirala = (a,b)=>(b.mp-a.mp)||(b.oyun-a.oyun)||(b.bit-a.bit)||String(a.n).localeCompare(String(b.n),'tr');
@@ -2578,29 +2584,40 @@ function unvanlar(reg, names, sira){
 const AY_ADI = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
 /* Aylık mini şampiyona — her ay sıfırlanır, şeref listesi birikir */
 function aylikSampiyona(gecmis, opts){
-  const minOyun=(opts&&opts.minOyun)||2, on=(opts&&opts.onYuk)||2, aylar={};
+  /* Ay içindeki oyunlardan mini bir kayıt havuzu kurulur ve kariyer
+     sıralamasıyla AYNI formül (masaSirasi → Masa Puanı) çalıştırılır.
+     Yeni kayıtlarda `kisiler` kişisel verileri taşır; eskilerde takım
+     toplamından yaklaşık değer kullanılır. */
+  const aylar={};
   ozetleri(gecmis).forEach(z=>{
     if(!z.ts) return;
     const d=new Date(z.ts), key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
-    const a = aylar[key] || (aylar[key]={key, ad:AY_ADI[d.getMonth()]+' '+d.getFullYear(), oyun:0, kisi:{}});
+    const a = aylar[key] || (aylar[key]={key, ad:AY_ADI[d.getMonth()]+' '+d.getFullYear(), oyun:0, reg:{}});
     a.oyun++;
-    const kazanan=new Set(z.winners||[]);
-    const pay = z.cols.length ? (z.winners||[]).length/z.cols.length : 0;
-    const elSay = z.el || (z.eller||[]).length || 0;
-    z.cols.forEach((c,ci)=>_uyeler(c).forEach(nm=>{
-      const k = a.kisi[nm] || (a.kisi[nm]={n:nm, oyun:0, gal:0, bek:0, puan:0, el:0});
-      k.oyun++; k.bek+=pay; if(kazanan.has(c)) k.gal++;
-      const tot=(z.totals||[])[ci];
-      if(typeof tot==='number'){ k.puan+=tot; k.el+=elSay; }
-    }));
+    const ekle=(nm,v)=>{
+      const k = a.reg[nm] || (a.reg[nm]={oyun:0,gal:0,bek:0,puan:0,els:0,esBit:0,bit:0});
+      k.oyun+=v.oyun; k.gal+=v.gal; k.bek+=v.bek; k.puan+=v.puan; k.els+=v.els; k.esBit+=v.esBit; k.bit+=v.bit;
+    };
+    if(Array.isArray(z.kisiler) && z.kisiler.length){
+      z.kisiler.forEach(x=>ekle(x.n,{oyun:x.o||0,gal:x.g||0,bek:x.b||0,puan:x.p||0,els:x.e||0,esBit:x.s||0,bit:x.t||0}));
+    } else {
+      const kazanan=new Set(z.winners||[]);
+      const pay = z.cols.length ? (z.winners||[]).length/z.cols.length : 0;
+      const elSay = z.el || (z.eller||[]).length || 0;
+      z.cols.forEach((c,ci)=>_uyeler(c).forEach(nm=>{
+        const tot=(z.totals||[])[ci];
+        ekle(nm,{oyun:1, gal:kazanan.has(c)?1:0, bek:pay,
+          puan:typeof tot==='number'?tot:0, els:elSay, esBit:0, bit:0});
+      }));
+    }
   });
   const liste = Object.values(aylar).map(a=>{
-    const satirlar = Object.values(a.kisi).map(k=>{
-      const bOrt = k.oyun ? k.bek/k.oyun : 0.5;
-      return Object.assign({}, k, {kg:(k.bek+on*bOrt)>0?(k.gal+on*bOrt)/(k.bek+on*bOrt):1, elOrt:k.el?k.puan/k.el:0, yeterli:k.oyun>=minOyun});
-    }).sort((x,y)=>(Number(y.yeterli)-Number(x.yeterli))||(y.kg-x.kg)||(x.elOrt-y.elOrt)||(y.gal-x.gal)||String(x.n).localeCompare(String(y.n),'tr'));
-    const uygun = satirlar.filter(r=>r.yeterli);
-    return Object.assign({}, a, {satirlar, kral:uygun.length>=2?uygun[0].n:null, kulluk:uygun.length>=2?uygun[uygun.length-1].n:null});
+    const adlar = Object.keys(a.reg);
+    /* Aylık pencere küçük olabilir: baraj tabanı 2 oyuna iner (kariyerde 3). */
+    const s = masaSirasi(a.reg, adlar, Object.assign({barajMin:2}, (opts&&opts.sira)||{}));
+    const satirlar = s.satirlar.map(r=>({n:r.n, oyun:r.oyun, gal:r.gal, bek:r.bek,
+      kg:r.kg, elOrt:r.elOrt, mp:r.mp, el:Math.max(0,r.aktifEl), yeterli:r.barajUstu}));
+    return {key:a.key, ad:a.ad, oyun:a.oyun, satirlar, baraj:s.baraj, kral:s.kral, kulluk:s.kulluk};
   }).sort((a,b)=>b.key.localeCompare(a.key));
   return {aylar:liste, buAy:liste[0]||null, serefListesi:liste.slice(1).filter(a=>a.kral)};
 }
@@ -2873,13 +2890,13 @@ function renderStatsTables(){
   if(_siraSekme==='ay'){
     body.innerHTML = !AY.buAy ? '<p class="hint">Bu ay henüz oyun oynanmamış.</p>' :
       `<div style="overflow-x:auto"><table class="stat-table">
-        <tr><th>Oyuncu</th><th>O</th><th>G</th><th>Güç</th><th>El ort.</th></tr>
+        <tr><th>Oyuncu</th><th>O</th><th>G</th><th>Puan</th><th>El ort.</th></tr>
         ${AY.buAy.satirlar.map(r=>`<tr><td>${r.n}${r.n===AY.buAy.kral?rz1('tac','var(--yellow)'):''}${r.n===AY.buAy.kulluk?rz1('kullukAsh','var(--red)'):''}${!r.yeterli?rz1('civciv','var(--dim)'):''}</td>
           <td>${r.oyun}</td><td>${r.gal}</td>
-          <td style="font-weight:900;color:${r.kg>=1?'var(--ok)':'#ff9fb2'}">${r.kg.toFixed(2)}×</td>
+          <td style="font-weight:900;color:${r.mp>=50?'var(--ok)':'var(--red)'}">${r.mp}</td>
           <td>${r.el?Math.round(r.elOrt):'—'}</td></tr>`).join('')}
       </table></div>
-      <p class="hint">Güç = kazanma gücü (1.00 ortalama) · el ort. eşli oyunda takım puanıdır · çaylak: bu ay 2 oyundan az.</p>`;
+      <p class="hint">Puan = Masa Puanı — kariyer sıralamasıyla aynı formül, sadece bu ayın oyunlarıyla · çaylak: barajın altında.</p>`;
   } else {
     body.innerHTML = names.map((n,i)=>{
       const p=reg[n], R=S[n], acik=(_acikOyuncu===n);
