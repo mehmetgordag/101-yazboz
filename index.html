@@ -29,28 +29,35 @@
   --uyari-bg:rgba(232,138,155,.12); --uyari-kenar:rgba(232,138,155,.44);
   --ok-bg:rgba(108,199,181,.12); --ok-kenar:rgba(108,199,181,.38);
   --sel-ink:#0a2530;
+  --cizgi:rgba(255,255,255,.12); --th-bg:rgba(255,255,255,.12);
+  --parlak:rgba(255,255,255,.25); --parlak2:rgba(255,255,255,.35);
+  --outline-bg:rgba(255,255,255,.06); --slider-bg:rgba(255,255,255,.22);
   --m-tac:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z'/><path d='M5 21h14'/></svg>");
   --m-kul:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M2.8 13.4h18.4v2.4a4.6 4.6 0 0 1-4.6 4.6H7.4a4.6 4.6 0 0 1-4.6-4.6z'/><line x1='7.6' y1='13.4' x2='7.6' y2='16'/><line x1='16.4' y1='13.4' x2='16.4' y2='16'/><line x1='9.6' y1='13.4' x2='17.8' y2='8.6'/><line x1='15' y1='10.2' x2='16.6' y2='11.6'/><path d='M19.6 6.6c1.2-1 1.2-2.4 0-3.4'/></svg>");
 }
-/* AÇIK TEMA — "defter kâğıdı": krem zemin, mürekkep mavisi yazı, aynı turkuaz kimlik */
+/* AÇIK TEMA — gerçek açık tema: beyaz kart, sıcak nötr zemin, gerçek gölge.
+   Yarı saydam koyu katmanlar yerine düz renk kullanılır; her yerde okunur. */
 :root[data-tema="acik"]{
   color-scheme:light;
-  --app-bg:linear-gradient(168deg,#f5f0e3 0%,#eee7d7 55%,#f7f3ea 100%);
-  --modal-bg:#fbf7ec; --scroll:rgba(23,50,61,.25); --btn-ink:#0d2a36;
-  --txt:#17323d; --dim:rgba(23,50,61,.6);
-  --glass:rgba(23,50,61,.055); --glass2:rgba(23,50,61,.09); --glass3:rgba(23,50,61,.035);
-  --stroke:rgba(23,50,61,.17); --stroke2:rgba(23,50,61,.32);
-  --cyan:#12798c; --teal:#1c8a72; --blue:#2f6fa8;
-  --red:#c0405c; --ok:#1f7a55; --yellow:#a6791a;
-  --ink:#17323d; --line:rgba(23,50,61,.17); --tile:#fffdf7; --tile2:rgba(23,50,61,.07);
-  --muted:rgba(23,50,61,.6); --danger:#c0405c; --felt:#e7dfcd; --felt2:#d9d0ba;
-  --grad:linear-gradient(135deg,#3ba0b4 0%,#2f7fa8 60%,#2b6497 100%);
-  --grad-teal:linear-gradient(135deg,#2f9a86,#2f7fa8);
-  --shadow:0 8px 22px rgba(23,50,61,.12);
-  --vurgu:rgba(18,121,140,.10); --vurgu-kenar:rgba(18,121,140,.38);
-  --uyari-bg:rgba(192,64,92,.09); --uyari-kenar:rgba(192,64,92,.38);
-  --ok-bg:rgba(31,122,85,.10); --ok-kenar:rgba(31,122,85,.36);
+  --app-bg:linear-gradient(168deg,#f6f4f0 0%,#eceae4 55%,#faf9f6 100%);
+  --modal-bg:#ffffff; --scroll:rgba(18,38,46,.28); --btn-ink:#ffffff;
+  --txt:#12262e; --dim:rgba(18,38,46,.60);
+  --glass:#ffffff; --glass2:#efece6; --glass3:#f7f5f1;
+  --stroke:rgba(16,32,40,.13); --stroke2:rgba(16,32,40,.26);
+  --cyan:#0d7d92; --teal:#12866f; --blue:#2a6ea8;
+  --red:#c0324f; --ok:#137a52; --yellow:#9c7112;
+  --ink:#12262e; --line:rgba(16,32,40,.13); --tile:#ffffff; --tile2:rgba(16,32,40,.06);
+  --muted:rgba(18,38,46,.60); --danger:#c0324f; --felt:#e9f1ee; --felt2:#dbe7e2;
+  --grad:linear-gradient(135deg,#3aa3b8 0%,#2b7fa6 60%,#276193 100%);
+  --grad-teal:linear-gradient(135deg,#199a80,#2b7fa6);
+  --shadow:0 10px 26px rgba(11,28,36,.10), 0 2px 6px rgba(11,28,36,.06);
+  --vurgu:rgba(13,125,146,.10); --vurgu-kenar:rgba(13,125,146,.40);
+  --uyari-bg:rgba(192,50,79,.08); --uyari-kenar:rgba(192,50,79,.38);
+  --ok-bg:rgba(19,122,82,.09); --ok-kenar:rgba(19,122,82,.36);
   --sel-ink:#ffffff;
+  --cizgi:rgba(16,32,40,.10); --th-bg:#f1eee8;
+  --parlak:rgba(255,255,255,.70); --parlak2:rgba(255,255,255,.45);
+  --outline-bg:#ffffff; --slider-bg:rgba(16,32,40,.18);
 }
 /* ikonlar: metinle aynı renk, aynı çizgi kalınlığı */
 .ic{width:1.05em; height:1.05em; display:inline-block; vertical-align:-.16em; flex:none;}
@@ -99,7 +106,7 @@ main{max-width:520px; margin:0 auto; padding:8px 14px;}
 .card{
   background:var(--glass); color:var(--txt); border-radius:22px; padding:16px;
   margin:12px 0; border:1px solid var(--stroke);
-  box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.25);
+  box-shadow:var(--shadow), inset 0 1px 0 var(--parlak);
   backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur);
 }
 .card h3{margin:0 0 8px; font-size:15px; letter-spacing:.3px;}
@@ -113,11 +120,11 @@ main{max-width:520px; margin:0 auto; padding:8px 14px;}
 .btn:active{transform:scale(.97);}
 .btn-primary{
   background:var(--grad); color:#fff; border:none;
-  box-shadow:0 6px 18px rgba(80,150,190,.28), inset 0 1px 0 rgba(255,255,255,.35);
+  box-shadow:0 6px 18px rgba(80,150,190,.28), inset 0 1px 0 var(--parlak2);
 }
 .btn-tile{background:var(--glass2); border-color:var(--stroke);}
-.btn-green{background:var(--grad-teal); color:#fff; border:none; box-shadow:0 6px 16px rgba(90,170,160,.25), inset 0 1px 0 rgba(255,255,255,.3);}
-.btn-outline{background:rgba(255,255,255,.06); border:1px solid var(--stroke); box-shadow:none;}
+.btn-green{background:var(--grad-teal); color:#fff; border:none; box-shadow:0 6px 16px rgba(90,170,160,.25), inset 0 1px 0 var(--parlak2);}
+.btn-outline{background:var(--outline-bg); border:1px solid var(--stroke); box-shadow:none;}
 .btn-danger{background:rgba(255,93,122,.2); color:#ffb9c7; border:1px solid rgba(255,93,122,.5); box-shadow:none;}
 .btn-sm{padding:10px 14px; font-size:14px; width:auto; display:inline-block; margin:4px 4px 4px 0;}
 .row{display:flex; gap:8px;}
@@ -168,14 +175,14 @@ input[type=number]{max-width:120px;}
 .total-card{
   flex:1; background:var(--glass); color:var(--txt); border-radius:20px; padding:12px 8px;
   text-align:center; border:1px solid var(--stroke); position:relative; overflow:hidden;
-  box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.25);
+  box-shadow:var(--shadow), inset 0 1px 0 var(--parlak);
   backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur);
 }
 .total-card .tname{font-size:12px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--dim);}
 .total-card .tscore{font-size:32px; font-weight:900; margin-top:2px; font-variant-numeric:tabular-nums; letter-spacing:-.5px;}
 .total-card.leader{
   border-color:var(--cyan);
-  box-shadow:0 0 0 1.5px var(--cyan), 0 0 14px rgba(127,208,221,.22), inset 0 1px 0 rgba(255,255,255,.2);
+  box-shadow:0 0 0 1.5px var(--cyan), 0 0 14px rgba(127,208,221,.22), inset 0 1px 0 var(--parlak2);
 }
 .total-card.leader .tscore{
   background:var(--grad); -webkit-background-clip:text; background-clip:text;
@@ -189,12 +196,12 @@ input[type=number]{max-width:120px;}
 /* yazboz table */
 .yazboz-wrap{overflow-x:auto; border-radius:16px; border:1px solid var(--stroke);}
 table.yazboz{width:100%; border-collapse:collapse; background:transparent; color:var(--txt); font-size:13px; min-width:300px;}
-table.yazboz th, table.yazboz td{padding:8px 6px; text-align:center; border-bottom:1px solid rgba(255,255,255,.12);}
-table.yazboz th{background:rgba(255,255,255,.12); font-size:12px; letter-spacing:.3px;}
-table.yazboz td .d{font-weight:800; color:#eaa9b6; font-variant-numeric:tabular-nums;}
+table.yazboz th, table.yazboz td{padding:8px 6px; text-align:center; border-bottom:1px solid var(--cizgi);}
+table.yazboz th{background:var(--th-bg); font-size:12px; letter-spacing:.3px;}
+table.yazboz td .d{font-weight:800; color:var(--red); font-variant-numeric:tabular-nums;}
 table.yazboz td .c{font-size:11px; color:var(--dim); font-variant-numeric:tabular-nums;}
 table.yazboz td .neg{color:var(--ok);}
-table.yazboz tr.totrow td{font-weight:900; background:rgba(127,208,221,.13); font-size:14px; color:#fff; border-bottom:none;}
+table.yazboz tr.totrow td{font-weight:900; background:var(--vurgu); font-size:14px; color:var(--txt); border-bottom:none;}
 
 /* events log */
 .evlist{font-size:13px; color:var(--txt);}
@@ -212,7 +219,7 @@ table.yazboz tr.totrow td{font-weight:900; background:rgba(127,208,221,.13); fon
   border-radius:26px 26px 0 0; max-height:92vh; overflow-y:auto;
   padding:18px 16px calc(28px + env(safe-area-inset-bottom));
   border:1px solid var(--stroke); border-bottom:none;
-  box-shadow:0 -12px 44px rgba(2,20,35,.6), inset 0 1px 0 rgba(255,255,255,.28);
+  box-shadow:0 -12px 44px rgba(2,20,35,.6), inset 0 1px 0 var(--parlak);
   backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur);
 }
 .modal h3{margin:2px 0 12px; font-size:17px;}
@@ -225,17 +232,27 @@ table.yazboz tr.totrow td{font-weight:900; background:rgba(127,208,221,.13); fon
 .olay-row .rm{float:right; color:var(--red); font-weight:800; cursor:pointer; padding:0 6px;}
 .preview{background:rgba(45,212,191,.12); border:1px solid rgba(45,212,191,.35); border-radius:14px; padding:12px; font-size:14px; margin-top:12px;}
 .preview b.neg{color:var(--ok);}
-.preview b.pos{color:#eaa9b6;}
+.preview b.pos{color:var(--red);}
 .hint{font-size:12px; color:var(--dim); margin:4px 0;}
 .err{color:var(--danger); font-size:13px; font-weight:700; margin:6px 0; display:none;}
 
 /* stats */
 .stat-table{width:100%; border-collapse:collapse; font-size:12.5px; background:transparent; border-radius:14px; overflow:hidden; border:1px solid var(--stroke); color:var(--txt);}
-.stat-table th,.stat-table td{padding:8px 4px; text-align:center; border-bottom:1px solid rgba(255,255,255,.12);}
-.stat-table th{background:rgba(255,255,255,.12); font-size:11px;}
+.stat-table th,.stat-table td{padding:8px 4px; text-align:center; border-bottom:1px solid var(--cizgi);}
+.stat-table th{background:var(--th-bg); font-size:11px;}
 .stat-table td{font-variant-numeric:tabular-nums;}
 table.yazboz tr.duz{cursor:pointer;}
 table.yazboz tr.duz:hover td{background:var(--glass2);}
+/* "bu eli düzelt" rozeti — dokunulacağı belli olsun */
+.duz-btn{display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px;
+  margin-left:3px; vertical-align:middle; border-radius:7px; color:var(--cyan);
+  background:var(--vurgu); border:1px solid var(--vurgu-kenar);}
+.duz-btn .ic{width:12px; height:12px;}
+table.yazboz tr.duz:hover .duz-btn{background:var(--cyan); color:var(--btn-txt); border-color:var(--cyan);}
+.ev-row{display:flex; align-items:flex-start; gap:8px; padding:4px 0;}
+.ev-row .ic{width:15px; height:15px; flex:none; margin-top:1px;}
+.finmark{display:inline-flex; align-items:center; gap:1px; vertical-align:middle;}
+.finmark .ic{width:13px; height:13px;}
 .stat-table td:first-child,.stat-table th:first-child{text-align:left; padding-left:10px; font-weight:700;}
 .enler{display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:8px;}
 .ozet-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:10px 0;}
@@ -248,7 +265,7 @@ table.yazboz tr.duz:hover td{background:var(--glass2);}
 .rozet .rz-b{font-size:9.5px; color:var(--dim); font-weight:800; letter-spacing:.4px;}
 .rozet .rz-n{font-size:15px; font-weight:900; margin-top:2px;}
 .rozet .rz-a{font-size:10px; color:var(--dim);}
-.sira-row{padding:9px 0; border-bottom:1px solid rgba(255,255,255,.12); cursor:pointer;}
+.sira-row{padding:9px 0; border-bottom:1px solid var(--cizgi); cursor:pointer;}
 .sira-top{display:flex; justify-content:space-between; align-items:center; gap:8px;}
 .sira-ad{font-size:15px; font-weight:800;}
 .sira-mp{font-size:20px; font-weight:900; font-variant-numeric:tabular-nums;}
@@ -298,13 +315,13 @@ table.yazboz tr.duz:hover td{background:var(--glass2);}
 .en-card .en{font-size:12px; color:var(--cyan); font-weight:700;}
 
 /* settings */
-.set-row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.12); font-size:14px; color:var(--txt);}
+.set-row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px solid var(--cizgi); font-size:14px; color:var(--txt);}
 .set-row .sl{flex:1; font-weight:600;}
 .set-row .sl small{display:block; color:var(--dim); font-weight:400; font-size:11.5px;}
 .set-row input[type=number]{width:84px; padding:9px; text-align:center;}
 .switch{position:relative; width:50px; height:30px; flex:none;}
 .switch input{opacity:0; width:0; height:0;}
-.slider{position:absolute; inset:0; background:rgba(255,255,255,.22); border-radius:999px; transition:.2s; cursor:pointer; border:1px solid var(--stroke);}
+.slider{position:absolute; inset:0; background:var(--slider-bg); border-radius:999px; transition:.2s; cursor:pointer; border:1px solid var(--stroke);}
 .slider:before{content:""; position:absolute; width:24px; height:24px; left:2px; top:2px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 2px 6px rgba(0,0,0,.35);}
 .switch input:checked + .slider{background:var(--grad); border-color:transparent;}
 .switch input:checked + .slider:before{transform:translateX(20px);}
@@ -329,7 +346,7 @@ textarea{width:100%; min-height:90px; border-radius:14px; border:1px solid var(-
 .am-btn{
   background:linear-gradient(135deg,#6cc7b5 0%,#54a8a0 55%,#4f86bd 100%);
   color:#fff; border:none;
-  box-shadow:0 6px 18px rgba(90,170,160,.28), inset 0 1px 0 rgba(255,255,255,.35);
+  box-shadow:0 6px 18px rgba(90,170,160,.28), inset 0 1px 0 var(--parlak2);
 }
 /* defter tablosu girişleri */
 input.dfin{width:56px; min-width:56px; padding:8px 4px; text-align:center; font-size:15px; border-radius:9px; max-width:none;}
@@ -361,7 +378,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   </div>
   <button id="tema-btn" onclick="temaDegistir()" title="Tema" aria-label="Tema"></button>
   <h1>YAZBOZ</h1>
-  <div class="sub" id="ver-sub">101 okey yazboz · v5.4.2</div>
+  <div class="sub" id="ver-sub">101 okey yazboz · v5.5.0</div>
 </header>
 <main>
 
@@ -443,7 +460,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div class="evlist" id="ev-log"><span class="hint">Henüz olay yok.</span></div>
   </div>
   <div class="row">
-    <button class="btn btn-outline btn-sm" id="btn-undo" onclick="undoLastEl()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-gerial"/></svg> Son Eli Düzelt</button>
+    <button class="btn btn-outline btn-sm" id="btn-undo" onclick="sonEliDuzelt()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-gerial"/></svg> Son Eli Düzelt</button>
     <button class="btn btn-outline btn-sm" onclick="openMasaModal()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-kisiler"/></svg> Masa Düzeni</button>
     <button class="btn btn-outline btn-sm" onclick="openErken()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-bayrak"/></svg> Erken Bitir / Pes</button>
     <button class="btn btn-danger btn-sm" onclick="abortGame()">İptal</button>
@@ -643,7 +660,8 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
     <div id="kafa-note" style="display:none"></div>
     <label class="fld">Diğer oyuncular</label>
     <div id="other-players"></div>
-    <label class="fld">El içi olaylar (işlek, kaptırma, rekor...)</label>
+    <label class="fld" id="olay-baslik">El içi olaylar</label>
+    <p class="hint" id="olay-not">İşlek taş, kaptırma, okey kaptırma, rekor… El sürerken "Ceza Yaz" ile girdiklerin zaten sayılıyor; buradan da ekleyebilirsin.</p>
     <div id="olaylar"></div>
     <button class="btn btn-tile btn-sm" onclick="addOlayRow()">＋ Olay Ekle</button>
     <div class="preview" id="el-preview"></div>
@@ -743,9 +761,9 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 </div>
 
 <script>
-const APP_VER = '5.4.2';
-const BUILD = 'ff0432ea';   // yayinla.sh dosya içeriğinden hesaplar
-const SURUM_NOT = 'girdi kutuları ve yer tutucu kontrastı';       // son değişiklik notu (yayinla.sh yazar)
+const APP_VER = '5.5.0';
+const BUILD = 'd356ab68';   // yayinla.sh dosya içeriğinden hesaplar
+const SURUM_NOT = 'Küllük ikonu geri geldi · yazbozda düzeltme rozeti · el düzeltme ekranında cezalar · gerçek açık tema';       // son değişiklik notu (yayinla.sh yazar)
 /* ================= DEPOLAMA ================= */
 const store = {
   m:{},
@@ -866,11 +884,9 @@ const SET_SCHEMA = [
   {k:'ciftBitisCarpan', l:'Çiftten bitirme çarpanı', s:'Cezalar bu kadar katlanır'},
   {k:'ciftGidenCarpan', l:'Çifte giden çarpanı', s:'Çifte gidenin cezası her durumda bu kadar katlanır (çift/okey bitişle birleşince ×4)'},
   {k:'kafaCarpan', l:'Kafa çarpanı', s:'Kimse açmadan biterse cezalar bu kadar katlanır'},
-  {t:'h', l:'Sunucu — Canlı Oda & Bulut'},
-  {k:'sbUrl', l:'Supabase proje adresi', s:'Örn: https://xxxx.supabase.co — doldurulursa canlı oda ve bulut bu sunucuyu kullanır (yazma korumalı)', tip:'txt'},
-  {k:'sbKey', l:'Supabase anon anahtarı', s:'Project Settings → API → anon public key (istemcide kullanılması normaldir)', tip:'txt'},
-  {k:'fbUrl', l:'Firebase veritabanı adresi (alternatif)', s:'Supabase yoksa kullanılır. İkisi de boşsa ücretsiz servisler denenir.', tip:'txt'}
 ];
+/* Sunucu bilgileri artık ayarlarda görünmez — YB_DEFAULTS içinde koda gömülüdür.
+   Kullanıcı bunlarla uğraşmasın, yanlışlıkla bozmasın diye. */
 
 function renderSettings(){
   const c = document.getElementById('settings-card');
@@ -948,6 +964,8 @@ function pickEl(n){
 /* --- koltuk sistemi: dokun-yerleştir --- */
 let SU = {pool:[], seats:[null,null,null,null], dealer0:0};
 const escq = n => n.replace(/'/g,"\\'");
+/* metni HTML'e gömerken kaçır — isimler <> & içerse bile bozulmasın */
+const escH = t => String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
 let delMode = false;
 function goSetup(){
@@ -1165,16 +1183,16 @@ function renderGame(){
   document.getElementById('fark-line').textContent = (played && G.cols.length>=2 && fark>0)
     ? `Fark: ${fark} (${G.cols[totals.indexOf(min)].name} önde)` : '';
   const bitCounts = G.names.map((n,i)=>({n, c:G.hands.filter(h=>h.finisher===i).length})).filter(x=>x.c>0);
-  document.getElementById('bitenler-line').textContent = bitCounts.length
-    ? ic('kalem')+' Bitenler: ' + bitCounts.map(x=>`${x.n} ${x.c}`).join(' · ') : '';
+  document.getElementById('bitenler-line').innerHTML = bitCounts.length
+    ? ic('kalem')+' Bitenler: ' + bitCounts.map(x=>`${escH(x.n)} ${x.c}`).join(' · ') : '';
   // yazboz tablosu
   document.getElementById('yazboz-table').innerHTML = yazbozHTML(G, totals);
   // olay günlüğü
   const ev = document.getElementById('ev-log');
-  ev.innerHTML = G.events.length ? G.events.map(e=>`<div>${e}</div>`).join('') : '<span class="hint">Henüz olay yok.</span>';
+  ev.innerHTML = G.events.length ? G.events.map(e=>olaySatiri(e)).join('') : '<span class="hint">Henüz olay yok.</span>';
   document.getElementById('btn-el').style.display = G.hands.length>=G.elSayisi ? 'none':'block';
   const lastH = G.hands[G.hands.length-1];
-  document.getElementById('btn-undo').style.display = (!G.done && lastH && lastH.sdPrev) ? 'inline-block' : 'none';
+  document.getElementById('btn-undo').style.display = (!G.done && G.hands.length && elDuzeltilebilir(G.hands.length-1)) ? 'inline-block' : 'none';
   document.getElementById('btn-live').innerHTML = ic('kare') + (G.room ? 'QR — Oda Açık' : 'QR — Canlı');
   const li = document.getElementById('live-info');
   if(G.room){ li.style.display='block'; li.textContent = 'Canlı oda açık — QR butonundan kodu paylaş.'; if(!heartbeatT) startHeartbeat(); }
@@ -1194,17 +1212,36 @@ function renderGame(){
   pushLive();
 }
 
+/* Olay günlüğü: motorun metnindeki emoji, setin kendi ikonuna çevrilir.
+   Puan hesabına dokunmaz — sadece görünüm. */
+const OLAY_IKON = {
+  '\u2705':['onay','var(--ok)'], '\u23F8\uFE0F':['saat','var(--dim)'], '\u23F8':['saat','var(--dim)'],
+  '\uD83D\uDD01':['gerial','var(--cyan)'], '\uD83D\uDD00':['kisiler','var(--cyan)'],
+  '\u26A0\uFE0F':['uyari','var(--yellow)'], '\u26A0':['uyari','var(--yellow)'],
+  '\uD83C\uDCCF':['tas','var(--red)'], '\uD83D\uDE48':['goz','var(--red)'],
+  '\uD83C\uDFC5':['madalya','var(--yellow)'], '\uD83C\uDFAF':['hedef','var(--red)'],
+};
+function olaySatiri(e){
+  const t = String(e);
+  for(const k of Object.keys(OLAY_IKON)){
+    if(t.startsWith(k)){
+      const [ad,renk] = OLAY_IKON[k];
+      return `<div class="ev-row"><span style="color:${renk}">${ic(ad)}</span><span>${escH(t.slice(k.length).trim())}</span></div>`;
+    }
+  }
+  return `<div class="ev-row"><span style="color:var(--dim)">${ic('bilgi')}</span><span>${escH(t)}</span></div>`;
+}
 function yazbozHTML(g, totals){
   let h = '<tr><th>El</th>' + g.cols.map((c,i)=>`<th style="color:${COLC[i%COLC.length]}">${c.name}</th>`).join('') + '</tr>';
   let run = g.cols.map(()=>0);
   g.hands.forEach((hand,hi)=>{
     const duz = (g===G) && !g.done && elDuzeltilebilir(hi);
-    h += `<tr${duz?` class="duz" onclick="elDuzelt(${hi})" title="bu eli düzelt"`:''}><td>${hi+1}${duz?' <span style="opacity:.45">✎</span>':''}</td>`;
+    h += `<tr${duz?` class="duz" onclick="elDuzelt(${hi})" title="bu eli düzelt"`:''}><td>${hi+1}${duz?` <span class="duz-btn" role="button" aria-label="Eli düzelt">${ic('kalem')}</span>`:''}</td>`;
     hand.colDeltas.forEach((d,ci)=>{
       run[ci]+=d;
       // bu eli bu sütundaki biri mi bitirdi? tabelada anında görünsün
       const fin = hand.finisher>=0 && g.cols[ci].members.includes(hand.finisher);
-      const mark = fin ? ` <span style="color:${COLC[ci%COLC.length]}" title="${g.names[hand.finisher]} bitirdi">✔${hand.kafa?'💥':''}</span>` : '';
+      const mark = fin ? ` <span class="finmark" style="color:${COLC[ci%COLC.length]}" title="${escH(g.names[hand.finisher])} bitirdi">${ic('onay')}${hand.kafa?`<span style="color:var(--red)" title="kafa">${ic('alev')}</span>`:''}</span>` : '';
       h += `<td><span class="d ${d<0?'neg':''}">${d>0?'+':''}${d}</span>${mark}<br><span class="c">${run[ci]}</span></td>`;
     });
     h += '</tr>';
@@ -1219,13 +1256,16 @@ let elDuzenle = null;        // { index, sonraki[] } — el düzeltme kipi
 
 function openElModal(){
   elForm = { finisher:null, okey:false, cift:false, kafa:false, kafaTouched:false, kafaRekor:false, rcift:false, rseri:false, rseriPuan:0, rciftAdet:0, others:{}, olaylar:[] };
+  const _b = document.getElementById('olay-baslik'), _n = document.getElementById('olay-not');
+  if(_b) _b.textContent = 'El içi olaylar';
+  if(_n) _n.textContent = 'İşlek taş, kaptırma, okey kaptırma, rekor… El sürerken "Ceza Yaz" ile girdiklerin zaten sayılıyor; buradan da ekleyebilirsin.';
   setBitisChips();
   document.getElementById('rekor-extra').innerHTML='';
   const kn = document.getElementById('kafa-note'); kn.style.display='none'; kn.dataset.on='';
   // bitirenin rekoru: ayrı olay eklemeye gerek yok, bitişle birlikte işaretlenir
   document.getElementById('rekor-chips').innerHTML = SET.rekorAktif
-    ? `<div class="chip" id="bt-rcift" onclick="toggleFinRekor('rcift')">${ic('madalya')}${SET.rekorCift}+ çift rekoru (−${SET.rekorBonus})</div>
-       <div class="chip" id="bt-rseri" onclick="toggleFinRekor('rseri')">${ic('madalya')}Seri rekoru ${SET.rekorSeri} yan 1 (−${SET.rekorBonus})</div>`
+    ? `<div class="chip" id="bt-rcift" onclick="toggleFinRekor('rcift')">${ic('madalya')} ${SET.rekorCift}+ çift rekoru (−${SET.rekorBonus})</div>
+       <div class="chip" id="bt-rseri" onclick="toggleFinRekor('rseri')">${ic('madalya')} Seri rekoru ${SET.rekorSeri} yan 1 (−${SET.rekorBonus})</div>`
     : '';
   document.getElementById('finisher-chips').innerHTML = G.names.map((n,i)=>
     `<div class="chip" id="fin-${i}" onclick="pickFinisher(${i})">${n}</div>`).join('')
@@ -1485,7 +1525,7 @@ function computeEl(){
   }
 
   // Olaylar: el sürerken yazılan hızlı cezalar + modalda eklenenler
-  for(const o of [...(G.pendingOlaylar||[]), ...f.olaylar]){
+  for(const o of tumOlaylar(f)){
     if(o.del) continue;
     if(o.type==='kaptirma' && !o.tas){ res.errmsg='Kaptırılan taşın değerini gir.'; return res; }
     const od = olayDelta(o);
@@ -1600,8 +1640,11 @@ function saveEl(){
     if(!sonuc.ok) alert('Sonraki eller işlenemedi: ' + sonuc.errmsg + ' — o eli de yeniden gir.');
     return;
   }
-  saveElKaydet(r);
+  // Hızlı cezalar artık elin KENDİ kaydına geçer — el sonradan düzeltilirken
+  // ekranda satır satır görünsün ve tekrar hesaplanabilsin diye.
+  elForm.olaylar = [...(G.pendingOlaylar||[]).map(o=>JSON.parse(JSON.stringify(o))), ...elForm.olaylar];
   G.pendingOlaylar = [];
+  saveElKaydet(r);
   closeModal('modal-el');
   saveGame(); renderGame();
   if(G.hands.length>=G.elSayisi) endGame();
@@ -1654,7 +1697,7 @@ function saveElKaydet(r){
     if(o.durum==='acamadi') sd[sn].acamadi=(sd[sn].acamadi||0)+1;
     if(r.kafa) sd[sn].kafaYedi=(sd[sn].kafaYedi||0)+1;
   }
-  for(const o of [...(G.pendingOlaylar||[]), ...elForm.olaylar]){
+  for(const o of tumOlaylar(elForm)){
     if(o.del) continue;
     const sn = G.names[o.pid];
     if(o.type==='rcift'){ sd[sn].rcift++; if(o.val) sd[sn].crmax=Math.max(sd[sn].crmax||0, o.val); }
@@ -1759,16 +1802,24 @@ function elDuzenlemeyeAl(i){
   if(h.muhtarPrev !== undefined) G.muhtar = h.muhtarPrev;
   return paket;
 }
+/* Eller yeniden işlenirken (düzeltme) el sürerken yazılmış hızlı cezalar
+   TEKRAR eklenmemeli: her elin cezaları kendi kaydında duruyor. */
+let elIsleniyor = false;
+function tumOlaylar(f){
+  return elIsleniyor ? (f.olaylar||[]) : [...(G.pendingOlaylar||[]), ...(f.olaylar||[])];
+}
 function elleriIsle(formlar){
-  const yedek = elForm;
-  for(const f of formlar){
-    elForm = f;
-    const r = computeEl();
-    if(!r.valid){ elForm = yedek; return {ok:false, errmsg:r.errmsg}; }
-    saveElKaydet(r);
-  }
-  elForm = yedek;
-  return {ok:true};
+  const yedek = elForm, yedekBayrak = elIsleniyor;
+  elIsleniyor = true;
+  try {
+    for(const f of formlar){
+      elForm = f;
+      const r = computeEl();
+      if(!r.valid){ return {ok:false, errmsg:r.errmsg}; }
+      saveElKaydet(r);
+    }
+    return {ok:true};
+  } finally { elForm = yedek; elIsleniyor = yedekBayrak; }
 }
 
 /* Yazbozdaki bir ele dokununca: o eli girildiği haliyle aç */
@@ -1828,6 +1879,9 @@ function elModalDoldur(f){
       const c2=document.getElementById('ob-'+id); if(c2) c2.checked=!!o.atanCift;
     } else if(num) num.value = o.val||0;
   });
+  const bas = document.getElementById('olay-baslik'), not = document.getElementById('olay-not');
+  if(bas) bas.textContent = 'Bu elin cezaları';
+  if(not) not.textContent = 'Bu elde yazılan bütün cezalar burada — el sürerken yazdıkların dahil. Değiştir, sil ya da yenisini ekle.';
   updatePreview();
 }
 
@@ -1935,6 +1989,8 @@ function koltukParcalari(g){
 }
 
 /* son eli geri al: puanlar ve istatistikler o elin öncesine döner, giriş ekranı açılır */
+/* Son eli düzelt — girilen veriyi silmez, olduğu gibi açar */
+function sonEliDuzelt(){ if(G && !G.done && G.hands.length) elDuzelt(G.hands.length-1); }
 function undoLastEl(){
   if(!G || G.done || !G.hands.length) return;
   const lastH = G.hands[G.hands.length-1];
@@ -2590,7 +2646,7 @@ function toggleOyunDetay(i){
     (z.eller||[]).forEach((e,ri)=>{
       h += `<tr><td>${ri+1}</td>` + e.d.map((v,ci)=>{
         run[ci]+=v;
-        const mark = e.f===ci ? ` <span style="color:${COLC[ci%COLC.length]}" title="${e.fn||''} bitirdi">✔${e.k?'💥':''}</span>` : '';
+        const mark = e.f===ci ? ` <span class="finmark" style="color:${COLC[ci%COLC.length]}" title="${escH(e.fn||'')} bitirdi">${ic('onay')}${e.k?`<span style="color:var(--red)" title="kafa">${ic('alev')}</span>`:''}</span>` : '';
         return `<td><span class="d ${v<0?'neg':''}">${v>0?'+':''}${v}</span>${mark}<br><span class="c">${run[ci]}</span></td>`;
       }).join('') + '</tr>';
     });
@@ -2675,14 +2731,17 @@ function renderStatsTables(){
     ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">${ikHtml}</div>` : '';
 
   /* --- nasıl okunur --- */
-  document.getElementById('stats-nasil').innerHTML = `
-    <p><b>Masa Puanı (MP)</b> karne notu gibidir: <b>50 masanın tam ortası</b>, yükseği iyi oynuyor demek.
-    İki şeyden çıkar — ne kadar kazandığın ve her elde ortalama kaç ceza yazdığın.</p>
-    <p><b>Kazanma gücü</b> seni beklenenle kıyaslar. Eşli oyunda kazanma şansın 2'de 1, dört kişilik teklide 4'te 1;
-    ham yüzdeye bakmak bu yüzden haksızlık olurdu. <b>1.00× tam ortalama</b>, 1.20× beklenenden %20 fazla kazanıyorsun demek.</p>
-    <p><b>Çaylak:</b> ${sira.baraj} oyundan az oynayan sıralamaya girmez — 1 oyun oynayıp kaybeden küllüğe oturmasın diye.</p>
-    <p><b>Rekorlar</b> ham sayıdır. <b>Oranlar</b> ise sıklıktır (oyun başına kaç taş kaptırıyor) — çok oynayan haksız yere öne geçmesin diye.</p>
-    <p><b>Güncel küllük</b> son 10 oyuna bakar, sigara orada söner. <b>Kariyer küllüğü</b> tüm zamanların hesabıdır.</p>`;
+  document.getElementById('stats-nasil').innerHTML = [
+    ['Masa Puanı (MP)', 'Karne notu gibi. 50 masanın ortası. Yüksekse iyi oynuyorsun.'],
+    ['Neye bakar?', 'İki şeye: ne kadar kazandığına ve her elde ortalama kaç ceza yazdığına.'],
+    ['Kazanma gücü', 'Kazandığın oyunu, kazanman beklenen oyunla kıyaslar. Eşli oyunda kazanma şansın 2\u2019de 1, dört kişilik teklide 4\u2019te 1. Bu yüzden çıplak yüzdeye bakmak haksızlık olur. 1.00× ortalama demek; 1.20× beklenenden %20 fazla kazanıyorsun demek.'],
+    ['Çaylak', sira.baraj + ' oyundan az oynayan sıralamaya girmez. Bir oyun oynayıp kaybeden küllüğe oturmasın diye.'],
+    ['Rekorlar', 'Ham sayıdır: kim kaç kere yaptı.'],
+    ['Oranlar', 'Sıklıktır: oyun başına kaç kere. Çok oynayan haksız yere öne geçmesin diye.'],
+    ['Güncel küllük', 'Son ' + (form.pencere||10) + ' oyuna bakar. Sigara orada söner, el değiştirebilir.'],
+    ['Kariyer küllüğü', 'Tüm zamanların hesabıdır. Kolay kolay değişmez.'],
+  ].map(([b,m])=>`<div style="margin-bottom:9px"><b style="font-size:13px">${b}</b>
+      <div class="hint" style="font-size:13px;line-height:1.5;margin-top:1px">${m}</div></div>`).join('');
 
   /* --- sekmeler --- */
   document.getElementById('sira-sekme').innerHTML =
