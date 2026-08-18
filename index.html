@@ -349,7 +349,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   </div>
   <button id="tema-btn" onclick="temaDegistir()" title="Tema" aria-label="Tema"></button>
   <h1>YAZBOZ</h1>
-  <div class="sub" id="ver-sub">101 okey yazboz · v4.9</div>
+  <div class="sub" id="ver-sub">101 okey yazboz · v5.3.0</div>
 </header>
 <main>
 
@@ -570,6 +570,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
   <div class="card">
     <h3><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-gerial"/></svg> Uygulama</h3>
     <p class="hint" id="cache-durum">Sürüm v<span id="cache-ver"></span></p>
+    <p class="hint" id="surum-not" style="display:none"></p>
     <button class="btn btn-green" id="cache-btn" onclick="onbellekTemizle()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-gerial"/></svg> Önbelleği temizle ve güncelle</button>
     <button class="btn btn-tile btn-sm" onclick="surumKontrol()">Güncelleme var mı?</button>
     <p class="hint">Masa verilerin, oyuncuların ve ayarların <b>silinmez</b> — sadece sayfanın tarayıcıda saklanan kopyası tazelenir.</p>
@@ -601,7 +602,7 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 
 <!-- GÜNCELLEME ÇUBUĞU -->
 <div id="update-bar">
-  <span id="update-txt">🔄 Yeni sürüm hazır!</span>
+  <span id="update-txt">Yeni sürüm hazır</span>
   <button class="btn btn-primary" onclick="hardReload()">Güncelle</button>
 </div>
 
@@ -711,7 +712,9 @@ table.yazboz td.sartcell{min-width:92px; text-align:left; padding-left:8px; line
 </div>
 
 <script>
-const APP_VER = '4.9';
+const APP_VER = '5.3.0';
+const BUILD = 'c6400289';   // yayinla.sh dosya içeriğinden hesaplar
+const SURUM_NOT = 'uygulama sürüm satırı; zar ve ilk el anonsu';       // son değişiklik notu (yayinla.sh yazar)
 /* ================= DEPOLAMA ================= */
 const store = {
   m:{},
@@ -3241,25 +3244,35 @@ async function surumKontrol(){
   if(d) d.textContent = 'Kontrol ediliyor…';
   try{
     const r = await fetch(location.pathname + '?vchk=' + Date.now(), {cache:'no-store'});
-    const m = (await r.text()).match(/APP_VER = '([\d.]+)'/);
-    if(m && m[1] !== APP_VER){ if(d) d.innerHTML = `Yeni sürüm var: <b>v${m[1]}</b> — "Önbelleği temizle ve güncelle" düğmesine bas.`; }
-    else if(d) d.textContent = `Güncelsin (v${APP_VER}).`;
+    const t = await r.text();
+    const sv = (t.match(/APP_VER = '([\d.]+)'/) || [])[1];
+    const sb = (t.match(/const BUILD = '([a-f0-9]{8})'/) || [])[1];
+    if((sb && sb !== BUILD) || (sv && sv !== APP_VER)){
+      if(d) d.innerHTML = `Yeni sürüm var${sv?`: <b>v${sv}</b>`:''} — "Önbelleği temizle ve güncelle" düğmesine bas.`;
+    } else if(d) d.textContent = `Güncelsin (v${APP_VER} · ${BUILD}).`;
   }catch(e){ if(d) d.textContent = 'Kontrol edilemedi.'; }
 }
+/* Güncelleme kontrolü SÜRÜM NUMARASINA GÜVENMEZ: sunucudaki dosyanın yapı
+   damgası (içerikten türer) sendekinden farklıysa yeni sürüm var demektir.
+   Böylece sürüm numarasını artırmayı unutmak güncellemeyi kaçırtmaz. */
 async function checkUpdate(){
   if(!location.protocol.startsWith('http')) return;
   try{
     const r = await fetch(location.pathname + '?vchk=' + Date.now(), {cache:'no-store'});
     const t = await r.text();
-    const m = t.match(/APP_VER = '([\d.]+)'/);
-    if(m && m[1] !== APP_VER){
-      document.getElementById('update-txt').textContent = `🔄 Yeni sürüm hazır: v${m[1]} (sende v${APP_VER})`;
+    const sv = (t.match(/APP_VER = '([\d.]+)'/) || [])[1];
+    const sb = (t.match(/const BUILD = '([a-f0-9]{8})'/) || [])[1];
+    const yeni = (sb && sb !== BUILD) || (sv && sv !== APP_VER);
+    if(yeni){
+      document.getElementById('update-txt').textContent =
+        sv && sv !== APP_VER ? `Yeni sürüm hazır: v${sv} (sende v${APP_VER})` : 'Yeni sürüm hazır';
       document.getElementById('update-bar').style.display = 'flex';
     }
   }catch(e){}
 }
 document.getElementById('ver-sub').textContent = '101 okey yazboz · v' + APP_VER;
-document.getElementById('cache-ver').textContent = APP_VER;
+document.getElementById('cache-ver').textContent = APP_VER + ' · yapı ' + BUILD;
+if(SURUM_NOT){ const n = document.getElementById('surum-not'); if(n){ n.textContent = 'Son değişiklik: ' + SURUM_NOT; n.style.display='block'; } }
 temaUygula();
 introBaslat();
 boot();
